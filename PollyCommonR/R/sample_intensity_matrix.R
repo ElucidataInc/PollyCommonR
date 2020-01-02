@@ -18,7 +18,6 @@ sample_intensity_matrix <- function(raw_intensity_df = NULL, metadata_df = NULL,
     make_unique_names <- make.unique(as.character(raw_intensity_df[,rownames_col]))
     rownames(sample_intensity_mat) <- make_unique_names
   }
-  sample_intensity_mat <- as.matrix(sample_intensity_mat)
   sample_intensity_mat <- sample_intensity_mat[rowSums(is.na(sample_intensity_mat)) == 0, ]
 
   message("Make Sample Intensity Matrix Completed...")
