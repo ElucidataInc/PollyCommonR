@@ -3,7 +3,7 @@
 #' performs pca on the sample raw matrix
 #'
 #' @param sample_raw_mat matrix/dataframe containing raw values.
-#'
+#' @param num Number of genes/metabolites to be used for pca.
 #' @return A list of loadings and pc values
 #' @export
 compute_pca <- function(sample_raw_mat, num = NULL) {

@@ -8,7 +8,13 @@
 #' @param condition A metadata column where cohorts are present
 #' @param pc_x PC to keep on x-axis
 #' @param pc_y PC to keep on y-axis
-#'
+#' @param interactive make plot interactive (default is TRUE)
+#' @param pca_cohort_text_format set text format of cohort legends
+#' @param pca_cohort_text_align align cohort legends
+#' @param pca_cohort_title_size set font size of cohort title
+#' @param pca_cohort_sample_size set font size of cohorts
+#' @param pca_plot_axis_format set axis format
+#' @param pca_plot_axis_text_size set axis text size
 #' @return plotly object
 #' @export
 plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x, pc_y, interactive = TRUE, pca_cohort_text_format= 'bold', pca_cohort_text_align= "right",
@@ -29,8 +35,8 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x, pc_y, interactiv
   )) + # calls the ggplot function with dose on the x-axis and len on the y-axis
     geom_point(shape = 21, size = 6, alpha = 0.7) + # scatter plot function with shape of points defined as 21 scale.
     labs(x = paste("PC",pc_x, '(', round(PCAObj_Summary$importance[2,pc_x]*100, 2), '%)'),
-         y = paste("PC",pc_y, '(', round(PCAObj_Summary$importance[2,pc_y]*100, 2), '%)')) + # x and y axis labels
-    guides(color=FALSE, fill = guide_legend('Cohort'))+
+         y = paste("PC",pc_y, '(', round(PCAObj_Summary$importance[2,pc_y]*100, 2), '%)'),
+         fill = condition) + # x and y axis labels
     scale_color_aaas() + # filling the point colors
     theme(legend.position = pca_cohort_text_align, legend.direction = "vertical", # legend positioned at the bottom, horizantal direction,
           axis.line = element_line(size = 1, colour = "black"), # axis line of size 1 inch in black color
@@ -45,17 +51,23 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x, pc_y, interactiv
           axis.ticks.length = unit(-0.25, "cm"))
   
   if (interactive == TRUE){
-    p <- ggplotly(p, tooltip = "text") %>% layout(hovermode = "closest")
+    p <- p + theme(legend.title = element_blank())
+    p <- ggplotly(p, tooltip = "text") %>% layout(hovermode = "closest") %>%
+      add_annotations(text=condition, xref="paper", yref="paper",
+                      x=1.02, xanchor="left",
+                      y=0.75, yanchor="bottom",
+                      font = list(size = (23.91034/18)*pca_cohort_title_size),
+                      legendtitle=TRUE, showarrow=FALSE ) %>% 
+      layout(legend = list('y' =0.6))
+    
     for (cohort_index in 1:length(p$x$data)){
       name <- p$x$data[[cohort_index]]$name
       cohort <- strsplit(gsub(re, "\\1", stringr::str_extract_all(name, "\\(([^()]+)\\)")[[1]]),",")[[1]][1]
       p$x$data[[cohort_index]]$name <- cohort
     }
   }
+  
   message("Plot PCA Completed...")
   
   return(p)
 }
-
-p <- plot_pca(pca_cal, metadata_df, 'Cohort', 1,2, interactive = TRUE)
-
