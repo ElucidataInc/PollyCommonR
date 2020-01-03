@@ -17,7 +17,7 @@
 #' @param pca_plot_axis_text_size set axis text size
 #' @return plotly object
 #' @export
-plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x, pc_y, interactive = TRUE, pca_cohort_text_format= 'bold', pca_cohort_text_align= "right",
+plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, interactive = TRUE, pca_cohort_text_format= 'bold', pca_cohort_text_align= "right",
                      pca_cohort_title_size= 18, pca_cohort_sample_size= 15, pca_plot_axis_format= 'bold', pca_plot_axis_text_size= 14) {
   message("Plot PCA Started...")
   require(stringr)
@@ -25,7 +25,8 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x, pc_y, interactiv
   require(ggsci)
   
   pca_var_df <- as.data.frame(PCAObj_Summary$x)
-  pca_var_df$variable <- rownames(pca_var_df) 
+  pca_var_df$variable <- rownames(pca_var_df)
+  metadata_df[,condition] <- make.names(as.character(metadata_df[,condition]))
   comb_pca_metadata <- merge(pca_var_df, metadata_df, by.x = 'variable', by.y = 1, sort = FALSE)
   
   p <- ggplot(comb_pca_metadata, aes(x = eval(parse(text=paste("PC", pc_x, sep = ""))),
@@ -62,7 +63,8 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x, pc_y, interactiv
     
     for (cohort_index in 1:length(p$x$data)){
       name <- p$x$data[[cohort_index]]$name
-      cohort <- strsplit(gsub(re, "\\1", stringr::str_extract_all(name, "\\(([^()]+)\\)")[[1]]),",")[[1]][1]
+      re <- "\\(([^()]+)\\)"
+      cohort <- strsplit(gsub(re, "\\1", stringr::str_extract_all(name, re)[[1]]),",")[[1]][1]
       p$x$data[[cohort_index]]$name <- cohort
     }
   }

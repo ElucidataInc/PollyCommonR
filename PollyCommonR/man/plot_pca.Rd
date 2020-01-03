@@ -4,12 +4,22 @@
 \alias{plot_pca}
 \title{plot_pca}
 \usage{
-plot_pca(pca_loadings_var_list, metadata, condition, pc_x, pc_y)
+plot_pca(
+  PCAObj_Summary,
+  metadata,
+  condition,
+  pc_x = 1,
+  pc_y = 2,
+  interactive = TRUE,
+  pca_cohort_text_format = "bold",
+  pca_cohort_text_align = "right",
+  pca_cohort_title_size = 18,
+  pca_cohort_sample_size = 15,
+  pca_plot_axis_format = "bold",
+  pca_plot_axis_text_size = 14
+)
 }
 \arguments{
-\item{pca_loadings_var_list}{list containing the PC loadings for every sample and the variances explained, returned by the compute_pca function.
-This returns a plotly object of the PCA plot for all the samples.}
-
 \item{metadata}{dataframe containing samples to cohort mapping information}
 
 \item{condition}{A metadata column where cohorts are present}
@@ -17,6 +27,23 @@ This returns a plotly object of the PCA plot for all the samples.}
 \item{pc_x}{PC to keep on x-axis}
 
 \item{pc_y}{PC to keep on y-axis}
+
+\item{interactive}{make plot interactive (default is TRUE)}
+
+\item{pca_cohort_text_format}{set text format of cohort legends}
+
+\item{pca_cohort_text_align}{align cohort legends}
+
+\item{pca_cohort_title_size}{set font size of cohort title}
+
+\item{pca_cohort_sample_size}{set font size of cohorts}
+
+\item{pca_plot_axis_format}{set axis format}
+
+\item{pca_plot_axis_text_size}{set axis text size}
+
+\item{pca_loadings_var_list}{list containing the PC loadings for every sample and the variances explained, returned by the compute_pca function.
+This returns a plotly object of the PCA plot for all the samples.}
 }
 \value{
 plotly object

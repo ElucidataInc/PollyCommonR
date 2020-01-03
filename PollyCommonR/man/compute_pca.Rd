@@ -4,10 +4,12 @@
 \alias{compute_pca}
 \title{compute_pca}
 \usage{
-compute_pca(sample_raw_mat)
+compute_pca(sample_raw_mat, num = NULL)
 }
 \arguments{
 \item{sample_raw_mat}{matrix/dataframe containing raw values.}
+
+\item{num}{Number of genes/metabolites to be used for pca.}
 }
 \value{
 A list of loadings and pc values
