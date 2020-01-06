@@ -10,6 +10,7 @@ plot_pca(
   condition,
   pc_x = 1,
   pc_y = 2,
+  show_ellipse = FALSE,
   interactive = TRUE,
   pca_cohort_text_format = "bold",
   pca_cohort_text_align = "right",

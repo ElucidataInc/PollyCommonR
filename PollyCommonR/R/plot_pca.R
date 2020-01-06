@@ -20,8 +20,10 @@
 #' plot_pca(PCAObj_Summary, metadata, 'Cohort', pc_x = 1, pc_y = 2, interactive = TRUE, pca_cohort_text_format= 'bold', pca_cohort_text_align= "right",
 #'          pca_cohort_title_size= 18, pca_cohort_sample_size= 15, pca_plot_axis_format= 'bold', pca_plot_axis_text_size= 14)
 #' @export
-plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, interactive = TRUE, pca_cohort_text_format= 'bold', pca_cohort_text_align= "right",
-                     pca_cohort_title_size= 18, pca_cohort_sample_size= 15, pca_plot_axis_format= 'bold', pca_plot_axis_text_size= 14) {
+plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, show_ellipse = FALSE,
+                     interactive = TRUE, pca_cohort_text_format= 'bold', pca_cohort_text_align= "right",
+                     pca_cohort_title_size= 18, pca_cohort_sample_size= 15, pca_plot_axis_format= 'bold', 
+                     pca_plot_axis_text_size= 14) {
   message("Plot PCA Started...")
   require(stringr)
   require(plotly)
@@ -53,7 +55,9 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, in
           legend.text = element_text(size = pca_cohort_sample_size, face = pca_cohort_text_format),
           legend.title = element_text(colour="black", size= pca_cohort_title_size, face= pca_cohort_text_format),
           axis.ticks.length = unit(-0.25, "cm"))
-  
+  if (show_ellipse == TRUE){
+    p <- p +stat_ellipse(geom = "polygon", alpha = 1/6, aes(fill = comb_pca_metadata[,condition]))
+  }
   if (interactive == TRUE){
     p <- p + theme(legend.title = element_blank())
     p <- ggplotly(p, tooltip = "text") %>% layout(hovermode = "closest") %>%
