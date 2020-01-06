@@ -26,6 +26,7 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, sh
                      pca_plot_axis_text_size= 14) {
   message("Plot PCA Started...")
   require(stringr)
+  require(ggplot2)
   require(plotly)
   require(ggsci)
   
@@ -34,7 +35,7 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, sh
   metadata_df[,condition] <- make.names(as.character(metadata_df[,condition]))
   comb_pca_metadata <- merge(pca_var_df, metadata_df, by.x = 'variable', by.y = 1, sort = FALSE)
   
-  p <- ggplot(comb_pca_metadata, aes(x = eval(parse(text=paste("PC", pc_x, sep = ""))),
+  p <- ggplot2::ggplot(comb_pca_metadata, aes(x = eval(parse(text=paste("PC", pc_x, sep = ""))),
                                      y = eval(parse(text=paste("PC", pc_y, sep = ""))),
                                      text = variable, group = comb_pca_metadata[,condition],
                                      fill = comb_pca_metadata[,condition]
@@ -43,7 +44,7 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, sh
     labs(x = paste("PC",pc_x, '(', round(PCAObj_Summary$importance[2,pc_x]*100, 2), '%)'),
          y = paste("PC",pc_y, '(', round(PCAObj_Summary$importance[2,pc_y]*100, 2), '%)'),
          fill = condition) + # x and y axis labels
-    scale_color_aaas() + # filling the point colors
+    ggsci::scale_color_aaas() + # filling the point colors
     theme(legend.position = pca_cohort_text_align, legend.direction = "vertical", # legend positioned at the bottom, horizantal direction,
           axis.line = element_line(size = 1, colour = "black"), # axis line of size 1 inch in black color
           panel.grid.major = element_blank(), # major grids included
@@ -60,13 +61,13 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, sh
   }
   if (interactive == TRUE){
     p <- p + theme(legend.title = element_blank())
-    p <- ggplotly(p, tooltip = "text") %>% layout(hovermode = "closest") %>%
-      add_annotations(text=condition, xref="paper", yref="paper",
-                      x=1.02, xanchor="left",
-                      y=0.75, yanchor="bottom",
-                      font = list(size = (23.91034/18)*pca_cohort_title_size),
-                      legendtitle=TRUE, showarrow=FALSE ) %>% 
-      layout(legend = list('y' =0.6))
+    p <- plotly::ggplotly(p, tooltip = "text") %>% layout(hovermode = TRUE) %>%
+         add_annotations(text=condition, xref="paper", yref="paper",
+                         x=1.02, xanchor="left",
+                         y=0.75, yanchor="bottom",
+                         font = list(size = (23.91034/18)*pca_cohort_title_size),
+                         legendtitle=TRUE, showarrow=FALSE ) %>% 
+         layout(legend = list('y' =0.6))
     
     for (cohort_index in 1:length(p$x$data)){
       name <- p$x$data[[cohort_index]]$name

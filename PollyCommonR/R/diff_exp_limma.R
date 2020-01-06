@@ -19,7 +19,7 @@ diff_exp_limma <- function(prot_norm_mat, metadata, cohort_condition, cohort_a, 
 
   message("Calculate Differential Expression Limma Started...")
   require(limma)
-
+  
   prot_norm_mat <- prot_norm_mat[!is.infinite(rowSums(prot_norm_mat)),]
 
   # check if conditions are valid names

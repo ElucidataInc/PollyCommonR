@@ -22,7 +22,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
       (diff_exp_rdesc[, "P.Value"] <= p_val_cutoff), "threshold"] <- "significant"
     print(table(diff_exp_rdesc$threshold))
     pal <- c("grey", "red")
-    p <- plot_ly() %>%
+    p <- plotly::plot_ly() %>%
       add_trace(
         x = diff_exp_rdesc$logFC, y = -log10(diff_exp_rdesc$P.Value),
         type = "scattergl", mode = "markers",
@@ -47,7 +47,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
       (diff_exp_rdesc[, "adj.P.Val"] <= fdr_cutoff), "threshold"] <- "significant"
     print(table(diff_exp_rdesc$threshold))
     pal <- c("grey", "red")
-    p <- plot_ly() %>%
+    p <- plotly::plot_ly() %>%
       add_trace(
         x = diff_exp_rdesc$logFC, y = -log10(diff_exp_rdesc$adj.P.Val),
         type = "scattergl", mode = "markers",
