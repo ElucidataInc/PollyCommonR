@@ -5,6 +5,8 @@
 #' @param sample_raw_mat matrix/dataframe containing raw values.
 #' @param num Number of genes/metabolites to be used for pca.
 #' @return A list of loadings and pc values
+#' @example
+#' compute_pca(sample_raw_mat, num = 1000)
 #' @export
 compute_pca <- function(sample_raw_mat, num = NULL) {
   message("Compute PCA Started...")
