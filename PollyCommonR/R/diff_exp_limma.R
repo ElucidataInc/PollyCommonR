@@ -30,7 +30,7 @@ diff_exp_limma <- function(prot_norm_mat, metadata, cohort_condition, cohort_a, 
   condition <- metadata[[cohort_condition]]
 
   if((cohort_a == "") | (cohort_b == "")){
-    showModal(modalDialog("One of your cohorts is empty, try changing the cohort condition.", footer = NULL, easyClose = TRUE))
+    warning("One of your cohorts is empty, try changing the cohort condition.")
     return(NULL)
   }
   # check if names don't start with number
@@ -66,7 +66,7 @@ diff_exp_limma <- function(prot_norm_mat, metadata, cohort_condition, cohort_a, 
   cohort_b_columns <- metadata[metadata[cohort_condition] == cohort_b, ]$Sample
 
   if(length(cohort_a_columns) <= 1 | length(cohort_b_columns) <= 1){
-    showModal(modalDialog("Since, your selected cohorts have no replicates in the data, you might want to change the cohorts or cohort condition and try again.", footer = NULL, easyClose = TRUE))
+    warning("Since, your selected cohorts have no replicates in the data, you might want to change the cohorts or cohort condition and try again.")
     return(NULL)
   }
   else{
