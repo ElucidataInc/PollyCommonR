@@ -12,7 +12,7 @@
 #' @param log_flag log normalises the data and performes limma.
 #'
 #' @return dataframe, If logFC >0, it implies abundance is greater in cohort_b.
-#' @example
+#' @examples
 #' diff_exp_limma(prot_norm_mat, metadata, 'Cohort', 'Cohort1', 'Cohort2', p_val_correct_methods = 'BH(FDR)',log_flag = FALSE)
 #' @export
 diff_exp_limma <- function(prot_norm_mat, metadata, cohort_condition, cohort_a, cohort_b, p_val_correct_methods,log_flag) {

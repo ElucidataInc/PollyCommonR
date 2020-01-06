@@ -17,3 +17,6 @@ A list of loadings and pc values
 \description{
 performs pca on the sample raw matrix
 }
+\examples{
+compute_pca(sample_raw_mat, num = 1000)
+}

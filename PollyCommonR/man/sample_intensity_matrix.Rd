@@ -23,3 +23,6 @@ A marix with samples in columns and ids in rows with raw values.
 \description{
 performs pca on the sample raw matrix
 }
+\examples{
+sample_intensity_matrix(raw_intensity_df, metadata_df, rownames_col = 'Id')
+}

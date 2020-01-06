@@ -6,8 +6,8 @@
 #' @param metadata_df A dataframe with samples to cohort mapping.
 #' @param rownames_col A raw_intensity_df column which is to be used for assigning rownames.
 #' @return A marix with samples in columns and ids in rows with raw values.
-#' @example
-#' sample_intensity_matrix(raw_intensity_df, metadata_df, rownames_col = 'Id)
+#' @examples 
+#' sample_intensity_matrix(raw_intensity_df, metadata_df, rownames_col = 'Id')
 #' @export
 sample_intensity_matrix <- function(raw_intensity_df = NULL, metadata_df = NULL, rownames_col = NULL){
   message("Make Sample Intensity Matrix Started...")

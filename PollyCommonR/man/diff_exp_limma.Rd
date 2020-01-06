@@ -35,3 +35,6 @@ dataframe, If logFC >0, it implies abundance is greater in cohort_b.
 \description{
 calls limma differential expression algorithms
 }
+\examples{
+diff_exp_limma(prot_norm_mat, metadata, 'Cohort', 'Cohort1', 'Cohort2', p_val_correct_methods = 'BH(FDR)',log_flag = FALSE)
+}
