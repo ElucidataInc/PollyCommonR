@@ -4,7 +4,7 @@
 \alias{compute_pca}
 \title{compute_pca}
 \usage{
-compute_pca(sample_raw_mat, num = NULL)
+compute_pca(sample_raw_mat = NULL, num = NULL)
 }
 \arguments{
 \item{sample_raw_mat}{matrix/dataframe containing raw values.}

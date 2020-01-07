@@ -21,6 +21,8 @@ plot_pca(
 )
 }
 \arguments{
+\item{PCAObj_Summary}{A list of summary of prcomp function.}
+
 \item{metadata}{dataframe containing samples to cohort mapping information}
 
 \item{condition}{A metadata column where cohorts are present}
@@ -28,6 +30,8 @@ plot_pca(
 \item{pc_x}{PC to keep on x-axis}
 
 \item{pc_y}{PC to keep on y-axis}
+
+\item{show_ellipse}{show ellipse on plot (default is FALSE)}
 
 \item{interactive}{make plot interactive (default is TRUE)}
 
@@ -42,9 +46,6 @@ plot_pca(
 \item{pca_plot_axis_format}{set axis format}
 
 \item{pca_plot_axis_text_size}{set axis text size}
-
-\item{pca_loadings_var_list}{list containing the PC loadings for every sample and the variances explained, returned by the compute_pca function.
-This returns a plotly object of the PCA plot for all the samples.}
 }
 \value{
 plotly object

@@ -5,6 +5,20 @@ Version: 0.1.0
 Author: Sunil Dhakad
 Maintainer: The package maintainer <sunil.dhakad@elucidata.io>
 Description: This package contains common functions that are used in omics analysis.
+Depends:
+    R (>= 3.6.0)
+Imports:
+    limma (>= 1.9.4),
+    matrixStats(>= 0.55.0),
+    stats(>= 3.6.1),
+    stringr(>= 1.4.0),
+    ggplot2(>= 3.2.1),
+    plotly(>= 4.9.0),
+    ggsci(>= 2.9)
+Suggests:
+    testthat,
+    devtools,
+    roxygen2
 License: MIT
 Encoding: UTF-8
 LazyData: true

@@ -8,8 +8,10 @@
 #' @examples
 #' compute_pca(sample_raw_mat, num = 1000)
 #' @export
-compute_pca <- function(sample_raw_mat, num = NULL) {
+compute_pca <- function(sample_raw_mat = NULL, num = NULL) {
   message("Compute PCA Started...")
+  require(matrixStats)
+  require(stats)
  
   variancerow <- matrixStats::rowVars(as.matrix(sample_raw_mat))
   sample_raw_mat <- sample_raw_mat[!(variancerow == 0.01),]
