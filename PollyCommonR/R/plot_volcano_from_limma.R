@@ -16,7 +16,11 @@
 plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, p_val_cutoff = NULL, 
                                     fdr_cutoff = NULL, annotate_genes = NULL, interactive = TRUE) {
   message("Make Volcano Plot Started...")
+  require(ggplot2)
   require(plotly)
+  require(ggsci)
+  require(ggrepel)
+  require(latex2exp)
   
   diff_exp_rdesc <- diff_exp_rdesc[!is.infinite(rowSums(diff_exp_rdesc)),]
   diff_exp_rdesc$threshold <- "not significant"
@@ -104,7 +108,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
                 , text = id) + # calls the ggplot function with dose on the x-axis and len on the y-axis 
       geom_point(shape = 21, size = 4, alpha = 0.7) + # scatter plot function with shape of points defined as 21 scale.
       labs(x = xaxis_lab_gg, y = yaxis_lab_gg,  fill = "Significance") + # x and y axis labels
-      scale_color_aaas() + # filling the point colors
+      ggsci::scale_color_aaas() + # filling the point colors
       theme(legend.position = "right", legend.direction = "vertical", # legend positioned at the bottom, horizantal direction,
             axis.line = element_line(size=1, colour = "black"),	# axis line of size 1 inch in black color
             panel.grid.major = element_blank(),	# major grids included
@@ -116,7 +120,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
             legend.text = element_text(size = 10, face = "bold"),
             legend.title = element_text(colour="black", size=12, face="bold"),
             axis.ticks.length = unit(-0.25, "cm")) # ticks facing inward with 0.25cm length
-    p <- p + geom_text_repel(data = subset(diff_exp_rdesc, id %in% annotate_genes), aes(label = id),size = 5)
+    p <- p + ggrepel::geom_text_repel(data = subset(diff_exp_rdesc, id %in% annotate_genes), aes(label = id),size = 5)
   }
   
   message("Make Volcano Plot Completed...")
