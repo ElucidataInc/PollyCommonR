@@ -8,7 +8,9 @@ plot_volcano_from_limma(
   diff_exp_rdesc = NULL,
   log2fc_range = NULL,
   p_val_cutoff = NULL,
-  fdr_cutoff = NULL
+  fdr_cutoff = NULL,
+  annotate_genes = NULL,
+  interactive = TRUE
 )
 }
 \arguments{
@@ -19,6 +21,10 @@ plot_volcano_from_limma(
 \item{p_val_cutoff}{The pval cutoff}
 
 \item{fdr_cutoff}{The FDR cutoff}
+
+\item{annotate_genes}{A vector of genes/metabolites to be annotated}
+
+\item{interactive}{make plot interactive (default is TRUE)}
 }
 \value{
 plotly object
@@ -27,5 +33,6 @@ plotly object
 makes a plotly volcano plot
 }
 \examples{
-plot_volcano_from_limma(diff_exp_rdesc, log2fc_range = 0.5, p_val_cutoff = 0.05, fdr_cutoff = NULL)
+plot_volcano_from_limma(diff_exp_rdesc, log2fc_range = 0.5, p_val_cutoff = 0.05, fdr_cutoff = NULL,
+ annotate_genes = c('a','b'), interactive = TRUE)
 }
