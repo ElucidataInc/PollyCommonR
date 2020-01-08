@@ -19,7 +19,7 @@ plot_proportion_of_variance <- function(PCAObj_Summary){
     geom_bar(stat = "identity") + scale_x_discrete(limits=data$pc) + coord_cartesian(ylim=c(0,100))+
     scale_y_continuous(breaks = pretty(0:100, n=10))+
     theme(plot.title = element_text(hjust=0.5, size=18, face = "bold"),
-          legend.position = "right", legend.direction = "vertical", # legend positioned at the bottom, horizantal direction,
+          legend.position = "none", legend.direction = "none", # legend positioned at the bottom, horizantal direction,
           axis.line = element_line(size=1, colour = "black"),	# axis line of size 1 inch in black color
           panel.grid.major = element_blank(),	# major grids included
           panel.grid.minor = element_blank(),	# no minor grids
@@ -31,7 +31,7 @@ plot_proportion_of_variance <- function(PCAObj_Summary){
           legend.title = element_text(colour="black", size=12, face="bold"),
           axis.ticks.length = unit(-0.25, "cm")) # ticks facing inward with 0.25cm length    
   
-  p <- ggplotly(p, tooltip = c("variance")) %>% layout(showlegend = FALSE,hovermode = TRUE) %>%
+  p <- ggplotly(p, tooltip = c("variance")) %>%
     plotly::config(displaylogo = FALSE,
                    modeBarButtons = list(list("zoomIn2d"), 
                                          list("zoomOut2d"), 

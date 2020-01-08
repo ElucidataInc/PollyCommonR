@@ -88,7 +88,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
         text = rownames(diff_exp_rdesc)
       ) %>%
       layout(
-        title = "",
+        title = FALSE,
         yaxis = list(title = yaxis_lab_pl),
         xaxis = list(title = xaxis_lab_pl),
         annotations = a
