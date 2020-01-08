@@ -8,6 +8,7 @@
 #' plot_proportion_of_variance(PCAObj_Summary)
 #' @export
 plot_proportion_of_variance <- function(PCAObj_Summary){
+  message("Make Proportion of Variance Plot Started...")
   require(ggplot2)
   require(plotly)
   
@@ -37,6 +38,8 @@ plot_proportion_of_variance <- function(PCAObj_Summary){
                                          list("zoomOut2d"), 
                                          list('toImage')), 
                    mathjax = 'cdn')
+  
+  message("Make Proportion of Variance Plot Started...")
   
   return(p)    
 }
