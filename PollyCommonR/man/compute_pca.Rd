@@ -4,12 +4,22 @@
 \alias{compute_pca}
 \title{compute_pca}
 \usage{
-compute_pca(sample_raw_mat = NULL, num = NULL)
+compute_pca(sample_raw_mat = NULL, num = NULL, center = FALSE, scale = TRUE)
 }
 \arguments{
 \item{sample_raw_mat}{matrix/dataframe containing raw values.}
 
 \item{num}{Number of genes/metabolites to be used for pca.}
+
+\item{center}{a logical value indicating whether the variables should be 
+shifted to be zero centered. Alternately, a vector of length equal the 
+number of columns of x can be supplied. The value is passed to scale.}
+
+\item{scale}{a logical value indicating whether the variables should be 
+scaled to have unit variance before the analysis takes place. The default
+ is FALSE for consistency with S, but in general scaling is advisable. 
+ Alternatively, a vector of length equal the number of columns of x can 
+ be supplied. The value is passed to scale (base function).}
 }
 \value{
 A list of loadings and pc values
