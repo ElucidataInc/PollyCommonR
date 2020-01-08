@@ -4,7 +4,7 @@
 \alias{compute_pca}
 \title{compute_pca}
 \usage{
-compute_pca(sample_raw_mat = NULL, num = NULL, center = FALSE, scale = TRUE)
+compute_pca(sample_raw_mat = NULL, num = NULL, center = TRUE, scale = TRUE)
 }
 \arguments{
 \item{sample_raw_mat}{matrix/dataframe containing raw values.}
@@ -28,5 +28,5 @@ A list of loadings and pc values
 performs pca on the sample raw matrix
 }
 \examples{
-compute_pca(sample_raw_mat, num = 1000)
+compute_pca(sample_raw_mat, num = 1000, center = TRUE, scale = TRUE)
 }

@@ -14,9 +14,9 @@
 #'  be supplied. The value is passed to scale (base function).
 #' @return A list of loadings and pc values
 #' @examples
-#' compute_pca(sample_raw_mat, num = 1000)
+#' compute_pca(sample_raw_mat, num = 1000, center = TRUE, scale = TRUE)
 #' @export
-compute_pca <- function(sample_raw_mat = NULL, num = NULL, center = FALSE, scale = TRUE) {
+compute_pca <- function(sample_raw_mat = NULL, num = NULL, center = TRUE, scale = TRUE) {
   message("Compute PCA Started...")
   require(matrixStats)
   require(stats)
