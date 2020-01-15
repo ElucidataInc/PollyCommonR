@@ -22,7 +22,7 @@ compute_pca <- function(sample_raw_mat = NULL, num = NULL, center = TRUE, scale 
   require(stats)
  
   variancerow <- matrixStats::rowVars(as.matrix(sample_raw_mat))
-  sample_raw_mat <- sample_raw_mat[!(variancerow == 0.01),]
+  sample_raw_mat <- sample_raw_mat[!(variancerow == 0),]
   sample_raw_mat <- sample_raw_mat[!apply(sample_raw_mat, 1, anyNA), ]
   
   if (!identical(num, NULL)){
