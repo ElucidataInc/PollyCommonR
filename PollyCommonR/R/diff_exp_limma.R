@@ -62,8 +62,8 @@ diff_exp_limma <- function(prot_norm_mat, metadata, cohort_condition, cohort_a, 
   }
   prot_norm_mat_log2 <- prot_norm_mat_log2[!apply(prot_norm_mat_log2, 1, anyNA), ]
 
-  cohort_a_columns <- metadata[metadata[cohort_condition] == cohort_a, ]$Sample
-  cohort_b_columns <- metadata[metadata[cohort_condition] == cohort_b, ]$Sample
+  cohort_a_columns <- metadata[metadata[cohort_condition] == cohort_a, ][,1]
+  cohort_b_columns <- metadata[metadata[cohort_condition] == cohort_b, ][,1]
 
   if(length(cohort_a_columns) <= 1 | length(cohort_b_columns) <= 1){
     warning("Since, your selected cohorts have no replicates in the data, you might want to change the cohorts or cohort condition and try again.")
