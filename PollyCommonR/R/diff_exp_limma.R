@@ -19,6 +19,7 @@ diff_exp_limma <- function(prot_norm_mat, metadata, cohort_condition, cohort_a, 
   
   message("Calculate Differential Expression Limma Started...")
   require(limma)
+  require(dplyr)
   
   if (!(cohort_a %in% metadata[[cohort_condition]] && cohort_a %in% metadata[[cohort_condition]])){
     warning("Invalid cohort_a or cohort_b")
@@ -36,23 +37,33 @@ diff_exp_limma <- function(prot_norm_mat, metadata, cohort_condition, cohort_a, 
   metadata[,1] <- make.names(metadata[,1])    
   colnames(prot_norm_mat) <- make.names(colnames(prot_norm_mat))
   
-  condition <- metadata[[cohort_condition]]
-  
   if((cohort_a == "") | (cohort_b == "")){
     warning("One of your cohorts is empty, try changing the cohort condition.")
     return(NULL)
   }
   
+  # check for common samples  
+  prot_norm_mat_samples <- colnames(prot_norm_mat)
+  metadata_samples <- as.character(metadata[, 1])
+  common_samples <- intersect(metadata_samples, prot_norm_mat_samples)
+  if (length(common_samples) == 0){
+    warning("No common samples in matrix and metadata")
+    return(NULL)
+  }
+  
+  if(log_flag){
+    prot_norm_mat_log2 <- (prot_norm_mat[, common_samples])
+  }
+  else{
+    prot_norm_mat_log2 <- log2(prot_norm_mat[, common_samples])
+  }
+  
+  metadata <- dplyr::filter(metadata, !!(sym(colnames(metadata)[1])) %in% !!common_samples)
+  condition <- metadata[[cohort_condition]]
+  
   design <- model.matrix(~ condition + 0)
   colnames(design) <- gsub("condition", "", colnames(design))
   contrast_matrix <- limma::makeContrasts(contrasts = c(paste(cohort_b, cohort_a, sep = "-")), levels = design)
-  
-  if(log_flag){
-    prot_norm_mat_log2 <- (prot_norm_mat[, unlist(metadata[, 1])])
-  }
-  else{
-    prot_norm_mat_log2 <- log2(prot_norm_mat[, unlist(metadata[, 1])])
-  }
   
   prot_norm_mat_log2 <- prot_norm_mat_log2[!apply(prot_norm_mat_log2, 1, anyNA), ]
   cohort_a_columns <- metadata[metadata[cohort_condition] == cohort_a, ][,1]
