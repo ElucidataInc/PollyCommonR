@@ -14,7 +14,10 @@ Imports:
     stringr(>= 1.4.0),
     ggplot2(>= 3.2.1),
     plotly(>= 4.9.0),
-    ggsci(>= 2.9)
+    ggsci(>= 2.9),
+    latex2exp(>= 0.4.0),
+    dplyr(>= 0.8.3),
+    ggrepel(>= 0.8.1)
 Suggests:
     testthat,
     devtools,

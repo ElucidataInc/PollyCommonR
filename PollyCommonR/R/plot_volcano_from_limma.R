@@ -12,6 +12,7 @@
 #' @examples
 #' plot_volcano_from_limma(diff_exp_rdesc, log2fc_range = 0.5, p_val_cutoff = 0.05, fdr_cutoff = NULL,
 #'  annotate_genes = c('a','b'), interactive = TRUE)
+#' @import ggplot2 plotly ggsci ggrepel latex2exp
 #' @export
 plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, p_val_cutoff = NULL, 
                                     fdr_cutoff = NULL, annotate_genes = NULL, interactive = TRUE) {

@@ -6,6 +6,7 @@
 #' @return A plotly object
 #' @examples 
 #' plot_proportion_of_variance(PCAObj_Summary)
+#' @import ggplot2 plotly
 #' @export
 plot_proportion_of_variance <- function(PCAObj_Summary){
   message("Make Proportion of Variance Plot Started...")

@@ -15,6 +15,7 @@
 #' @return A list of loadings and pc values
 #' @examples
 #' compute_pca(sample_raw_mat, num = 1000, center = TRUE, scale = TRUE)
+#' @import matrixStats stats
 #' @export
 compute_pca <- function(sample_raw_mat = NULL, num = NULL, center = TRUE, scale = TRUE) {
   message("Compute PCA Started...")

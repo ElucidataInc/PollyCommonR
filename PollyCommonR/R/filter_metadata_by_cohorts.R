@@ -8,6 +8,7 @@
 #' @return A dataframe of filtered metadata.
 #' @examples 
 #' filter_metadata_by_cohorts(metadata_df, 'Cohort', c("Cohort1, Cohort2"))
+#' @import dplyr
 #' @export
 filter_metadata_by_cohorts <- function(metadata, condition = 'Cohort', selected_cohorts = NULL){
   message("Filter Metadata Started...")

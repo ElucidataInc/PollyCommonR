@@ -11,6 +11,7 @@
 #' @return plotly object
 #' @examples
 #' plot_pca3d(PCAObj_Summary, metadata, 'Cohort', pc_x = 1, pc_y = 2, pc_z= 3)
+#' @import plotly
 #' @export
 plot_pca3d <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, pc_z= 3) {
   message("Plot PCA3D Started...")
