@@ -1,6 +1,6 @@
 #' plot_pca3d
 #'
-#' makes a plotly PCA plot
+#' makes a plotly PCA-3D plot
 #'
 #' @param PCAObj_Summary A list of summary of prcomp function.
 #' @param metadata dataframe containing samples to cohort mapping information
