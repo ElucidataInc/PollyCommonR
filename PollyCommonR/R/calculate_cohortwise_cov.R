@@ -15,7 +15,12 @@ calculate_cohortwise_cov <- function(raw_matrix, metadata, cohort_col='Cohort'){
   message("Calculate Coefficient of Variation Started...")
   require(dplyr)
   require(matrixStats)
-  
+
+  if (!(cohort_col %in% colnames(metadata))){
+    warning(c(cohort_col, " column is not present in metadata"))
+    return(NULL)
+  }  
+
   raw_matrix_samples <- colnames(raw_matrix)
   metadata_samples <- as.character(metadata[, 1])
   common_samples <- intersect(metadata_samples, raw_matrix_samples)
