@@ -2,6 +2,7 @@
 
 export(calculate_cohortwise_cov)
 export(compute_pca)
+export(create_cohortwise_cov_barplot)
 export(create_cohortwise_cov_boxplot)
 export(diff_exp_limma)
 export(filter_metadata_by_cohorts)
