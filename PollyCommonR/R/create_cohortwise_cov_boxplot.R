@@ -36,7 +36,7 @@ create_cohortwise_cov_boxplot <- function(calculated_cov_df, cohorts_order = NUL
         title = "Cohorts",
         titlefont = list(size=16),
         categoryorder = "array",
-        categoryarray = cohorts_order
+        categoryarray = filtered_cohorts_vec
       ),
       yaxis = list(title = "Coefficient of Variation (%)", titlefont = list(size=16)),
       showlegend = FALSE
