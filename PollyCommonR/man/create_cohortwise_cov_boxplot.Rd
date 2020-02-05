@@ -4,12 +4,18 @@
 \alias{create_cohortwise_cov_boxplot}
 \title{create_cohortwise_cov_boxplot}
 \usage{
-create_cohortwise_cov_boxplot(calculated_cov_df, cohorts_order = NULL)
+create_cohortwise_cov_boxplot(
+  calculated_cov_df,
+  cohorts_order = NULL,
+  interactive = FALSE
+)
 }
 \arguments{
 \item{calculated_cov_df}{A dataframe with calculated cov}
 
 \item{cohorts_order}{The order of cohorts}
+
+\item{interactive}{make plot interactive if set TRUE}
 }
 \value{
 A plotly object

@@ -8,13 +8,20 @@ create_cohortwise_cov_barplot(
   calculated_cov_df,
   id_order = NULL,
   id_col = "id",
-  cohorts_order = NULL
+  cohorts_order = NULL,
+  interactive = FALSE
 )
 }
 \arguments{
 \item{calculated_cov_df}{A dataframe with calculated cov}
 
+\item{id_order}{A vector of ids to plot}
+
+\item{id_col}{The column name where ids are present}
+
 \item{cohorts_order}{The order of cohorts}
+
+\item{interactive}{make plot interactive if set TRUE}
 }
 \value{
 A plotly object
