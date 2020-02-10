@@ -25,7 +25,10 @@ compute_pca <- function(sample_raw_mat = NULL, num = NULL, center = TRUE, scale 
   variancerow <- matrixStats::rowVars(as.matrix(sample_raw_mat))
   sample_raw_mat <- sample_raw_mat[!(variancerow == 0),]
   sample_raw_mat <- sample_raw_mat[!apply(sample_raw_mat, 1, anyNA), ]
-  
+  if (nrow(sample_raw_mat) == 0){
+    warning("Not a valid matrix, have NANs or infs in the matrix")
+    return (NULL)
+  }
   if (!identical(num, NULL)){
     temp_df <- apply(sample_raw_mat, 1, function(x) mad(x))
     sample_raw_mat <- as.data.frame(cbind(sample_raw_mat,temp_df))
