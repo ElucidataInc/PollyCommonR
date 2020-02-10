@@ -31,6 +31,12 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, sh
   require(plotly)
   require(ggsci)
   
+  if (identical(PCAObj_Summary, NULL)){
+    message("PCAObj_Summary is NULL")
+    
+    return (NULL)
+  }
+  
   pca_var_df <- as.data.frame(PCAObj_Summary$x)
   pca_var_df$variable <- rownames(pca_var_df)
   metadata[,condition] <- gsub(",", "_", as.character(metadata[,condition]), fixed = TRUE)
