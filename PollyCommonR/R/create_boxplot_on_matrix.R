@@ -5,6 +5,7 @@
 #' @param sample_raw_mat sample_raw_mat matrix/dataframe containing raw values
 #' @param x_label Label x-axis
 #' @param y_label Label y-axis
+#' @param flip_coord Flip Coordinates
 #' @param plot_axis_format font face ("plain", "italic", "bold", "bold.italic")
 #' @param plot_axis_text_size set axis text size
 #' @return ggplot object
@@ -13,7 +14,8 @@
 #' @import ggplot2
 #' @export
 create_boxplot_on_matrix <- function(sample_raw_mat = NULL, x_label = "", y_label = "",
-                                     plot_axis_format = 'plain', plot_axis_text_size = 10){
+                                     flip_coord = FALSE, plot_axis_format = 'plain', 
+                                     plot_axis_text_size = 10){
   require(ggplot2)
   message("Create Boxplot On Matrix Started...")
   
@@ -21,7 +23,6 @@ create_boxplot_on_matrix <- function(sample_raw_mat = NULL, x_label = "", y_labe
     geom_boxplot(show.legend = FALSE)+
     labs(x = x_label,
          y = y_label)+
-    theme(axis.text.x = element_text(angle = 90, hjust = 1))+
     ggsci::scale_color_aaas() + # filling the point colors
     theme(axis.line = element_line(size = 1, colour = "black"), # axis line of size 1 inch in black color
           panel.grid.major = element_blank(), # major grids included
@@ -35,6 +36,12 @@ create_boxplot_on_matrix <- function(sample_raw_mat = NULL, x_label = "", y_labe
                                      margin=unit(c(0.5,0.5,0.1,0.1), "cm"), 
                                      face = plot_axis_format), # y-axis text in fontsize 10
           axis.ticks.length = unit(-0.25, "cm"))
+  
+  if (flip_coord == TRUE ){
+    p <- p +
+      coord_flip()+
+      theme(axis.text.x = element_text(angle = 0))
+  }
   
   message("Create Boxplot On Matrix Completed...")
   

@@ -8,6 +8,7 @@ create_boxplot_on_matrix(
   sample_raw_mat = NULL,
   x_label = "",
   y_label = "",
+  flip_coord = FALSE,
   plot_axis_format = "plain",
   plot_axis_text_size = 10
 )
@@ -18,6 +19,8 @@ create_boxplot_on_matrix(
 \item{x_label}{Label x-axis}
 
 \item{y_label}{Label y-axis}
+
+\item{flip_coord}{Flip Coordinates}
 
 \item{plot_axis_format}{font face ("plain", "italic", "bold", "bold.italic")}
 
