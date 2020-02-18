@@ -23,7 +23,7 @@ plot_pca3d(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, pc_z = 3)
 plotly object
 }
 \description{
-makes a plotly PCA plot
+makes a plotly PCA-3D plot
 }
 \examples{
 plot_pca3d(PCAObj_Summary, metadata, 'Cohort', pc_x = 1, pc_y = 2, pc_z= 3)

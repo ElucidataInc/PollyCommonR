@@ -1,6 +1,6 @@
 #' plot_pca3d
 #'
-#' makes a plotly PCA plot
+#' makes a plotly PCA-3D plot
 #'
 #' @param PCAObj_Summary A list of summary of prcomp function.
 #' @param metadata dataframe containing samples to cohort mapping information
@@ -16,6 +16,12 @@
 plot_pca3d <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, pc_z= 3) {
   message("Plot PCA3D Started...")
   require(plotly)
+  
+  if (identical(PCAObj_Summary, NULL)){
+    message("PCAObj_Summary is NULL")
+    
+    return (NULL)
+  }
   
   pca_var_df <- as.data.frame(PCAObj_Summary$x)
   pca_var_df$variable <- rownames(pca_var_df)

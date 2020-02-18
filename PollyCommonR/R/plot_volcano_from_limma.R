@@ -92,7 +92,8 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
         title = FALSE,
         yaxis = list(title = yaxis_lab_pl),
         xaxis = list(title = xaxis_lab_pl),
-        annotations = a
+        annotations = a,
+        showlegend = TRUE
       ) %>%
       add_annotations(text="Significance", xref="paper", yref="paper",
                       x=1.04, xanchor="left",
