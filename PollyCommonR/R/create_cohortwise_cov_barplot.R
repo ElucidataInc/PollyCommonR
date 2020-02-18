@@ -18,6 +18,7 @@ create_cohortwise_cov_barplot <- function(calculated_cov_df, id_order = NULL, id
   message("Create Coefficient of Variation Boxplot Started...")
   require(dplyr)
   require(stringr)
+  require(ggplot2)
   require(plotly)
   
   if (identical(id_order, NULL)){

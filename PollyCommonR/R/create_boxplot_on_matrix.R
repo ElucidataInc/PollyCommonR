@@ -5,6 +5,7 @@
 #' @param sample_raw_mat sample_raw_mat matrix/dataframe containing raw values
 #' @param x_label Label x-axis
 #' @param y_label Label y-axis
+#' @param title_label Title of the plot
 #' @param flip_coord Flip Coordinates
 #' @param plot_axis_format font face ("plain", "italic", "bold", "bold.italic")
 #' @param plot_axis_text_size set axis text size
@@ -14,8 +15,8 @@
 #' @import ggplot2
 #' @export
 create_boxplot_on_matrix <- function(sample_raw_mat = NULL, x_label = "", y_label = "",
-                                     flip_coord = FALSE, plot_axis_format = 'plain', 
-                                     plot_axis_text_size = 10){
+                                     title_label = "", flip_coord = FALSE, 
+                                     plot_axis_format = 'plain', plot_axis_text_size = 10){
   require(ggplot2)
   message("Create Boxplot On Matrix Started...")
   

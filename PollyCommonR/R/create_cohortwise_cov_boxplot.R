@@ -15,6 +15,7 @@ create_cohortwise_cov_boxplot <- function(calculated_cov_df, cohorts_order = NUL
   message("Create Coefficient of Variation Boxplot Started...")
   require(dplyr)
   require(stringr)
+  require(ggplot2)
   require(plotly)
   
   calculated_cov_df[['cohort']] <- stringr::str_trim(calculated_cov_df[['cohort']])
