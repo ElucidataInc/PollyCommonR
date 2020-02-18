@@ -8,7 +8,7 @@
 #' @return A plotly object
 #' @examples
 #' create_cohortwise_cov_boxplot(calculated_cov_df, cohorts_order = c('CohortA','CohortB'))
-#' @import dplyr stringr plotly
+#' @import dplyr stringr ggplot2 plotly
 #' @export
 create_cohortwise_cov_boxplot <- function(calculated_cov_df, cohorts_order = NULL, interactive = FALSE){
   

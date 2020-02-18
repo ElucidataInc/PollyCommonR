@@ -10,7 +10,7 @@
 #' @return A plotly object
 #' @examples
 #' create_cohortwise_cov_barplot(calculated_cov_df, id_order = c('cmpd1','cmpd2'), id_col = 'id', cohorts_order = c('CohortA','CohortB'))
-#' @import dplyr stringr plotly
+#' @import dplyr stringr ggplot2 plotly
 #' @export
 create_cohortwise_cov_barplot <- function(calculated_cov_df, id_order = NULL, id_col = 'id', 
                                           cohorts_order = NULL, interactive = FALSE){
