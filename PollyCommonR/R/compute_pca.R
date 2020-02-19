@@ -15,20 +15,21 @@
 #' @return A list of loadings and pc values
 #' @examples
 #' compute_pca(sample_raw_mat, num = 1000, center = TRUE, scale = TRUE)
-#' @import matrixStats stats
+#' @import stats
 #' @export
 compute_pca <- function(sample_raw_mat = NULL, num = NULL, center = TRUE, scale = TRUE) {
   message("Compute PCA Started...")
-  require(matrixStats)
   require(stats)
- 
-  variancerow <- matrixStats::rowVars(as.matrix(sample_raw_mat))
-  sample_raw_mat <- sample_raw_mat[!(variancerow == 0),]
+  
   sample_raw_mat <- sample_raw_mat[!apply(sample_raw_mat, 1, anyNA), ]
   if (nrow(sample_raw_mat) == 0){
     warning("Not a valid matrix, have NANs or infs in the matrix")
     return (NULL)
   }
+  
+  variancerow <- as.numeric(apply(sample_raw_mat, 1, function(x) var(x)))
+  sample_raw_mat <- sample_raw_mat[!(variancerow == 0),]  
+  
   if (!identical(num, NULL)){
     temp_df <- apply(sample_raw_mat, 1, function(x) mad(x))
     sample_raw_mat <- as.data.frame(cbind(sample_raw_mat,temp_df))
