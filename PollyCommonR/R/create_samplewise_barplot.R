@@ -7,23 +7,26 @@
 #' @param id_name An id for which barplot to be made
 #' @param cohorts_order The order of cohorts
 #' @param cohort_col A cohort column present in metadata
+#' @param interactive Make plot interactive using plotly
 #' @param x_label Label x-axis
 #' @param y_label Label y-axis
 #' @param title_label Title of the plot
-#' @return ggplot object
+#' @return ggplot object or plotly object
 #' @examples
 #' create_samplewise_barplot(sample_raw_mat = NULL, metadata_df = NULL, id_name = NULL, 
 #'                           cohorts_order = NULL, cohort_col='Cohort', 
 #'                           x_label = "", y_label = "", title_label = "")
-#' @import dplyr stringr ggplot2
+#' @import dplyr stringr ggplot2 plotly
 #' @export
 create_samplewise_barplot <- function(sample_raw_mat = NULL, metadata_df = NULL,
-                                      id_name = NULL, cohorts_order = NULL, cohort_col='Cohort', 
-                                      x_label = "", y_label = "", title_label = ""){
+                                      id_name = NULL, cohorts_order = NULL, 
+                                      cohort_col='Cohort', interactive = FALSE, 
+                                      x_label = "Sample", y_label = "Intensity", title_label = ""){
   message("Create Samplewise Barplot Started...")
   require(dplyr)
   require(stringr)
   require(ggplot2)
+  require(plotly)  
   
   ids_vec <- unique(rownames(sample_raw_mat))
   if (!(id_name %in% ids_vec)){
@@ -55,28 +58,47 @@ create_samplewise_barplot <- function(sample_raw_mat = NULL, metadata_df = NULL,
   for (cohort in filtered_cohorts_vec){
     interm_mat <- mat_with_metadata %>% dplyr::filter(!!(sym(cohort_col)) %in% cohort)
     interm_mat <- dplyr::arrange(interm_mat, Sample)
-    filtered_mat <- rbind(filtered_mat, interm_mat)
+    filtered_mat <- rbind(filtered_mat, interm_mat)  
   }    
   
-  p <- ggplot(filtered_mat, aes(x=Sample, y=!!(sym(id_name)), fill=!!(sym(cohort_col))))+
-    geom_bar(stat="identity", position = "dodge")+
-    ggtitle(title_label)+
-    labs(x = x_label, y = y_label)+
-    scale_x_discrete(limits = filtered_mat$Sample, expand = c(0.07,0))+
-    ggsci::scale_color_aaas() + # filling the point colors
-    theme(axis.line = element_line(size = 1, colour = "black"), # axis line of size 1 inch in black color
-          panel.grid.major = element_blank(), # major grids included
-          panel.grid.minor = element_blank(), # no minor grids
-          panel.border = element_blank(), panel.background = element_blank(), # no borders and background color
-          plot.title = element_text(colour="black", size = 18, face = "plain", hjust=0.5),
-          axis.title = element_text(colour="black", size = 14, face = "plain"), # axis title
-          axis.text.x = element_text(colour="black", size = 10, angle = 90,
-                                     hjust = 1, margin=unit(c(0.5,0.5,0.1,0.1), "cm"),
-                                     face = "plain"), # x-axis text in fontsize 10
-          axis.text.y = element_text(colour="black", size = 10,
-                                     margin=unit(c(0.5,0.5,0.1,0.1), "cm"), 
-                                     face = "plain"), # y-axis text in fontsize 10
-          axis.ticks.length = unit(-0.25, "cm"))
+  if (interactive == TRUE){
+    p <- plot_ly(x = filtered_mat[["Sample"]], y = filtered_mat[[id_name]], 
+                 color = filtered_mat[[cohort_col]], type = "bar") %>%
+      layout(
+        title = title_label,
+        xaxis = list(
+          title = x_label,
+          titlefont = list(size=16),
+          categoryorder = "array",
+          categoryarray = filtered_mat[["Sample"]]
+        ),
+        yaxis = list(title = y_label, titlefont = list(size=16)),
+        showlegend = TRUE
+      ) %>% plotly::config(displaylogo = FALSE,
+                           modeBarButtons = list(list("zoomIn2d"), 
+                                                 list("zoomOut2d")),
+                           mathjax = 'cdn')   
+  } else{
+    p <- ggplot(filtered_mat, aes(x=Sample, y=!!(sym(id_name)), fill=!!(sym(cohort_col))))+
+      geom_bar(stat="identity", position = "dodge")+
+      ggtitle(title_label)+
+      labs(x = x_label, y = y_label)+
+      scale_x_discrete(limits = filtered_mat$Sample, expand = c(0.09,0.09))+
+      ggsci::scale_color_aaas() + # filling the point colors
+      theme(axis.line = element_line(size = 1, colour = "black"), # axis line of size 1 inch in black color
+            panel.grid.major = element_blank(), # major grids included
+            panel.grid.minor = element_blank(), # no minor grids
+            panel.border = element_blank(), panel.background = element_blank(), # no borders and background color
+            plot.title = element_text(colour="black", size = 18, face = "plain", hjust=0.5),
+            axis.title = element_text(colour="black", size = 14, face = "plain"), # axis title
+            axis.text.x = element_text(colour="black", size = 10, angle = 90,
+                                       hjust = 1, margin=unit(c(0.5,0.5,0.1,0.1), "cm"),
+                                       face = "plain"), # x-axis text in fontsize 10
+            axis.text.y = element_text(colour="black", size = 10,
+                                       margin=unit(c(0.5,0.5,0.1,0.1), "cm"), 
+                                       face = "plain"), # y-axis text in fontsize 10
+            axis.ticks.length = unit(-0.25, "cm"))
+  }
   
   message("Create Samplewise Barplot Started...")
   
