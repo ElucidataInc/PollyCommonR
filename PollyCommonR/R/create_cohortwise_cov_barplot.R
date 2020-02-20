@@ -6,6 +6,7 @@
 #' @param id_order A vector of ids to plot
 #' @param id_col The column name where ids are present
 #' @param cohorts_order The order of cohorts
+#' @param show_legend Show Lagend on plot
 #' @param interactive make plot interactive if set TRUE
 #' @return A plotly object
 #' @examples
@@ -13,7 +14,7 @@
 #' @import dplyr stringr ggplot2 plotly
 #' @export
 create_cohortwise_cov_barplot <- function(calculated_cov_df, id_order = NULL, id_col = 'id', 
-                                          cohorts_order = NULL, interactive = FALSE){
+                                          cohorts_order = NULL, show_legend = TRUE, interactive = FALSE){
   
   message("Create Coefficient of Variation Boxplot Started...")
   require(dplyr)
@@ -64,8 +65,6 @@ create_cohortwise_cov_barplot <- function(calculated_cov_df, id_order = NULL, id
     filtered_cohorts_vec = common_cohorts
   }
   calculated_cov_df_filtered <-  calculated_cov_df %>% dplyr::filter(!!(sym(id_col)) %in% common_ids,  cohort %in% filtered_cohorts_vec)
-  all_cv <- calculated_cov_df_filtered$cv
-  all_cv <- all_cv[!is.na(all_cv) & !is.infinite(all_cv)]
   
   if (interactive == TRUE){
     p <- plot_ly()
@@ -83,7 +82,7 @@ create_cohortwise_cov_barplot <- function(calculated_cov_df, id_order = NULL, id
         categoryarray = filtered_cohorts_vec
       ),
       yaxis = list(title = "Coefficient of Variation (%)", titlefont = list(size=16)),
-      showlegend = TRUE
+      showlegend = show_legend
     ) %>% plotly::config(displaylogo = FALSE,
                          modeBarButtons = list(list("zoomIn2d"), 
                                                list("zoomOut2d"), 
@@ -91,12 +90,11 @@ create_cohortwise_cov_barplot <- function(calculated_cov_df, id_order = NULL, id
                          mathjax = 'cdn')
   } else {
     p<-ggplot(calculated_cov_df_filtered, aes(x=cohort, y=cv, fill=!!(sym(id_col)))) +
-      geom_bar(stat="identity", position = "dodge")+
+      geom_bar(stat="identity", position = "dodge", show.legend = show_legend)+
       ggtitle("CV Distribution across Cohorts")+
       labs(x = "Cohorts",
            y = "Coefficient of Variation (%)")+
-      scale_x_discrete(limits = filtered_cohorts_vec, expand = c(0.07,0))+
-      scale_y_continuous(breaks=seq(0, max(all_cv), 25))+
+      scale_x_discrete(limits = filtered_cohorts_vec, expand = c(0.13,0.12))+
       ggsci::scale_color_aaas() + # filling the point colors
       theme(axis.line = element_line(size = 1, colour = "black"), # axis line of size 1 inch in black color
             panel.grid.major = element_blank(), # major grids included

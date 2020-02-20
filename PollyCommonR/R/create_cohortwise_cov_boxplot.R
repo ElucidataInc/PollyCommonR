@@ -54,7 +54,7 @@ create_cohortwise_cov_boxplot <- function(calculated_cov_df, cohorts_order = NUL
       ggtitle("CV Distribution across Cohorts")+
       labs(x = "Cohorts",
            y = "Coefficient of Variation (%)")+
-      scale_x_discrete(limits = filtered_cohorts_vec, expand = c(0.07,0))+
+      scale_x_discrete(limits = filtered_cohorts_vec, expand = c(0.12,0.12))+
       scale_y_continuous(breaks=seq(0, max(all_cv), 25))+
       ggsci::scale_color_aaas() + # filling the point colors
       theme(axis.line = element_line(size = 1, colour = "black"), # axis line of size 1 inch in black color
