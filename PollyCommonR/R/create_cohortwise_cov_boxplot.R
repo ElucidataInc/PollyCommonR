@@ -4,13 +4,15 @@
 #'
 #' @param calculated_cov_df A dataframe with calculated cov
 #' @param cohorts_order The order of cohorts
+#' @param title_label Title of the plot
 #' @param interactive make plot interactive if set TRUE
 #' @return A plotly object
 #' @examples
 #' create_cohortwise_cov_boxplot(calculated_cov_df, cohorts_order = c('CohortA','CohortB'))
 #' @import dplyr stringr ggplot2 plotly
 #' @export
-create_cohortwise_cov_boxplot <- function(calculated_cov_df, cohorts_order = NULL, interactive = FALSE){
+create_cohortwise_cov_boxplot <- function(calculated_cov_df, cohorts_order = NULL, 
+                                          title_label = "CV Distribution across Cohorts", interactive = FALSE){
   
   message("Create Coefficient of Variation Boxplot Started...")
   require(dplyr)
@@ -35,7 +37,7 @@ create_cohortwise_cov_boxplot <- function(calculated_cov_df, cohorts_order = NUL
   if (interactive == TRUE){
     p <- plot_ly(calculated_cov_df_filtered, y = ~cv, color = ~cohort, type = "box") %>%
       layout(
-        title = "CV Distribution across Cohorts",
+        title = title_label,
         xaxis = list(
           title = "Cohorts",
           titlefont = list(size=16),
@@ -51,10 +53,11 @@ create_cohortwise_cov_boxplot <- function(calculated_cov_df, cohorts_order = NUL
   } else{
     p <- ggplot(calculated_cov_df_filtered, aes(x = cohort, y = cv, fill=cohort))+
       geom_boxplot(show.legend = FALSE)+
-      ggtitle("CV Distribution across Cohorts")+
+      ggtitle(title_label)+
+      ggtitle(title_label)+
       labs(x = "Cohorts",
            y = "Coefficient of Variation (%)")+
-      scale_x_discrete(limits = filtered_cohorts_vec, expand = c(0.07,0))+
+      scale_x_discrete(limits = filtered_cohorts_vec, expand = c(0.12,0.12))+
       scale_y_continuous(breaks=seq(0, max(all_cv), 25))+
       ggsci::scale_color_aaas() + # filling the point colors
       theme(axis.line = element_line(size = 1, colour = "black"), # axis line of size 1 inch in black color

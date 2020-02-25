@@ -11,7 +11,7 @@
 #' @export
 sample_intensity_matrix <- function(raw_intensity_df = NULL, metadata_df = NULL, rownames_col = NULL){
   message("Make Sample Intensity Matrix Started...")
-
+  
   metadata_sample <- metadata_df[,1]
   raw_intensity_cols <- colnames(raw_intensity_df)
   sample_cols <- intersect(metadata_sample, raw_intensity_cols)
@@ -20,13 +20,22 @@ sample_intensity_matrix <- function(raw_intensity_df = NULL, metadata_df = NULL,
     return(NULL)
   }
   sample_intensity_mat <- raw_intensity_df[,sample_cols]
-  if ((identical(rownames_col, NULL)==FALSE) & (rownames_col %in% colnames(raw_intensity_df))){
-    make_unique_names <- make.unique(as.character(raw_intensity_df[,rownames_col]))
-    rownames(sample_intensity_mat) <- make_unique_names
+  
+  if (identical(rownames_col, NULL)==FALSE){
+    if (rownames_col %in% colnames(raw_intensity_df)){
+      make_unique_names <- make.unique(as.character(raw_intensity_df[,rownames_col]))
+      rownames(sample_intensity_mat) <- make_unique_names
+    } else{
+      message(c(rownames_col, " is not present in raw_intensity_df columns, returning sample matrix with default rownames"))
+    }
+  } else{
+    message("no rownames_col parameter specified, returning sample matrix with default rownames")
   }
+  
   sample_intensity_mat <- sample_intensity_mat[rowSums(is.na(sample_intensity_mat)) == 0, ]
-
+  
   message("Make Sample Intensity Matrix Completed...")
-
+  
   return(sample_intensity_mat)
 }
+

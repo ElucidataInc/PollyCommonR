@@ -10,8 +10,9 @@ create_samplewise_barplot(
   id_name = NULL,
   cohorts_order = NULL,
   cohort_col = "Cohort",
-  x_label = "",
-  y_label = "",
+  interactive = FALSE,
+  x_label = "Sample",
+  y_label = "Intensity",
   title_label = ""
 )
 }
@@ -26,6 +27,8 @@ create_samplewise_barplot(
 
 \item{cohort_col}{A cohort column present in metadata}
 
+\item{interactive}{Make plot interactive using plotly}
+
 \item{x_label}{Label x-axis}
 
 \item{y_label}{Label y-axis}
@@ -33,7 +36,7 @@ create_samplewise_barplot(
 \item{title_label}{Title of the plot}
 }
 \value{
-ggplot object
+ggplot object or plotly object
 }
 \description{
 Makes samplewise barplot

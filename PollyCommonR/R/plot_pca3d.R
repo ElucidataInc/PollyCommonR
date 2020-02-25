@@ -8,12 +8,14 @@
 #' @param pc_x PC to keep on x-axis
 #' @param pc_y PC to keep on y-axis
 #' @param pc_z PC to keep on z-axis
+#' @param title_label Title of the plot
 #' @return plotly object
 #' @examples
 #' plot_pca3d(PCAObj_Summary, metadata, 'Cohort', pc_x = 1, pc_y = 2, pc_z= 3)
 #' @import plotly
 #' @export
-plot_pca3d <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, pc_z= 3) {
+plot_pca3d <- function(PCAObj_Summary, metadata, condition, 
+                       pc_x = 1, pc_y = 2, pc_z= 3, title_label = "") {
   message("Plot PCA3D Started...")
   require(plotly)
   
@@ -33,7 +35,8 @@ plot_pca3d <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, 
                z = ~eval(parse(text=paste("PC", pc_z, sep = ""))),
                color = ~Cohort) %>%
     add_markers() %>%
-    layout(scene = list(xaxis = list(title = paste("PC",pc_x, '(', round(PCAObj_Summary$importance[2,pc_x]*100, 2), '%)')),
+    layout(title = title_label,
+           scene = list(xaxis = list(title = paste("PC",pc_x, '(', round(PCAObj_Summary$importance[2,pc_x]*100, 2), '%)')),
                         yaxis = list(title = paste("PC",pc_y, '(', round(PCAObj_Summary$importance[2,pc_y]*100, 2), '%)')),
                         zaxis = list(title = paste("PC",pc_z, '(', round(PCAObj_Summary$importance[2,pc_z]*100, 2), '%)'))
     )) %>% 

@@ -9,6 +9,8 @@ create_cohortwise_cov_barplot(
   id_order = NULL,
   id_col = "id",
   cohorts_order = NULL,
+  title_label = "CV Distribution across Cohorts",
+  show_legend = TRUE,
   interactive = FALSE
 )
 }
@@ -21,6 +23,10 @@ create_cohortwise_cov_barplot(
 
 \item{cohorts_order}{The order of cohorts}
 
+\item{title_label}{Title of the plot}
+
+\item{show_legend}{Show Lagend on plot}
+
 \item{interactive}{make plot interactive if set TRUE}
 }
 \value{
@@ -30,5 +36,6 @@ A plotly object
 Makes boxplot for cov values across cohorts
 }
 \examples{
-create_cohortwise_cov_barplot(calculated_cov_df, id_order = c('cmpd1','cmpd2'), id_col = 'id', cohorts_order = c('CohortA','CohortB'))
+create_cohortwise_cov_barplot(calculated_cov_df, id_order = c('cmpd1','cmpd2'), id_col = 'id', 
+                              cohorts_order = c('CohortA','CohortB'))
 }

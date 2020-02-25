@@ -4,7 +4,15 @@
 \alias{plot_pca3d}
 \title{plot_pca3d}
 \usage{
-plot_pca3d(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, pc_z = 3)
+plot_pca3d(
+  PCAObj_Summary,
+  metadata,
+  condition,
+  pc_x = 1,
+  pc_y = 2,
+  pc_z = 3,
+  title_label = ""
+)
 }
 \arguments{
 \item{PCAObj_Summary}{A list of summary of prcomp function.}
@@ -18,6 +26,8 @@ plot_pca3d(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, pc_z = 3)
 \item{pc_y}{PC to keep on y-axis}
 
 \item{pc_z}{PC to keep on z-axis}
+
+\item{title_label}{Title of the plot}
 }
 \value{
 plotly object

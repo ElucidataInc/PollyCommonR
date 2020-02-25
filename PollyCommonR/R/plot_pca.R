@@ -9,6 +9,9 @@
 #' @param pc_y PC to keep on y-axis
 #' @param show_ellipse show ellipse on plot (default is FALSE)
 #' @param interactive make plot interactive (default is TRUE)
+#' @param title_label Title of the plot
+#' @param title_label_size Size of title label
+#' @param axis_title_size Size of axis title
 #' @param pca_cohort_text_format set text format of cohort legends
 #' @param pca_cohort_text_align align cohort legends
 #' @param pca_cohort_title_size set font size of cohort title
@@ -21,10 +24,12 @@
 #'          pca_cohort_title_size= 18, pca_cohort_sample_size= 15, pca_plot_axis_format= 'bold', pca_plot_axis_text_size= 14)
 #' @import stringr ggplot2 plotly ggsci
 #' @export
-plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, show_ellipse = FALSE,
-                     interactive = TRUE, pca_cohort_text_format= 'bold', pca_cohort_text_align= "right",
-                     pca_cohort_title_size= 18, pca_cohort_sample_size= 15, pca_plot_axis_format= 'bold', 
-                     pca_plot_axis_text_size= 14) {
+plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, 
+                     show_ellipse = FALSE, interactive = TRUE,
+                     title_label = "", title_label_size = 18, axis_title_size = 14,
+                     pca_cohort_text_format= 'bold', pca_cohort_text_align= "right",
+                     pca_cohort_title_size= 18, pca_cohort_sample_size= 15,
+                     pca_plot_axis_format= 'bold', pca_plot_axis_text_size= 14) {
   message("Plot PCA Started...")
   require(stringr)
   require(ggplot2)
@@ -47,6 +52,7 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, sh
                                               fill = comb_pca_metadata[,condition]
   )) + # calls the ggplot function with dose on the x-axis and len on the y-axis
     geom_point(shape = 21, size = 6, alpha = 0.7) + # scatter plot function with shape of points defined as 21 scale.
+    ggtitle(title_label)+
     labs(x = paste("PC",pc_x, '(', round(PCAObj_Summary$importance[2,pc_x]*100, 2), '%)'),
          y = paste("PC",pc_y, '(', round(PCAObj_Summary$importance[2,pc_y]*100, 2), '%)'),
          fill = condition) + # x and y axis labels
@@ -56,7 +62,8 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, sh
           panel.grid.major = element_blank(), # major grids included
           panel.grid.minor = element_blank(), # no minor grids
           panel.border = element_blank(), panel.background = element_blank(), # no borders and background color
-          axis.title = element_text(colour="black", size = 18, face = pca_plot_axis_format), # axis title
+          plot.title = element_text(colour="black", size = title_label_size, face = "plain", hjust=0.5),
+          axis.title = element_text(colour="black", size = axis_title_size, face = pca_plot_axis_format), # axis title
           axis.text.x = element_text(colour="black", size = pca_plot_axis_text_size, margin=unit(c(0.5,0.5,0.1,0.1), "cm"), face = pca_plot_axis_format), # x-axis text in fontsize 10
           axis.text.y = element_text(colour="black", size = pca_plot_axis_text_size, margin=unit(c(0.5,0.5,0.1,0.1), "cm"), face = pca_plot_axis_format), # y-axis text in fontsize 10
           legend.text = element_text(size = pca_cohort_sample_size, face = pca_cohort_text_format),

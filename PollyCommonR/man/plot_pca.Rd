@@ -12,6 +12,9 @@ plot_pca(
   pc_y = 2,
   show_ellipse = FALSE,
   interactive = TRUE,
+  title_label = "",
+  title_label_size = 18,
+  axis_title_size = 14,
   pca_cohort_text_format = "bold",
   pca_cohort_text_align = "right",
   pca_cohort_title_size = 18,
@@ -34,6 +37,12 @@ plot_pca(
 \item{show_ellipse}{show ellipse on plot (default is FALSE)}
 
 \item{interactive}{make plot interactive (default is TRUE)}
+
+\item{title_label}{Title of the plot}
+
+\item{title_label_size}{Size of title label}
+
+\item{axis_title_size}{Size of axis title}
 
 \item{pca_cohort_text_format}{set text format of cohort legends}
 
