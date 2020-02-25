@@ -6,6 +6,7 @@
 #' @param id_order A vector of ids to plot
 #' @param id_col The column name where ids are present
 #' @param cohorts_order The order of cohorts
+#' @param title_label Title of the plot
 #' @param show_legend Show Lagend on plot
 #' @param interactive make plot interactive if set TRUE
 #' @return A plotly object
@@ -14,7 +15,8 @@
 #' @import dplyr stringr ggplot2 plotly
 #' @export
 create_cohortwise_cov_barplot <- function(calculated_cov_df, id_order = NULL, id_col = 'id', 
-                                          cohorts_order = NULL, show_legend = TRUE, interactive = FALSE){
+                                          cohorts_order = NULL, title_label = NULL,
+                                          show_legend = TRUE, interactive = FALSE){
   
   message("Create Coefficient of Variation Boxplot Started...")
   require(dplyr)
@@ -66,6 +68,10 @@ create_cohortwise_cov_barplot <- function(calculated_cov_df, id_order = NULL, id
   }
   calculated_cov_df_filtered <-  calculated_cov_df %>% dplyr::filter(!!(sym(id_col)) %in% common_ids,  cohort %in% filtered_cohorts_vec)
   
+  if (identical(title_label, NULL)){
+    title_label <- "CV Distribution across Cohorts"
+  }
+  
   if (interactive == TRUE){
     p <- plot_ly()
     for(id_val in common_ids){
@@ -74,7 +80,7 @@ create_cohortwise_cov_barplot <- function(calculated_cov_df, id_order = NULL, id
     }
     
     p <- p %>% layout(
-      title = "CV Distribution across Cohorts",
+      title = title_label,
       xaxis = list(
         title = "Cohorts",
         titlefont = list(size=16),
@@ -91,7 +97,7 @@ create_cohortwise_cov_barplot <- function(calculated_cov_df, id_order = NULL, id
   } else {
     p<-ggplot(calculated_cov_df_filtered, aes(x=cohort, y=cv, fill=!!(sym(id_col)))) +
       geom_bar(stat="identity", position = "dodge", show.legend = show_legend)+
-      ggtitle("CV Distribution across Cohorts")+
+      ggtitle(title_label)+
       labs(x = "Cohorts",
            y = "Coefficient of Variation (%)")+
       scale_x_discrete(limits = filtered_cohorts_vec, expand = c(0.13,0.12))+

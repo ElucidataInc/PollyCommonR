@@ -9,6 +9,7 @@ create_cohortwise_cov_barplot(
   id_order = NULL,
   id_col = "id",
   cohorts_order = NULL,
+  title_label = NULL,
   show_legend = TRUE,
   interactive = FALSE
 )
@@ -21,6 +22,8 @@ create_cohortwise_cov_barplot(
 \item{id_col}{The column name where ids are present}
 
 \item{cohorts_order}{The order of cohorts}
+
+\item{title_label}{Title of the plot}
 
 \item{show_legend}{Show Lagend on plot}
 
