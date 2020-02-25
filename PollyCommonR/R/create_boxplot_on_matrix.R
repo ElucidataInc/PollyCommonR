@@ -22,6 +22,7 @@ create_boxplot_on_matrix <- function(sample_raw_mat = NULL, x_label = "", y_labe
   
   p <- ggplot(stack(sample_raw_mat), aes(x = ind, y = values, fill=ind))+
     geom_boxplot(show.legend = FALSE)+
+    ggtitle(title_label)+
     labs(x = x_label,
          y = y_label)+
     ggsci::scale_color_aaas() + # filling the point colors
@@ -29,7 +30,8 @@ create_boxplot_on_matrix <- function(sample_raw_mat = NULL, x_label = "", y_labe
           panel.grid.major = element_blank(), # major grids included
           panel.grid.minor = element_blank(), # no minor grids
           panel.border = element_blank(), panel.background = element_blank(), # no borders and background color
-          axis.title = element_text(colour="black", size = 18, face = plot_axis_format), # axis title
+          plot.title = element_text(colour="black", size = 18, face = "plain", hjust=0.5),
+          axis.title = element_text(colour="black", size = 14, face = plot_axis_format), # axis title
           axis.text.x = element_text(colour="black", size = plot_axis_text_size, angle = 90,
                                      hjust = 1, margin=unit(c(0.5,0.5,0.1,0.1), "cm"),
                                      face = plot_axis_format), # x-axis text in fontsize 10

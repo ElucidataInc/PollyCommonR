@@ -7,6 +7,7 @@
 create_cohortwise_cov_boxplot(
   calculated_cov_df,
   cohorts_order = NULL,
+  title_label = "CV Distribution across Cohorts",
   interactive = FALSE
 )
 }
@@ -14,6 +15,8 @@ create_cohortwise_cov_boxplot(
 \item{calculated_cov_df}{A dataframe with calculated cov}
 
 \item{cohorts_order}{The order of cohorts}
+
+\item{title_label}{Title of the plot}
 
 \item{interactive}{make plot interactive if set TRUE}
 }

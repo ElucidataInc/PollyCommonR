@@ -11,11 +11,13 @@
 #' @param interactive make plot interactive if set TRUE
 #' @return A plotly object
 #' @examples
-#' create_cohortwise_cov_barplot(calculated_cov_df, id_order = c('cmpd1','cmpd2'), id_col = 'id', cohorts_order = c('CohortA','CohortB'))
+#' create_cohortwise_cov_barplot(calculated_cov_df, id_order = c('cmpd1','cmpd2'), id_col = 'id', 
+#'                               cohorts_order = c('CohortA','CohortB'))
 #' @import dplyr stringr ggplot2 plotly
 #' @export
-create_cohortwise_cov_barplot <- function(calculated_cov_df, id_order = NULL, id_col = 'id', 
-                                          cohorts_order = NULL, title_label = NULL,
+create_cohortwise_cov_barplot <- function(calculated_cov_df, id_order = NULL,
+                                          id_col = 'id', cohorts_order = NULL, 
+                                          title_label = "CV Distribution across Cohorts",
                                           show_legend = TRUE, interactive = FALSE){
   
   message("Create Coefficient of Variation Boxplot Started...")
@@ -67,10 +69,6 @@ create_cohortwise_cov_barplot <- function(calculated_cov_df, id_order = NULL, id
     filtered_cohorts_vec = common_cohorts
   }
   calculated_cov_df_filtered <-  calculated_cov_df %>% dplyr::filter(!!(sym(id_col)) %in% common_ids,  cohort %in% filtered_cohorts_vec)
-  
-  if (identical(title_label, NULL)){
-    title_label <- "CV Distribution across Cohorts"
-  }
   
   if (interactive == TRUE){
     p <- plot_ly()

@@ -9,7 +9,7 @@ create_cohortwise_cov_barplot(
   id_order = NULL,
   id_col = "id",
   cohorts_order = NULL,
-  title_label = NULL,
+  title_label = "CV Distribution across Cohorts",
   show_legend = TRUE,
   interactive = FALSE
 )
@@ -36,5 +36,6 @@ A plotly object
 Makes boxplot for cov values across cohorts
 }
 \examples{
-create_cohortwise_cov_barplot(calculated_cov_df, id_order = c('cmpd1','cmpd2'), id_col = 'id', cohorts_order = c('CohortA','CohortB'))
+create_cohortwise_cov_barplot(calculated_cov_df, id_order = c('cmpd1','cmpd2'), id_col = 'id', 
+                              cohorts_order = c('CohortA','CohortB'))
 }
