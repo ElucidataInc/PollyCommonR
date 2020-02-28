@@ -7,6 +7,7 @@
 #' @param p_val_cutoff The pval cutoff
 #' @param fdr_cutoff The FDR cutoff
 #' @param annotate_genes A vector of genes/metabolites to be annotated
+#' @param title_label Title of the plot
 #' @param interactive make plot interactive (default is TRUE)
 #' @return plotly object
 #' @examples
@@ -15,7 +16,8 @@
 #' @import ggplot2 plotly ggsci ggrepel latex2exp
 #' @export
 plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, p_val_cutoff = NULL, 
-                                    fdr_cutoff = NULL, annotate_genes = NULL, interactive = TRUE) {
+                                    fdr_cutoff = NULL, annotate_genes = NULL, 
+                                    title_label = "", interactive = TRUE) {
   message("Make Volcano Plot Started...")
   require(ggplot2)
   require(plotly)
@@ -89,7 +91,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
         text = rownames(diff_exp_rdesc)
       ) %>%
       layout(
-        title = FALSE,
+        title = title_label,
         yaxis = list(title = yaxis_lab_pl),
         xaxis = list(title = xaxis_lab_pl),
         annotations = a,
@@ -109,6 +111,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
     p <- ggplot(diff_exp_rdesc, aes_string(x = x_col, y = y_col, fill = 'threshold')
                 , text = id) + # calls the ggplot function with dose on the x-axis and len on the y-axis 
       geom_point(shape = 21, size = 4, alpha = 0.7) + # scatter plot function with shape of points defined as 21 scale.
+      ggtitle(title_label)+
       labs(x = xaxis_lab_gg, y = yaxis_lab_gg,  fill = "Significance") + # x and y axis labels
       ggsci::scale_color_aaas() + # filling the point colors
       theme(legend.position = "right", legend.direction = "vertical", # legend positioned at the bottom, horizantal direction,
@@ -116,6 +119,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
             panel.grid.major = element_blank(),	# major grids included
             panel.grid.minor = element_blank(),	# no minor grids
             panel.border = element_blank(), panel.background = element_blank(), # no borders and background color
+            plot.title = element_text(colour="black", size = 18, face = "plain", hjust=0.5),
             axis.title = element_text(colour="black", size = 15, face = "bold"), # axis title 
             axis.text.x = element_text(colour="black", size = 10, margin=unit(c(0.5,0.5,0.1,0.1), "cm"), face = "bold"), # x-axis text in fontsize 10
             axis.text.y = element_text(colour="black", size = 10, margin=unit(c(0.5,0.5,0.1,0.1), "cm"), face = "bold"), # y-axis text in fontsize 10
