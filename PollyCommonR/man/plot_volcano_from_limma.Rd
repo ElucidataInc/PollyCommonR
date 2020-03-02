@@ -10,6 +10,7 @@ plot_volcano_from_limma(
   p_val_cutoff = NULL,
   fdr_cutoff = NULL,
   annotate_genes = NULL,
+  title_label = "",
   interactive = TRUE
 )
 }
@@ -23,6 +24,8 @@ plot_volcano_from_limma(
 \item{fdr_cutoff}{The FDR cutoff}
 
 \item{annotate_genes}{A vector of genes/metabolites to be annotated}
+
+\item{title_label}{Title of the plot}
 
 \item{interactive}{make plot interactive (default is TRUE)}
 }
