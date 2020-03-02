@@ -24,7 +24,7 @@ normalize_by_scaling_factor <- function(sample_raw_mat, normalization_agent, sca
   
   if (identical(class(scaling_factor_col), "numeric")){
     if (ncol(normalization_agent) < scaling_factor_col){
-      message("scaling_factor_col > normalization_agent, returning original data")
+      message("scaling_factor_col > number of normalization_agent columns, returning original data")
       return(sample_raw_mat)
     }    
   } else if (identical(class(scaling_factor_col), "character")){
