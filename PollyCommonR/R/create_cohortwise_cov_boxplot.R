@@ -34,6 +34,8 @@ create_cohortwise_cov_boxplot <- function(calculated_cov_df, cohorts_order = NUL
   calculated_cov_df_filtered <-  calculated_cov_df %>% dplyr::filter(cohort %in% filtered_cohorts_vec)
   all_cv <- calculated_cov_df_filtered$cv
   all_cv <- all_cv[!is.na(all_cv) & !is.infinite(all_cv)]
+  y_breaks_seq <- seq(0, max(all_cv), 25)
+  
   if (interactive == TRUE){
     p <- plot_ly(calculated_cov_df_filtered, y = ~cv, color = ~cohort, type = "box") %>%
       layout(
@@ -43,13 +45,13 @@ create_cohortwise_cov_boxplot <- function(calculated_cov_df, cohorts_order = NUL
           titlefont = list(size=16),
           categoryorder = "array",
           categoryarray = filtered_cohorts_vec
-          ),
+        ),
         yaxis = list(title = "Coefficient of Variation (%)", titlefont = list(size=16)),
         showlegend = FALSE
-        ) %>% plotly::config(displaylogo = FALSE,
-                             modeBarButtons = list(list("zoomIn2d"), 
-                                                   list("zoomOut2d")),
-                             mathjax = 'cdn')
+      ) %>% plotly::config(displaylogo = FALSE,
+                           modeBarButtons = list(list("zoomIn2d"), 
+                                                 list("zoomOut2d")),
+                           mathjax = 'cdn')
   } else{
     p <- ggplot(calculated_cov_df_filtered, aes(x = cohort, y = cv, fill=cohort))+
       geom_boxplot(show.legend = FALSE)+
@@ -58,7 +60,6 @@ create_cohortwise_cov_boxplot <- function(calculated_cov_df, cohorts_order = NUL
       labs(x = "Cohorts",
            y = "Coefficient of Variation (%)")+
       scale_x_discrete(limits = filtered_cohorts_vec, expand = c(0.12,0.12))+
-      scale_y_continuous(breaks=seq(0, max(all_cv), 25))+
       ggsci::scale_color_aaas() + # filling the point colors
       theme(axis.line = element_line(size = 1, colour = "black"), # axis line of size 1 inch in black color
             panel.grid.major = element_blank(), # major grids included
@@ -73,6 +74,10 @@ create_cohortwise_cov_boxplot <- function(calculated_cov_df, cohorts_order = NUL
                                        margin=unit(c(0.5,0.5,0.1,0.1), "cm"), 
                                        face = "plain"), # y-axis text in fontsize 10
             axis.ticks.length = unit(-0.25, "cm"))
+    
+    if (length(y_breaks_seq) <= 16){
+      p <- p + scale_y_continuous(breaks = y_breaks_seq)
+    }  
   }
   
   message("Create Coefficient of Variation Boxplot Completed...")
