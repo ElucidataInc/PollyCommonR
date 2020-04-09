@@ -33,7 +33,7 @@ plot_pca3d <- function(PCAObj_Summary, metadata, condition,
   p <- plot_ly(comb_pca_metadata, x = ~eval(parse(text=paste("PC", pc_x, sep = ""))),
                y = ~eval(parse(text=paste("PC", pc_y, sep = ""))),
                z = ~eval(parse(text=paste("PC", pc_z, sep = ""))),
-               color = ~Cohort) %>%
+               color = ~Cohort, text = ~variable) %>%
     add_markers() %>%
     layout(title = title_label,
            scene = list(xaxis = list(title = paste("PC",pc_x, '(', round(PCAObj_Summary$importance[2,pc_x]*100, 2), '%)')),
