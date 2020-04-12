@@ -54,7 +54,7 @@ create_cohortwise_cov_barplot <- function(calculated_cov_df, id_order = NULL,
   }
   diff_ids <- setdiff(id_order, common_ids)
   if (length(diff_ids) != 0){
-    message(c("The following are not valid ids : ", diff_ids))
+    message(c("The following are not valid ids : ", paste0(diff_ids, collapse = ", ")))
   }
   
   calculated_cov_df[['cohort']] <- stringr::str_trim(calculated_cov_df[['cohort']])
