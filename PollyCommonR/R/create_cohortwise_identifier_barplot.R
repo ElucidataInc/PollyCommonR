@@ -51,7 +51,7 @@ create_cohortwise_identifier_barplot <- function (sample_raw_mat = NULL, metadat
   }
   diff_ids <- setdiff(id_order, common_ids)
   if (length(diff_ids) != 0) {
-    message(c("The following are not valid ids : ", diff_ids))
+    message(c("The following are not valid ids : ",  paste0(diff_ids, collapse = ", ")))
   }    
   
   metadata_df[[cohort_col]] <- stringr::str_trim(metadata_df[[cohort_col]])
