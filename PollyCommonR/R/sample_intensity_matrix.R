@@ -8,6 +8,7 @@
 #' @return A marix with samples in columns and ids in rows with raw values.
 #' @examples 
 #' sample_intensity_matrix(raw_intensity_df, metadata_df, rownames_col = 'Id')
+#' @import stringr
 #' @export
 sample_intensity_matrix <- function(raw_intensity_df = NULL, metadata_df = NULL, rownames_col = NULL){
   message("Make Sample Intensity Matrix Started...")
@@ -19,11 +20,11 @@ sample_intensity_matrix <- function(raw_intensity_df = NULL, metadata_df = NULL,
     message("No common samples found, please provide valid data")
     return(NULL)
   }
-  sample_intensity_mat <- raw_intensity_df[,sample_cols]
+  sample_intensity_mat <- raw_intensity_df[ ,sample_cols]
   
   if (identical(rownames_col, NULL)==FALSE){
     if (rownames_col %in% colnames(raw_intensity_df)){
-      make_unique_names <- make.unique(as.character(raw_intensity_df[,rownames_col]))
+      make_unique_names <- make.unique(stringr::str_trim(as.character(raw_intensity_df[ ,rownames_col])))
       rownames(sample_intensity_mat) <- make_unique_names
     } else{
       message(c(rownames_col, " is not present in raw_intensity_df columns, returning sample matrix with default rownames"))
