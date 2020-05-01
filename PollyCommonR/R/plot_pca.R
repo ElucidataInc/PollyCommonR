@@ -41,6 +41,11 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
     
     return (NULL)
   }
+
+  if (!(condition %in% colnames(metadata))) {
+    warning(c(condition, " is not a valid cohort column, please choose from metadata colnames"))
+    return(NULL)
+  }
   
   pca_var_df <- as.data.frame(PCAObj_Summary$x)
   pca_var_df$variable <- rownames(pca_var_df)

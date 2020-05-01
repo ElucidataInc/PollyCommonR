@@ -25,6 +25,11 @@ plot_pca3d <- function(PCAObj_Summary, metadata, condition,
     return (NULL)
   }
   
+  if (!(condition %in% colnames(metadata))) {
+    warning(c(condition, " is not a valid cohort column, please choose from metadata colnames"))
+    return(NULL)
+  }
+  
   pca_var_df <- as.data.frame(PCAObj_Summary$x)
   pca_var_df$variable <- rownames(pca_var_df)
   metadata[,condition] <- gsub(",", "_", as.character(metadata[,condition]), fixed = TRUE)
@@ -33,13 +38,13 @@ plot_pca3d <- function(PCAObj_Summary, metadata, condition,
   p <- plot_ly(comb_pca_metadata, x = ~eval(parse(text=paste("PC", pc_x, sep = ""))),
                y = ~eval(parse(text=paste("PC", pc_y, sep = ""))),
                z = ~eval(parse(text=paste("PC", pc_z, sep = ""))),
-               color = ~Cohort, text = ~variable) %>%
+               color = ~eval(parse(text=condition)), text = ~variable) %>%
     add_markers() %>%
     layout(title = title_label,
            scene = list(xaxis = list(title = paste("PC",pc_x, '(', round(PCAObj_Summary$importance[2,pc_x]*100, 2), '%)')),
                         yaxis = list(title = paste("PC",pc_y, '(', round(PCAObj_Summary$importance[2,pc_y]*100, 2), '%)')),
                         zaxis = list(title = paste("PC",pc_z, '(', round(PCAObj_Summary$importance[2,pc_z]*100, 2), '%)'))
-    )) %>% 
+           )) %>% 
     plotly::config(displaylogo = FALSE,
                    modeBarButtons = list(list("zoomIn2d"),
                                          list("zoomOut2d"),
