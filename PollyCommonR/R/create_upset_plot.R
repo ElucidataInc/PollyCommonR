@@ -1,6 +1,6 @@
 #' create_upset_plot
 #'
-#' It create an UpSet plot from list of vectors elements. For more information type help(UpSetR::upset)
+#' It creates an UpSet plot from list of vectors elements. For more information type help(UpSetR::upset)
 #'
 #' @param sets_list A list of sets to be compared.
 #' @param nsets Number of sets to look at

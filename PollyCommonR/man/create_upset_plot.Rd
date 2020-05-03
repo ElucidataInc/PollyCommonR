@@ -58,7 +58,7 @@ create_upset_plot(
 \item{sets}{Specific sets to look at (Include as combinations. Ex: c("Name1", "Name2"))}
 }
 \description{
-It create an UpSet plot from list of vectors elements. For more information type help(UpSetR::upset)
+It creates an UpSet plot from list of vectors elements. For more information type help(UpSetR::upset)
 }
 \examples{
 create_upset_plot(sets_list, nsets = 5, nintersects = 10, sets = NULL)
