@@ -1,6 +1,6 @@
 #' create_upset_plot
 #'
-#' It create an UpSet plot from list of vectors elements. For more information visit UpSetR package
+#' It creates an UpSet plot from list of vectors elements. For more information type help(UpSetR::upset)
 #'
 #' @param sets_list A list of sets to be compared.
 #' @param nsets Number of sets to look at
@@ -26,6 +26,7 @@ create_upset_plot <- function(sets_list, nsets = 20, nintersects = 100, sets = N
                               scale.sets = "identity", text.scale = 1.1, set_size.angles = 0,
                               set_size.show = TRUE, set_size.numbers_size = NULL,
                               set_size.scale_max = NULL){
+  message("Create UpSet Plot Started...")
   
   comb_elements <- unique(unlist(sets_list))
   upsetr_input <- data.frame(id = comb_elements)
@@ -58,6 +59,8 @@ create_upset_plot <- function(sets_list, nsets = 20, nintersects = 100, sets = N
                      set_size.show = set_size.show, set_size.numbers_size = set_size.numbers_size,
                      set_size.scale_max = set_size.scale_max
   )
+  
+  message("Create UpSet Plot Completed...")
   
   return (p)
 }
