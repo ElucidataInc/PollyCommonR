@@ -6,17 +6,17 @@
 #' @param log2fc_range Vector of log2FC range
 #' @param p_val_cutoff The pval cutoff
 #' @param fdr_cutoff The FDR cutoff
-#' @param annotate_genes A vector of genes/metabolites to be annotated
+#' @param annotate_id A vector of genes/metabolites to be annotated
 #' @param title_label Title of the plot
 #' @param interactive make plot interactive (default is TRUE)
 #' @return plotly object
 #' @examples
 #' plot_volcano_from_limma(diff_exp_rdesc, log2fc_range = 0.5, p_val_cutoff = 0.05, fdr_cutoff = NULL,
-#'  annotate_genes = c('a','b'), interactive = TRUE)
+#'  annotate_id = c('a','b'), interactive = TRUE)
 #' @import ggplot2 plotly ggsci ggrepel latex2exp
 #' @export
 plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, p_val_cutoff = NULL, 
-                                    fdr_cutoff = NULL, annotate_genes = NULL, 
+                                    fdr_cutoff = NULL, annotate_id = NULL, 
                                     title_label = "", interactive = TRUE) {
   message("Make Volcano Plot Started...")
   require(ggplot2)
@@ -47,6 +47,8 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
     x_val <- diff_exp_rdesc$logFC
     y_val <- -log10(diff_exp_rdesc$P.Value)
     
+    pval_type <- "P.Value"
+    
   }else{
     diff_exp_rdesc[(abs(diff_exp_rdesc$logFC) >= log2fc_range) &
                      (diff_exp_rdesc[, "adj.P.Val"] <= fdr_cutoff), "threshold"] <- "significant"
@@ -64,16 +66,18 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
     x_val <- diff_exp_rdesc$logFC
     y_val <- -log10(diff_exp_rdesc$adj.P.Val)
     
+    pval_type <- "adj.P.Val"
+    
   }
   
   if (interactive == TRUE){
-    filtered_diff_exp <- diff_exp_rdesc[row.names(diff_exp_rdesc) %in% annotate_genes, ]
+    filtered_diff_exp <- diff_exp_rdesc[row.names(diff_exp_rdesc) %in% annotate_id, ]
     if(nrow(filtered_diff_exp) == 0){
       a <- NULL
     }else{
       a <- list(
         x = filtered_diff_exp$logFC,
-        y = -log10(filtered_diff_exp$adj.P.Val),
+        y = -log10(filtered_diff_exp[[pval_type]]),
         text = rownames(filtered_diff_exp),
         xref = "x",
         yref = "y",
@@ -126,7 +130,13 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
             legend.text = element_text(size = 10, face = "bold"),
             legend.title = element_text(colour="black", size=12, face="bold"),
             axis.ticks.length = unit(-0.25, "cm")) # ticks facing inward with 0.25cm length
-    p <- p + ggrepel::geom_text_repel(data = subset(diff_exp_rdesc, id %in% annotate_genes), aes(label = id),size = 5)
+    p <- p + ggrepel::geom_text_repel(data = subset(diff_exp_rdesc, id %in% annotate_id), aes(label = id),size = 5,
+                                      box.padding = unit(0.5, 'lines'),
+                                      point.padding = unit(1.6, 'lines'),
+                                      segment.size = 0.5,
+                                      arrow = arrow(length = unit(0.01, 'npc')),
+                                      force = 0.5,
+                                      max.iter = 3e3)
   }
   
   message("Make Volcano Plot Completed...")

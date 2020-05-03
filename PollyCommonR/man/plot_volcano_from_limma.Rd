@@ -9,7 +9,7 @@ plot_volcano_from_limma(
   log2fc_range = NULL,
   p_val_cutoff = NULL,
   fdr_cutoff = NULL,
-  annotate_genes = NULL,
+  annotate_id = NULL,
   title_label = "",
   interactive = TRUE
 )
@@ -23,7 +23,7 @@ plot_volcano_from_limma(
 
 \item{fdr_cutoff}{The FDR cutoff}
 
-\item{annotate_genes}{A vector of genes/metabolites to be annotated}
+\item{annotate_id}{A vector of genes/metabolites to be annotated}
 
 \item{title_label}{Title of the plot}
 
@@ -37,5 +37,5 @@ makes a plotly volcano plot
 }
 \examples{
 plot_volcano_from_limma(diff_exp_rdesc, log2fc_range = 0.5, p_val_cutoff = 0.05, fdr_cutoff = NULL,
- annotate_genes = c('a','b'), interactive = TRUE)
+ annotate_id = c('a','b'), interactive = TRUE)
 }
