@@ -1,7 +1,7 @@
 Package: PollyCommonR
 Type: Package
 Title: Polly Common Functions in R
-Version: 0.2.1
+Version: 0.2.2
 Author: Sunil Dhakad
 Maintainer: The package maintainer <sunil.dhakad@elucidata.io>
 Description: This package contains common functions that are used in omics analysis.
@@ -17,7 +17,9 @@ Imports:
     ggsci(>= 2.9),
     latex2exp(>= 0.4.0),
     dplyr(>= 0.8.3),
-    ggrepel(>= 0.8.1)
+    ggrepel(>= 0.8.1),
+    SuperExactTest(>= 1.0.7),
+    UpSetR(>= 1.4.0)
 Suggests:
     testthat,
     devtools,
