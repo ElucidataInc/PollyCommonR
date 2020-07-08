@@ -1,6 +1,6 @@
 #' sample_intensity_matrix
 #'
-#' performs pca on the sample raw matrix
+#' create a sample matrix with samples in columns and ids in rownames.
 #'
 #' @param raw_intensity_df A dataframe containing samples with raw values.
 #' @param metadata_df A dataframe with samples to cohort mapping.
