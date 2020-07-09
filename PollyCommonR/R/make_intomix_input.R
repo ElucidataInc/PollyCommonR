@@ -4,8 +4,8 @@
 #'
 #' @param norm_data A sample intenisty data with samples in columns.
 #' @param metadata dataframe containing metadata information
-#' @param cohorts A vector of cohorts used for cohorts comparison
-#' @param cohorts_compare_data A dataframe having predefined cohorts comparison
+#' @param cohorts A vector of cohorts used for cohorts comparisons
+#' @param cohorts_compare_data A dataframe having predefined cohorts comparisons
 #' @param cohort_col A metadata column where cohorts are present
 #' @param rownames_col A raw_intensity_df column which is to be used for assigning rownames.
 #' @param remove_duplicates Remove duplicate ids rows based on pval

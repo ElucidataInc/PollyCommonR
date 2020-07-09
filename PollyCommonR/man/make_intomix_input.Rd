@@ -22,9 +22,9 @@ make_intomix_input(
 
 \item{metadata}{dataframe containing metadata information}
 
-\item{cohorts}{A vector of cohorts used for cohorts comparison}
+\item{cohorts}{A vector of cohorts used for cohorts comparisons}
 
-\item{cohorts_compare_data}{A dataframe having predefined cohorts comparison}
+\item{cohorts_compare_data}{A dataframe having predefined cohorts comparisons}
 
 \item{cohort_col}{A metadata column where cohorts are present}
 
