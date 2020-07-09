@@ -2,7 +2,7 @@
 #'
 #' calls limma differential expression algorithms
 #'
-#' @param prot_norm_mat matrix/dataframe containing protein normalised abundances.
+#' @param prot_norm_mat sample matrix with samples in columns and ids as rownames.
 #' @param metadata dataframe containing metadata information
 #' @param cohort_condition A metadata column where cohorts are present
 #' @param cohort_a string cohort_a

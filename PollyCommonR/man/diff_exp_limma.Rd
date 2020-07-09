@@ -15,7 +15,7 @@ diff_exp_limma(
 )
 }
 \arguments{
-\item{prot_norm_mat}{matrix/dataframe containing protein normalised abundances.}
+\item{prot_norm_mat}{sample matrix with samples in columns and ids as rownames.}
 
 \item{metadata}{dataframe containing metadata information}
 
