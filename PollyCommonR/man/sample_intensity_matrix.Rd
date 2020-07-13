@@ -7,7 +7,9 @@
 sample_intensity_matrix(
   raw_intensity_df = NULL,
   metadata_df = NULL,
-  rownames_col = NULL
+  rownames_col = NULL,
+  drop_na = FALSE,
+  replace_na_with_zero = TRUE
 )
 }
 \arguments{
@@ -16,12 +18,16 @@ sample_intensity_matrix(
 \item{metadata_df}{A dataframe with samples to cohort mapping.}
 
 \item{rownames_col}{A raw_intensity_df column which is to be used for assigning rownames.}
+
+\item{drop_na}{Drop rows having NA's.}
+
+\item{replace_na_with_zero}{Replace all NA's with zero.}
 }
 \value{
 A marix with samples in columns and ids in rows with raw values.
 }
 \description{
-performs pca on the sample raw matrix
+create a sample matrix with samples in columns and ids in rownames.
 }
 \examples{
 sample_intensity_matrix(raw_intensity_df, metadata_df, rownames_col = 'Id')

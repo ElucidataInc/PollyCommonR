@@ -10,12 +10,12 @@ diff_exp_limma(
   cohort_condition,
   cohort_a,
   cohort_b,
-  p_val_correct_methods,
-  log_flag
+  p_val_correct_methods = "BH",
+  log_flag = TRUE
 )
 }
 \arguments{
-\item{prot_norm_mat}{matrix/dataframe containing protein normalised abundances.}
+\item{prot_norm_mat}{sample matrix with samples in columns and ids as rownames.}
 
 \item{metadata}{dataframe containing metadata information}
 
@@ -27,7 +27,7 @@ diff_exp_limma(
 
 \item{p_val_correct_methods}{character vector containing p-val correction methods ('Bonferroni', 'BH(FDR)') to be applied.}
 
-\item{log_flag}{log normalises the data and performes limma.}
+\item{log_flag}{Check if data is log transformed (TRUE) or not (FALSE). If not (FALSE) then do internally log2 transformation.}
 }
 \value{
 dataframe, If logFC >0, it implies abundance is greater in cohort_b.
