@@ -66,7 +66,7 @@ create_cohortwise_identifier_barplot <- function (sample_raw_mat = NULL, metadat
     filtered_cohorts_vec <- common_cohorts
   }
   
-  sample_raw_mat <- sample_mat[common_ids, ]
+  sample_raw_mat <- sample_raw_mat[common_ids, ]
   transposed_mat <- as.data.frame(t(sample_raw_mat))
   
   transposed_mat$Sample <- rownames(transposed_mat)
