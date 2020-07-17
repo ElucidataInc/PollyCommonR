@@ -16,14 +16,15 @@ sample_intensity_matrix <- function(raw_intensity_df = NULL, metadata_df = NULL,
                                     rownames_col = NULL, drop_na = FALSE, replace_na_with_zero = TRUE){
   message("Make Sample Intensity Matrix Started...")
   
-  metadata_sample <- metadata_df[,1]
+  metadata_sample <- metadata_df[, 1]
   raw_intensity_cols <- colnames(raw_intensity_df)
   sample_cols <- intersect(metadata_sample, raw_intensity_cols)
+  
   if (length(sample_cols) == 0){
     message("No common samples found, please provide valid data")
     return(NULL)
   }
-  sample_intensity_mat <- raw_intensity_df[ ,sample_cols]
+  sample_intensity_mat <- raw_intensity_df[ , sample_cols, drop = FALSE]
   
   if (identical(rownames_col, NULL)==FALSE){
     if (rownames_col %in% colnames(raw_intensity_df)){
@@ -36,10 +37,10 @@ sample_intensity_matrix <- function(raw_intensity_df = NULL, metadata_df = NULL,
     message("no rownames_col parameter specified, returning sample matrix with default rownames")
   }
   
-  sample_intensity_mat[, colnames(sample_intensity_mat)] <- apply(sample_intensity_mat[, colnames(sample_intensity_mat)], 2, function(x) as.numeric(x))
+  sample_intensity_mat[, colnames(sample_intensity_mat)] <- apply(sample_intensity_mat[, colnames(sample_intensity_mat), drop = FALSE], 2, function(x) as.numeric(x))
   
   if (drop_na){
-    sample_intensity_mat <- sample_intensity_mat[rowSums(is.na(sample_intensity_mat)) == 0, ]
+    sample_intensity_mat <- sample_intensity_mat[rowSums(is.na(sample_intensity_mat)) == 0, , drop = FALSE]
   }
   
   if (replace_na_with_zero){
@@ -50,4 +51,3 @@ sample_intensity_matrix <- function(raw_intensity_df = NULL, metadata_df = NULL,
   
   return(sample_intensity_mat)
 }
-
