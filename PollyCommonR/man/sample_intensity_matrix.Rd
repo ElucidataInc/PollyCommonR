@@ -9,7 +9,7 @@ sample_intensity_matrix(
   metadata_df = NULL,
   rownames_col = NULL,
   drop_na = FALSE,
-  replace_na_with_zero = TRUE
+  replace_na_with_zero = FALSE
 )
 }
 \arguments{
