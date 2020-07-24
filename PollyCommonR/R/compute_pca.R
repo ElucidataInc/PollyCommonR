@@ -21,14 +21,13 @@ compute_pca <- function(sample_raw_mat = NULL, num = NULL, center = TRUE, scale 
   message("Compute PCA Started...")
   require(stats)
   
+  variancerow <- as.numeric(apply(sample_raw_mat, 1, function(x) var(x)))
+  sample_raw_mat <- sample_raw_mat[!(variancerow == 0),] 
   sample_raw_mat <- sample_raw_mat[!apply(sample_raw_mat, 1, anyNA), ]
   if (nrow(sample_raw_mat) == 0){
     warning("Not a valid matrix, have NANs or infs in the matrix")
     return (NULL)
-  }
-  
-  variancerow <- as.numeric(apply(sample_raw_mat, 1, function(x) var(x)))
-  sample_raw_mat <- sample_raw_mat[!(variancerow == 0),]  
+  }                                  
   
   if (!identical(num, NULL)){
     temp_df <- apply(sample_raw_mat, 1, function(x) mad(x))
@@ -45,3 +44,4 @@ compute_pca <- function(sample_raw_mat = NULL, num = NULL, center = TRUE, scale 
   message("Compute PCA Completed...")
   return (PCAObj_Summary)
 }
+

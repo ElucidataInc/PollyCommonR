@@ -25,7 +25,19 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
   require(ggrepel)
   require(latex2exp)
   
-  diff_exp_rdesc <- diff_exp_rdesc[!is.infinite(rowSums(diff_exp_rdesc)),]
+  if (identical(diff_exp_rdesc, NULL)){
+    warning("Differential Expression dataframe is NULL")
+    return (NULL)
+  }
+  
+  diff_exp_rdesc <- diff_exp_rdesc[!is.infinite(rowSums(diff_exp_rdesc[, c("logFC", "P.Value", "adj.P.Val")])), ]
+  diff_exp_rdesc <- diff_exp_rdesc[!apply(diff_exp_rdesc[, c("logFC","P.Value", "adj.P.Val")], 1, anyNA), ]
+  
+  if (nrow(diff_exp_rdesc) < 1){
+    warning("Differential Expression dataframe has zero valid rows")
+    return (NULL)
+  }
+  
   diff_exp_rdesc$threshold <- "not significant"
   diff_exp_rdesc$id <- row.names(diff_exp_rdesc)
   pal <- c("grey", "red")

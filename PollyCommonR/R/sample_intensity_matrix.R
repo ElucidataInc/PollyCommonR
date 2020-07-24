@@ -13,7 +13,7 @@
 #' @import stringr
 #' @export
 sample_intensity_matrix <- function(raw_intensity_df = NULL, metadata_df = NULL, 
-                                    rownames_col = NULL, drop_na = FALSE, replace_na_with_zero = TRUE){
+                                    rownames_col = NULL, drop_na = FALSE, replace_na_with_zero = FALSE){
   message("Make Sample Intensity Matrix Started...")
   
   metadata_sample <- metadata_df[, 1]
