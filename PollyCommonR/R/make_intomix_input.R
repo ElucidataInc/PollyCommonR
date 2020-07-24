@@ -10,8 +10,11 @@
 #' @param rownames_col A raw_intensity_df column which is to be used for assigning rownames.
 #' @param remove_duplicates Remove duplicate ids rows based on pval
 #' @param id_col A column id which will be used to remove duplicates
+#' @param pval_type Select p value type from P.Value or adj.P.Val
 #' @param p_val_correct_methods character vector containing p-val correction methods ('Bonferroni', 'BH(FDR)') to be applied.
 #' @param log_flag Check if data is log transformed (TRUE) or not (FALSE). If not (FALSE) then do internally log2 transformation.
+#' @param drop_na Drop rows having NA's used in sample_intensity_matrix function.
+#' @param replace_na_with_zero Replace all NA's with zero used in sample_intensity_matrix function.
 #'
 #' @return A dataframe of differential expression for all cohorts comparison.
 #' @examples
@@ -23,10 +26,10 @@
 #' @import stringr
 #' @export
 make_intomix_input <- function(norm_data = NULL, metadata = NULL,
-                               cohorts = NULL,  cohorts_compare_data = NULL, cohort_col = 'Cohort', 
+                               cohorts = NULL, cohorts_compare_data = NULL, cohort_col = 'Cohort', 
                                rownames_col = 'uniqueId', remove_duplicates = TRUE, 
-                               id_col = 'compoundId', p_val_correct_methods = 'BH',
-                               log_flag = TRUE ){
+                               id_col = 'compoundId',pval_type = "P.Value", p_val_correct_methods = 'BH',
+                               log_flag = TRUE, drop_na = FALSE, replace_na_with_zero = FALSE){
   message("Make Intomix Input Started...")
   
   if (identical(rownames_col, NULL)){
@@ -46,7 +49,10 @@ make_intomix_input <- function(norm_data = NULL, metadata = NULL,
     warning(c(id_col, " is not present in norm_data columns"))
     return(NULL)
   }
-  
+  if (!(pval_type %in% c("P.Value", "adj.P.Val"))){
+    warning("Not a valid pval_type. Please use P.Value or adj.P.Val")
+    return(NULL)      
+  }  
   if (identical(cohorts_compare_data, NULL)){  
     
     if (identical(cohorts, NULL)){
@@ -83,7 +89,8 @@ make_intomix_input <- function(norm_data = NULL, metadata = NULL,
   
   metadata[[cohort_col]] <- stringr::str_trim(metadata[[cohort_col]])
   norm_data$uniqueId <- make.unique(stringr::str_trim(as.character(norm_data[, rownames_col])))
-  sample_raw_mat <- PollyCommonR::sample_intensity_matrix(norm_data, metadata, rownames_col = "uniqueId")
+  sample_raw_mat <- PollyCommonR::sample_intensity_matrix(norm_data, metadata, rownames_col = "uniqueId", 
+                                                          drop_na = drop_na, replace_na_with_zero = replace_na_with_zero)
   
   overall_diff_exp <- data.frame()
   for (each_comb in 1:nrow(cohorts_comb_df)){
@@ -98,7 +105,6 @@ make_intomix_input <- function(norm_data = NULL, metadata = NULL,
     if (!all(compare_cohorts %in% metadata[[cohort_col]])){
       next
     }
-    
     diff_exp <- NULL
     try(diff_exp <- PollyCommonR::diff_exp_limma(prot_norm_mat = sample_raw_mat, 
                                                  metadata = metadata, cohort_col,
@@ -108,7 +114,6 @@ make_intomix_input <- function(norm_data = NULL, metadata = NULL,
     if (identical(diff_exp, NULL)){
       next
     }
-    
     diff_exp_update <- data.frame(id = rownames(diff_exp), state1 = compare_cohorts[2], 
                                   state2 = compare_cohorts[1], diff_exp, stringsAsFactors = FALSE)
     merged_diff_exp <- merge(norm_data[, c("uniqueId", id_col)], diff_exp_update, by.x = "uniqueId", by.y = "id")
@@ -129,7 +134,7 @@ make_intomix_input <- function(norm_data = NULL, metadata = NULL,
   }
   
   overall_diff_exp$ID <- overall_diff_exp[[id_col]]
-  intomix_input_df <- overall_diff_exp[,c('uniqueId', 'ID','state1','state2','P.Value','logFC')]
+  intomix_input_df <- overall_diff_exp[,c('uniqueId', 'ID', 'state1', 'state2', pval_type, 'logFC')]
   intomix_input_df_filtered <- intomix_input_df
   colnames(intomix_input_df_filtered) <- c('uniqueId','ID','state1','state2','pval','log2FC')
   

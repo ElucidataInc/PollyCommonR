@@ -13,8 +13,11 @@ make_intomix_input(
   rownames_col = "uniqueId",
   remove_duplicates = TRUE,
   id_col = "compoundId",
+  pval_type = "P.Value",
   p_val_correct_methods = "BH",
-  log_flag = TRUE
+  log_flag = TRUE,
+  drop_na = FALSE,
+  replace_na_with_zero = FALSE
 )
 }
 \arguments{
@@ -34,9 +37,15 @@ make_intomix_input(
 
 \item{id_col}{A column id which will be used to remove duplicates}
 
+\item{pval_type}{Select p value type from P.Value or adj.P.Val}
+
 \item{p_val_correct_methods}{character vector containing p-val correction methods ('Bonferroni', 'BH(FDR)') to be applied.}
 
 \item{log_flag}{Check if data is log transformed (TRUE) or not (FALSE). If not (FALSE) then do internally log2 transformation.}
+
+\item{drop_na}{Drop rows having NA's used in sample_intensity_matrix function.}
+
+\item{replace_na_with_zero}{Replace all NA's with zero used in sample_intensity_matrix function.}
 }
 \value{
 A dataframe of differential expression for all cohorts comparison.
