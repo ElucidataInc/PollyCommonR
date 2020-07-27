@@ -37,9 +37,9 @@ calculate_cohortwise_cov <- function(raw_matrix, metadata, cohort_col='Cohort'){
     interm_df[['id']] <- rownames(raw_matrix)
     interm_df[['cohort']] = cohort
     cohort_samples <- as.character(dplyr::filter(metadata, !!(sym(cohort_col)) %in% !!cohort)[[1]])
-    cohortwise_sample_mat = as.matrix(raw_matrix[,cohort_samples])
-    interm_df[['mean']] <- rowMeans(cohortwise_sample_mat)
-    interm_df[['std']] <- matrixStats::rowSds(cohortwise_sample_mat)
+    cohortwise_sample_mat = as.matrix(raw_matrix[, cohort_samples])
+    interm_df[['mean']] <- rowMeans(cohortwise_sample_mat, na.rm = TRUE)
+    interm_df[['std']] <- matrixStats::rowSds(cohortwise_sample_mat, na.rm = TRUE)
     interm_df[['cv']] <- abs(interm_df[['std']]/interm_df[['mean']])*100
     cohortwise_cov_list[[cohort]] <- interm_df
   }
