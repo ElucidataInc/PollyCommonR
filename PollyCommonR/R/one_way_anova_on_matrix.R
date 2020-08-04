@@ -48,13 +48,12 @@ one_way_anova_on_matrix <- function(sample_raw_mat = NULL, metadata_df = NULL, c
   
   identifier_cols <- raw_intensity_cols[!(raw_intensity_cols %in% sample_cols)]
   if (length(identifier_cols) == 1){
-    identifier_df <- data.frame(sample_raw_mat[,identifier_cols])
+    identifier_df <- data.frame(sample_raw_mat[, identifier_cols, drop =FALSE])
     names(identifier_df) <- identifier_cols
   } else{
-    identifier_df <- sample_raw_mat[,identifier_cols]
+    identifier_df <- sample_raw_mat[, identifier_cols, drop = FALSE]
   }
-  sample_intensity_mat <- sample_raw_mat[,sample_cols]
-  
+  sample_intensity_mat <- sample_raw_mat[, sample_cols, drop = FALSE]
   sample_df <- data.frame(Sample = colnames(sample_intensity_mat))
   anova_input_df <- merge(sample_df, metadata_df, by=1)
   anova_results <- apply(sample_intensity_mat, 1, function(x) {
@@ -62,21 +61,29 @@ one_way_anova_on_matrix <- function(sample_raw_mat = NULL, metadata_df = NULL, c
     frm<-paste("value", cohort_col, sep="~")
     anv1 <- stats::lm(stats::formula(frm), anova_input_df)
     a <- aov(anv1)
-    return(list(
-      F_statistic = summary(a)[[1]]["F value"]["Cohort", "F value"],
-      p_value = summary(a)[[1]]["Pr(>F)"][[1]][1]
-    ))
+    F_val <- NA
+    p_val <- NA  
+    if (all(c("F value", "Pr(>F)") %in% colnames(summary(a)[[1]]))){
+      F_val = summary(a)[[1]]["F value"]["Cohort", "F value"]
+      p_val = summary(a)[[1]]["Pr(>F)"][[1]][1]
+    }
+    return(list(F_statistic = F_val, p_value = p_val))
   })
   
   anova_results_df <- stats::setNames(
     data.frame(sapply(anova_results, function(x) x$F_statistic),
-               sapply(anova_results, function(x) x$p_value)
-    ), c("F.Value", "P.Value")
-  )                           
+               sapply(anova_results, function(x) x$p_value)), 
+    c("F.Value", "P.Value"))
+  
   combined_anova_results_df <- dplyr::bind_cols(identifier_df, anova_results_df)   
   combined_anova_results_df <- data.frame(id = rownames(anova_results_df), combined_anova_results_df, stringsAsFactors = FALSE)
+  combined_anova_results_df <- combined_anova_results_df[rowSums(is.na(combined_anova_results_df)) == 0, , drop = FALSE]
+  
+  if (nrow(combined_anova_results_df) < 1){
+    warning("Each cohorts should have more than one sample")
+    return(NULL)
+  }
   
   message("One Way Anova On Matrix Completed...")
-  
   return(combined_anova_results_df)
 }
