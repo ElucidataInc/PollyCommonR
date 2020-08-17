@@ -119,7 +119,7 @@ make_intomix_input <- function(norm_data = NULL, metadata = NULL,
     merged_diff_exp <- merge(norm_data[, c("uniqueId", id_col)], diff_exp_update, by.x = "uniqueId", by.y = "id")
     
     if (remove_duplicates){
-      merged_diff_exp_sorted <- merged_diff_exp[order(merged_diff_exp$P.Value, decreasing = FALSE), ]
+      merged_diff_exp_sorted <- merged_diff_exp[order(merged_diff_exp[[pval_type]], decreasing = FALSE), ]
       merged_diff_exp_filtered <- merged_diff_exp_sorted[!(duplicated(merged_diff_exp_sorted[[id_col]])), ]
       overall_diff_exp <- rbind(overall_diff_exp, merged_diff_exp_filtered)
     } else {
