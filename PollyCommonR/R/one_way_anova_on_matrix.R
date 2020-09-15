@@ -37,17 +37,21 @@ one_way_anova_on_matrix <- function(sample_raw_mat = NULL, metadata_df = NULL, c
     warning(c(cohort_col, " column is not present in metadata"))
     return(NULL)
   }
+  
   if (length(unique(metadata_df[[cohort_col]])) < 2) {
     warning("The number of cohorts should be greater than 2")
     return(NULL)
   }
+  
   metadata_sample <- metadata_df[, 1]
   raw_intensity_cols <- colnames(sample_raw_mat)
   sample_cols <- intersect(metadata_sample, raw_intensity_cols)
+  
   if (length(sample_cols) == 0) {
     message("No common samples found, please provide valid data")
     return(NULL)
   }
+  
   identifier_cols <- raw_intensity_cols[!(raw_intensity_cols %in% sample_cols)]
   if (length(identifier_cols) == 1) {
     identifier_df <- data.frame(sample_raw_mat[, identifier_cols, drop = FALSE])
@@ -68,7 +72,7 @@ one_way_anova_on_matrix <- function(sample_raw_mat = NULL, metadata_df = NULL, c
     if (nrow(anova_input_df) > 0){
       frm <- paste("value", cohort_col, sep = "~")
       anv1 <- stats::lm(stats::formula(frm), anova_input_df)
-      a <- aov(anv1)
+      a <- stats::aov(anv1)
       if (all(c("F value", "Pr(>F)") %in% colnames(summary(a)[[1]]))) {
         F_val = summary(a)[[1]]["F value"][cohort_col, "F value"]
         p_val = summary(a)[[1]]["Pr(>F)"][[1]][1]
@@ -88,7 +92,7 @@ one_way_anova_on_matrix <- function(sample_raw_mat = NULL, metadata_df = NULL, c
   combined_anova_results_df <- combined_anova_results_df[rowSums(is.na(combined_anova_results_df)) == 0, , drop = FALSE]
   
   if (nrow(combined_anova_results_df) < 1){
-    warning("Each cohorts should have more than one sample")
+    warning("Unable to perform anova test on this dataset")
     return(NULL)
   }
   
