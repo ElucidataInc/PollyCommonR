@@ -47,6 +47,11 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
     return(NULL)
   }
   
+  if (length(unique(metadata[[condition]])) < 1) {
+    warning("The number of cohorts should be greater than or equal to 1")
+    return(NULL)
+  }
+  
   pca_var_df <- as.data.frame(PCAObj_Summary$x)
   pca_var_df$variable <- rownames(pca_var_df)
   metadata[,condition] <- gsub(",", "_", as.character(metadata[,condition]), fixed = TRUE)
@@ -90,11 +95,19 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
                                                                                                    list('toImage')), 
                                                                              mathjax = 'cdn')
     
+    cohorts_vec <- unique(metadata[,condition])
+    chr_size_ratio <- max(sapply(cohorts_vec, function(x) nchar(x) / nchar(condition)))
     for (cohort_index in 1:length(p$x$data)){
       name <- p$x$data[[cohort_index]]$name
-      re <- "\\(([^()]+)\\)"
-      cohort <- strsplit(gsub(re, "\\1", stringr::str_extract_all(name, re)[[1]]),",")[[1]][1]
-      p$x$data[[cohort_index]]$name <- cohort
+      cohort <- name  
+      if (!identical(name, "1")){
+        re <- "\\(([^()]+)\\)"
+        cohort <- strsplit(gsub(re, "\\1", stringr::str_extract_all(name, re)[[1]]),",")[[1]][1]
+      }
+      if (chr_size_ratio < 1){
+        cohort <- paste0(cohort, strrep(" ", (nchar(condition) + round(1/chr_size_ratio, 0)/1.5)))
+      }
+      p$x$data[[cohort_index]]$name <- cohort 
     }
   }
   

@@ -37,37 +37,45 @@ one_way_anova_on_matrix <- function(sample_raw_mat = NULL, metadata_df = NULL, c
     warning(c(cohort_col, " column is not present in metadata"))
     return(NULL)
   }
-  
-  metadata_sample <- metadata_df[,1]
+  if (length(unique(metadata_df[[cohort_col]])) < 2) {
+    warning("The number of cohorts should be greater than 2")
+    return(NULL)
+  }
+  metadata_sample <- metadata_df[, 1]
   raw_intensity_cols <- colnames(sample_raw_mat)
   sample_cols <- intersect(metadata_sample, raw_intensity_cols)
-  if (length(sample_cols) == 0){
+  if (length(sample_cols) == 0) {
     message("No common samples found, please provide valid data")
     return(NULL)
   }
-  
   identifier_cols <- raw_intensity_cols[!(raw_intensity_cols %in% sample_cols)]
-  if (length(identifier_cols) == 1){
-    identifier_df <- data.frame(sample_raw_mat[, identifier_cols, drop =FALSE])
+  if (length(identifier_cols) == 1) {
+    identifier_df <- data.frame(sample_raw_mat[, identifier_cols, drop = FALSE])
     names(identifier_df) <- identifier_cols
-  } else{
+  }
+  else {
     identifier_df <- sample_raw_mat[, identifier_cols, drop = FALSE]
   }
   sample_intensity_mat <- sample_raw_mat[, sample_cols, drop = FALSE]
   sample_df <- data.frame(Sample = colnames(sample_intensity_mat))
-  anova_input_df <- merge(sample_df, metadata_df, by=1)
+  anova_input_df <- merge(sample_df, metadata_df, by = 1)
+  anova_input_df[, cohort_col] <-  as.character(anova_input_df[[cohort_col]])
   anova_results <- apply(sample_intensity_mat, 1, function(x) {
     anova_input_df$value <- x
-    frm<-paste("value", cohort_col, sep="~")
-    anv1 <- stats::lm(stats::formula(frm), anova_input_df)
-    a <- aov(anv1)
+    anova_input_df <- anova_input_df[apply(anova_input_df, 1, function(x) is.finite(as.numeric(x[['value']]))), , drop = FALSE]
     F_val <- NA
-    p_val <- NA  
-    if (all(c("F value", "Pr(>F)") %in% colnames(summary(a)[[1]]))){
-      F_val = summary(a)[[1]]["F value"]["Cohort", "F value"]
-      p_val = summary(a)[[1]]["Pr(>F)"][[1]][1]
+    p_val <- NA
+    if (nrow(anova_input_df) > 0){
+      frm <- paste("value", cohort_col, sep = "~")
+      anv1 <- stats::lm(stats::formula(frm), anova_input_df)
+      a <- aov(anv1)
+      if (all(c("F value", "Pr(>F)") %in% colnames(summary(a)[[1]]))) {
+        F_val = summary(a)[[1]]["F value"][cohort_col, "F value"]
+        p_val = summary(a)[[1]]["Pr(>F)"][[1]][1]
+      }
     }
     return(list(F_statistic = F_val, p_value = p_val))
+    
   })
   
   anova_results_df <- stats::setNames(
