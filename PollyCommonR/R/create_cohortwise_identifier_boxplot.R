@@ -86,7 +86,7 @@ create_cohortwise_identifier_boxplot <- function (sample_raw_mat = NULL, metadat
     for (cohort in filtered_cohorts_vec) {
       mat_cohort <- mat_with_metadata %>% dplyr::filter(!!(sym(cohort_col)) %in% cohort)
       p <- add_trace(p, x = as.character(mat_cohort[['Id']]), y = mat_cohort[["Value"]],
-                     type = "box", name = cohort, boxpoints = "all", jitter = 0.3, pointpos = 0)
+                     type = "box", text = mat_cohort[['Sample']], name = cohort, boxpoints = "all", jitter = 0.3, pointpos = 0)
     }
     
     p <- p %>% layout(title = title_label, margin=list(b=100), 
