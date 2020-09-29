@@ -21,7 +21,7 @@ one_way_anova_on_matrix(
 A dataframe with two extra columns (calculated F.Value and P.Value).
 }
 \description{
-performs pca on the sample raw matrix
+performs one way anova test on the sample raw matrix
 }
 \examples{
 one_way_anova_on_matrix(sample_raw_mat, metadata_df, cohort_col = "Cohort")
