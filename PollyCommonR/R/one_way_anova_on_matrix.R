@@ -1,6 +1,6 @@
 #' one_way_anova_on_matrix
 #'
-#' performs pca on the sample raw matrix
+#' performs one way anova test on the sample raw matrix
 #'
 #' @param sample_raw_mat A dataframe containing samples with raw values.
 #' @param metadata_df A dataframe with samples to cohort mapping.
@@ -33,16 +33,6 @@ one_way_anova_on_matrix <- function(sample_raw_mat = NULL, metadata_df = NULL, c
     return(NULL) 
   }
   
-  if (!(cohort_col %in% colnames(metadata_df))){
-    warning(c(cohort_col, " column is not present in metadata"))
-    return(NULL)
-  }
-  
-  if (length(unique(metadata_df[[cohort_col]])) < 2) {
-    warning("The number of cohorts should be greater than 2")
-    return(NULL)
-  }
-  
   metadata_sample <- metadata_df[, 1]
   raw_intensity_cols <- colnames(sample_raw_mat)
   sample_cols <- intersect(metadata_sample, raw_intensity_cols)
@@ -52,7 +42,20 @@ one_way_anova_on_matrix <- function(sample_raw_mat = NULL, metadata_df = NULL, c
     return(NULL)
   }
   
+  metadata_df <- dplyr::filter(metadata_df, !!(sym(colnames(metadata_df)[1])) %in% sample_cols)
+  
+  if (!(cohort_col %in% colnames(metadata_df))){
+    warning(c(cohort_col, " column is not present in metadata"))
+    return(NULL)
+  }
+  
+  if (length(unique(metadata_df[[cohort_col]])) < 2) {
+    warning("The number of cohorts for common samples should be greater than 2")
+    return(NULL)
+  }
+  
   identifier_cols <- raw_intensity_cols[!(raw_intensity_cols %in% sample_cols)]
+  
   if (length(identifier_cols) == 1) {
     identifier_df <- data.frame(sample_raw_mat[, identifier_cols, drop = FALSE])
     names(identifier_df) <- identifier_cols
@@ -60,10 +63,12 @@ one_way_anova_on_matrix <- function(sample_raw_mat = NULL, metadata_df = NULL, c
   else {
     identifier_df <- sample_raw_mat[, identifier_cols, drop = FALSE]
   }
+  
   sample_intensity_mat <- sample_raw_mat[, sample_cols, drop = FALSE]
   sample_df <- data.frame(Sample = colnames(sample_intensity_mat))
   anova_input_df <- merge(sample_df, metadata_df, by = 1)
   anova_input_df[, cohort_col] <-  as.character(anova_input_df[[cohort_col]])
+  
   anova_results <- apply(sample_intensity_mat, 1, function(x) {
     anova_input_df$value <- x
     anova_input_df <- anova_input_df[apply(anova_input_df, 1, function(x) is.finite(as.numeric(x[['value']]))), , drop = FALSE]
@@ -97,5 +102,6 @@ one_way_anova_on_matrix <- function(sample_raw_mat = NULL, metadata_df = NULL, c
   }
   
   message("One Way Anova On Matrix Completed...")
+  
   return(combined_anova_results_df)
 }

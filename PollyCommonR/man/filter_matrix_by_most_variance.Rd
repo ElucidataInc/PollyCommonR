@@ -9,7 +9,10 @@ filter_matrix_by_most_variance(
   top_n = NULL,
   algo = "mad",
   metadata_df = NULL,
-  cohort_col = NULL
+  cohort_col = NULL,
+  remove_duplicates = TRUE,
+  row_desc = NULL,
+  id_col = NULL
 )
 }
 \arguments{
@@ -22,6 +25,12 @@ filter_matrix_by_most_variance(
 \item{metadata_df}{A dataframe with samples to cohort mapping.}
 
 \item{cohort_col}{A metadata column where cohorts are present.}
+
+\item{remove_duplicates}{remove duplicates using some column id from row descriptors.}
+
+\item{row_desc}{A dataframe of row descriptors of the matrix.}
+
+\item{id_col}{The id column of row descriptors dataframe used to remove duplicates.}
 }
 \value{
 The filtered sample_raw_mat.
