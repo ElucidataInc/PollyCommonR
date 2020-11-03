@@ -7,6 +7,8 @@
 #' @param p_val_cutoff The pval cutoff
 #' @param fdr_cutoff The FDR cutoff
 #' @param annotate_id A vector of genes/metabolites to be annotated
+#' @param row_desc A dataframe of row descriptors of the matrix
+#' @param text_hover_col A row descriptor column which is used to hover text on plot
 #' @param title_label Title of the plot
 #' @param interactive make plot interactive (default is TRUE)
 #' @return plotly object
@@ -16,8 +18,8 @@
 #' @import ggplot2 plotly ggsci ggrepel latex2exp
 #' @export
 plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, p_val_cutoff = NULL, 
-                                    fdr_cutoff = NULL, annotate_id = NULL, 
-                                    title_label = "", interactive = TRUE) {
+                                    fdr_cutoff = NULL, annotate_id = NULL, row_desc = NULL, 
+                                    text_hover_col = NULL, title_label = "", interactive = TRUE) {
   message("Make Volcano Plot Started...")
   require(ggplot2)
   require(plotly)
@@ -83,10 +85,33 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
   }
   
   if (interactive == TRUE){
+    text_hover <- rownames(diff_exp_rdesc)
+    
+    if (!identical(row_desc, NULL)){
+      if (!identical(class(row_desc), "data.frame")){
+        warning("The row_desc is not a dataframe, please provide valid row_desc")
+        return(NULL) 
+      }   
+      
+      if (!all(row.names(diff_exp_rdesc) %in% row.names(row_desc))){
+        warning("Not all rownames of diff_exp_rdesc are present in rownames of row_desc")
+        return (NULL)  
+      }
+      
+      if (!identical(text_hover_col, NULL)){
+        if (!(text_hover_col %in% colnames(row_desc))){
+          warning(c(text_hover_col, " column is not present in row_desc"))
+          return (NULL)
+        } else {
+          text_hover <- row_desc[[text_hover_col]]
+        }
+      }
+    }  
+    
     filtered_diff_exp <- diff_exp_rdesc[row.names(diff_exp_rdesc) %in% annotate_id, ]
     if(nrow(filtered_diff_exp) == 0){
       a <- NULL
-    }else{
+    } else {
       a <- list(
         x = filtered_diff_exp$logFC,
         y = -log10(filtered_diff_exp[[pval_type]]),
@@ -104,7 +129,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
         type = "scattergl", mode = "markers",
         color = diff_exp_rdesc$threshold,
         colors = pal,
-        text = rownames(diff_exp_rdesc)
+        text = text_hover
       ) %>%
       layout(
         title = title_label,
@@ -123,7 +148,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
                                            list("zoomOut2d"), 
                                            list('toImage')), 
                      mathjax = 'cdn')
-  }else{
+  } else {
     p <- ggplot(diff_exp_rdesc, aes_string(x = x_col, y = y_col, fill = 'threshold')
                 , text = id) + # calls the ggplot function with dose on the x-axis and len on the y-axis 
       geom_point(shape = 21, size = 4, alpha = 0.7) + # scatter plot function with shape of points defined as 21 scale.
@@ -154,5 +179,4 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
   message("Make Volcano Plot Completed...")
   
   return (p)
-  
 }
