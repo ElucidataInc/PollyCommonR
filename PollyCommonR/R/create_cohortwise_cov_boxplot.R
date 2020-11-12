@@ -26,7 +26,7 @@ create_cohortwise_cov_boxplot <- function(calculated_cov_df, cohorts_order = NUL
   common_cohorts <- c()
   if (length(cohorts_order) != 0){
     cohorts_order <- stringr::str_trim(cohorts_order)
-    common_cohorts <- intersect(cohorts_order, cohorts_vec)
+    common_cohorts <- base::intersect(cohorts_order, cohorts_vec)
   }
   if (length(common_cohorts) != 0){
     filtered_cohorts_vec = common_cohorts

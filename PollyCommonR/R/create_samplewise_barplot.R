@@ -45,7 +45,7 @@ create_samplewise_barplot <- function(sample_raw_mat = NULL, metadata_df = NULL,
   common_cohorts <- c()
   if (length(cohorts_order) != 0){
     cohorts_order <- stringr::str_trim(cohorts_order)
-    common_cohorts <- intersect(cohorts_order, cohorts_vec)
+    common_cohorts <- base::intersect(cohorts_order, cohorts_vec)
   }
   if (length(common_cohorts) != 0){
     filtered_cohorts_vec = common_cohorts

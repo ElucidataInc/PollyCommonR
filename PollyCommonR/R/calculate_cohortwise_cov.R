@@ -23,7 +23,7 @@ calculate_cohortwise_cov <- function(raw_matrix, metadata, cohort_col='Cohort'){
 
   raw_matrix_samples <- colnames(raw_matrix)
   metadata_samples <- as.character(metadata[, 1])
-  common_samples <- intersect(metadata_samples, raw_matrix_samples)
+  common_samples <- base::intersect(metadata_samples, raw_matrix_samples)
   if (length(common_samples) == 0){
     warning("No common samples in matrix and metadata")
     return(NULL)

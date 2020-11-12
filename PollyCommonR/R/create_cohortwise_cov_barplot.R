@@ -46,7 +46,7 @@ create_cohortwise_cov_barplot <- function(calculated_cov_df, id_order = NULL,
   common_ids <- c()
   if (length(id_order) != 0){
     id_order <- stringr::str_trim(id_order)
-    common_ids <- intersect(id_order, ids_vec)
+    common_ids <- base::intersect(id_order, ids_vec)
   }
   if (length(common_ids) == 0){
     warning("Invalid selected ids")
@@ -63,7 +63,7 @@ create_cohortwise_cov_barplot <- function(calculated_cov_df, id_order = NULL,
   common_cohorts <- c()
   if (length(cohorts_order) != 0){
     cohorts_order <- stringr::str_trim(cohorts_order)
-    common_cohorts <- intersect(cohorts_order, cohorts_vec)
+    common_cohorts <- base::intersect(cohorts_order, cohorts_vec)
   }
   if (length(common_cohorts) != 0){
     filtered_cohorts_vec = common_cohorts
