@@ -35,7 +35,7 @@ one_way_anova_on_matrix <- function(sample_raw_mat = NULL, metadata_df = NULL, c
   
   metadata_sample <- metadata_df[, 1]
   raw_intensity_cols <- colnames(sample_raw_mat)
-  sample_cols <- intersect(metadata_sample, raw_intensity_cols)
+  sample_cols <- base::intersect(metadata_sample, raw_intensity_cols)
   
   if (length(sample_cols) == 0) {
     message("No common samples found, please provide valid data")

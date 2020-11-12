@@ -18,7 +18,7 @@ sample_intensity_matrix <- function(raw_intensity_df = NULL, metadata_df = NULL,
   
   metadata_sample <- metadata_df[, 1]
   raw_intensity_cols <- colnames(raw_intensity_df)
-  sample_cols <- intersect(metadata_sample, raw_intensity_cols)
+  sample_cols <- base::intersect(metadata_sample, raw_intensity_cols)
   
   if (length(sample_cols) == 0){
     message("No common samples found, please provide valid data")

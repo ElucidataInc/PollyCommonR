@@ -62,7 +62,7 @@ make_intomix_input <- function(norm_data = NULL, metadata = NULL,
     
     metadata[[cohort_col]] <- stringr::str_trim(metadata[[cohort_col]])
     cohorts <- stringr::str_trim(cohorts)
-    common_cohorts <- intersect(unique(metadata[[cohort_col]]), cohorts)
+    common_cohorts <- base::intersect(unique(metadata[[cohort_col]]), cohorts)
     
     if (length(common_cohorts) < 2) {
       warning("Please provide more than two common cohorts present in cohorts vector and metadata")

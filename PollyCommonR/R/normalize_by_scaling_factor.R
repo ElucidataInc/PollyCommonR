@@ -16,7 +16,7 @@ normalize_by_scaling_factor <- function(sample_raw_mat, normalization_agent, sca
   norm_agent_samples_vec <- rownames(normalization_agent)
   
   sample_raw_mat_cols <- colnames(sample_raw_mat)
-  common_sample_cols <- intersect(sample_raw_mat_cols, norm_agent_samples_vec)
+  common_sample_cols <- base::intersect(sample_raw_mat_cols, norm_agent_samples_vec)
   if (length(common_sample_cols) == 0){
     message("No common samples found, please provide valid data, returning original data")
     return(sample_raw_mat)

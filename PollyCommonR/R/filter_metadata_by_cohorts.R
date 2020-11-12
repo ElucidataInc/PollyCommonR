@@ -16,7 +16,7 @@ filter_metadata_by_cohorts <- function(metadata, condition = 'Cohort', selected_
   
   filtered_metadata_df <- metadata
   if (!identical(selected_cohorts, NULL)){
-    common_cohorts <- intersect(selected_cohorts, metadata[,condition])
+    common_cohorts <- base::intersect(selected_cohorts, metadata[,condition])
     if (!(length(common_cohorts) == 0)){
       filtered_metadata_df <- dplyr::filter(metadata, .data[[condition]] %in% common_cohorts)
     }else{

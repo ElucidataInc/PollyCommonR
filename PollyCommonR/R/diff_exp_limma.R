@@ -37,7 +37,7 @@ diff_exp_limma <- function (prot_norm_mat, metadata, cohort_condition, cohort_a,
   }
   prot_norm_mat_samples <- colnames(prot_norm_mat)
   metadata_samples <- as.character(metadata[, 1])
-  common_samples <- intersect(metadata_samples, prot_norm_mat_samples)
+  common_samples <- base::intersect(metadata_samples, prot_norm_mat_samples)
   if (length(common_samples) == 0) {
     warning("No common samples in matrix and metadata")
     return(NULL)
