@@ -83,17 +83,18 @@ create_cohortwise_identifier_boxplot <- function (sample_raw_mat = NULL, metadat
   
   if (interactive == TRUE) {
     p <- plot_ly()
-    for (cohort in filtered_cohorts_vec) {
-      mat_cohort <- mat_with_metadata %>% dplyr::filter(!!(sym(cohort_col)) %in% cohort)
+    for (selected_cohort_name in filtered_cohorts_vec) {
+      mat_cohort <- mat_with_metadata %>% dplyr::filter(!!(sym(cohort_col)) %in% selected_cohort_name)
       p <- add_trace(p, x = as.character(mat_cohort[['Id']]), y = mat_cohort[["Value"]],
-                     type = "box", text = mat_cohort[['Sample']], name = cohort, boxpoints = "all", jitter = 0.3, pointpos = 0)
+                     type = "box", text = mat_cohort[['Sample']], name = selected_cohort_name, boxpoints = "all", jitter = 0.3, pointpos = 0)
     }
     
     p <- p %>% layout(title = title_label, margin=list(b=100), 
                       xaxis = list(title = x_label, titlefont = list(size = 16), 
                                    categoryorder = "array", 
                                    categoryarray = filtered_cohorts_vec), 
-                      yaxis = list(title = y_label, titlefont = list(size = 16)), boxmode = 'group') %>% 
+                      yaxis = list(title = y_label, titlefont = list(size = 16)),
+                      boxmode = 'group', showlegend = TRUE) %>% 
       plotly::config(displaylogo = FALSE, modeBarButtons = list(list("zoomIn2d"), list("zoomOut2d"), 
                                                                 list("toImage")), mathjax = "cdn")
   }
