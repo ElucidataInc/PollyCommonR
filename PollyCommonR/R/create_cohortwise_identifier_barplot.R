@@ -86,18 +86,19 @@ create_cohortwise_identifier_barplot <- function (sample_raw_mat = NULL, metadat
   
   if (interactive == TRUE) {
     p <- plot_ly()
-    for (cohort in filtered_cohorts_vec) {
-      mat_cohort <- filtered_mat_mean_sd %>% dplyr::filter(!!(sym(cohort_col)) %in% cohort)
+    for (selected_cohort_name in filtered_cohorts_vec) {
+      mat_cohort <- filtered_mat_mean_sd %>% dplyr::filter(!!(sym(cohort_col)) %in% selected_cohort_name)
       p <- add_trace(p, x = as.character(mat_cohort[['Id']]), y = mat_cohort[["mean"]], 
                      error_y = list(array = mat_cohort[["sd"]], color = '#000000'),
-                     type = "bar", name = cohort)
+                     type = "bar", name = selected_cohort_name)
     }
     
     p <- p %>% layout(title = title_label, margin=list(b=100), 
                       xaxis = list(title = x_label, titlefont = list(size = 16), 
                                    categoryorder = "array", 
                                    categoryarray = filtered_cohorts_vec), 
-                      yaxis = list(title = y_label, titlefont = list(size = 16))) %>% 
+                      yaxis = list(title = y_label, titlefont = list(size = 16)),
+                      showlegend = TRUE) %>% 
       plotly::config(displaylogo = FALSE, modeBarButtons = list(list("zoomIn2d"), list("zoomOut2d"), 
                                                                 list("toImage")), mathjax = "cdn")
   }
