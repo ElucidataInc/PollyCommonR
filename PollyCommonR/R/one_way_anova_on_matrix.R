@@ -94,7 +94,7 @@ one_way_anova_on_matrix <- function(sample_raw_mat = NULL, metadata_df = NULL, c
   
   combined_anova_results_df <- dplyr::bind_cols(identifier_df, anova_results_df)   
   combined_anova_results_df <- data.frame(id = rownames(anova_results_df), combined_anova_results_df, stringsAsFactors = FALSE)
-  combined_anova_results_df <- combined_anova_results_df[rowSums(is.na(combined_anova_results_df)) == 0, , drop = FALSE]
+  combined_anova_results_df <- combined_anova_results_df[rowSums(is.na(combined_anova_results_df[c("F.Value", "P.Value")])) == 0, , drop = FALSE]
   
   if (nrow(combined_anova_results_df) < 1){
     warning("Unable to perform anova test on this dataset")
