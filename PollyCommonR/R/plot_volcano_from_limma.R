@@ -9,7 +9,9 @@
 #' @param annotate_id A vector of genes/metabolites to be annotated
 #' @param row_desc A dataframe of row descriptors of the matrix
 #' @param text_hover_col A row descriptor column which is used to hover text on plot
+#' @param category_col A row descriptor column which is used to add shapes to different categories
 #' @param title_label Title of the plot
+#' @param marker_size Size of marker point
 #' @param interactive make plot interactive (default is TRUE)
 #' @return plotly object
 #' @examples
@@ -19,7 +21,8 @@
 #' @export
 plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, p_val_cutoff = NULL, 
                                     fdr_cutoff = NULL, annotate_id = NULL, row_desc = NULL, 
-                                    text_hover_col = NULL, title_label = "", interactive = TRUE) {
+                                    text_hover_col = NULL, category_col = NULL, title_label = "",
+                                    marker_size = 8, interactive = TRUE) {
   message("Make Volcano Plot Started...")
   require(ggplot2)
   require(plotly)
@@ -84,8 +87,14 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
     
   }
   
+  
+  if (!identical(row_desc, NULL)){
+    
+  }   
+  
   if (interactive == TRUE){
-    text_hover <- rownames(diff_exp_rdesc)
+    diff_exp_rdesc$text_hover <- row.names(diff_exp_rdesc)
+    diff_exp_rdesc$category_sym <- NULL
     
     if (!identical(row_desc, NULL)){
       if (!identical(class(row_desc), "data.frame")){
@@ -98,15 +107,26 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
         return (NULL)  
       }
       
+      row_desc <- row_desc[row.names(diff_exp_rdesc), ]
+      
       if (!identical(text_hover_col, NULL)){
         if (!(text_hover_col %in% colnames(row_desc))){
           warning(c(text_hover_col, " column is not present in row_desc"))
           return (NULL)
-        } else {
-          text_hover <- row_desc[[text_hover_col]]
+        } else { 
+          diff_exp_rdesc$text_hover <- row_desc[[text_hover_col]]
         }
-      }
-    }  
+      } 
+      
+      if (!identical(category_col, NULL)){
+        if (!(category_col %in% colnames(row_desc))){
+          warning(c(category_col, " column is not present in row_desc"))
+          return (NULL)
+        } else { 
+          diff_exp_rdesc$category_sym <- row_desc[[category_col]]
+        }
+      }    
+    }      
     
     filtered_diff_exp <- diff_exp_rdesc[row.names(diff_exp_rdesc) %in% annotate_id, ]
     if(nrow(filtered_diff_exp) == 0){
@@ -115,7 +135,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
       a <- list(
         x = filtered_diff_exp$logFC,
         y = -log10(filtered_diff_exp[[pval_type]]),
-        text = rownames(filtered_diff_exp),
+        text = row.names(filtered_diff_exp),
         xref = "x",
         yref = "y",
         showarrow = TRUE,
@@ -127,10 +147,14 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
       add_trace(
         x = x_val, y = y_val,
         type = "scattergl", mode = "markers",
+        marker = list(size = marker_size),
         color = diff_exp_rdesc$threshold,
         colors = pal,
-        text = text_hover
+        symbol = diff_exp_rdesc$category_sym,
+        text = diff_exp_rdesc$text_hover
+        
       ) %>%
+      
       layout(
         title = title_label,
         yaxis = list(title = yaxis_lab_pl),
@@ -148,12 +172,11 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
                                            list("zoomOut2d"), 
                                            list('toImage')), 
                      mathjax = 'cdn')
-  } else {
-    p <- ggplot(diff_exp_rdesc, aes_string(x = x_col, y = y_col, fill = 'threshold')
-                , text = id) + # calls the ggplot function with dose on the x-axis and len on the y-axis 
-      geom_point(shape = 21, size = 4, alpha = 0.7) + # scatter plot function with shape of points defined as 21 scale.
-      ggtitle(title_label)+
-      labs(x = xaxis_lab_gg, y = yaxis_lab_gg,  fill = "Significance") + # x and y axis labels
+  } else {     
+    p <- ggplot(diff_exp_rdesc, aes_string(x = x_col, y = y_col, fill = "threshold"), text = id) + 
+      geom_point(shape = 21, size = marker_size/2, alpha = 0.7) + # scatter plot function with shape of points defined as 21 scale.   
+      ggtitle(title_label) +       
+      labs(x = xaxis_lab_gg, y = yaxis_lab_gg,  fill = "Significance", shape = "Category") + # x and y axis labels
       ggsci::scale_color_aaas() + # filling the point colors
       theme(legend.position = "right", legend.direction = "vertical", # legend positioned at the bottom, horizantal direction,
             axis.line = element_line(size=1, colour = "black"),	# axis line of size 1 inch in black color

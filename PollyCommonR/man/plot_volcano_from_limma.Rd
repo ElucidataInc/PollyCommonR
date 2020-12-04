@@ -12,7 +12,9 @@ plot_volcano_from_limma(
   annotate_id = NULL,
   row_desc = NULL,
   text_hover_col = NULL,
+  category_col = NULL,
   title_label = "",
+  marker_size = 8,
   interactive = TRUE
 )
 }
@@ -31,7 +33,11 @@ plot_volcano_from_limma(
 
 \item{text_hover_col}{A row descriptor column which is used to hover text on plot}
 
+\item{category_col}{A row descriptor column which is used to add shapes to different categories}
+
 \item{title_label}{Title of the plot}
+
+\item{marker_size}{Size of marker point}
 
 \item{interactive}{make plot interactive (default is TRUE)}
 }
