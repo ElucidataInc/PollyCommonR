@@ -12,7 +12,9 @@ plot_pca(
   pc_y = 2,
   show_ellipse = FALSE,
   interactive = TRUE,
+  color_palette = NULL,
   title_label = "",
+  marker_size = 6,
   title_label_size = 18,
   axis_title_size = 14,
   pca_cohort_text_format = "bold",
@@ -38,7 +40,11 @@ plot_pca(
 
 \item{interactive}{make plot interactive (default is TRUE)}
 
+\item{color_palette}{The vector of colors}
+
 \item{title_label}{Title of the plot}
+
+\item{marker_size}{The size of marker point}
 
 \item{title_label_size}{Size of title label}
 
