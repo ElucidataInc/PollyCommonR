@@ -22,13 +22,42 @@ diff_exp_limma <- function (prot_norm_mat, metadata, cohort_condition, cohort_a,
   require(limma)
   require(dplyr)
   
+  if (identical(prot_norm_mat, NULL)){
+    warning("The prot_norm_mat is NULL")
+    return (NULL)  
+  }
+  
+  if (identical(metadata, NULL)){
+    warning("The metadata is NULL")
+    return (NULL)  
+  }
+  
+  if (!(cohort_condition %in% colnames(metadata))){
+    warning(paste0(cohort_condition, " is not present in metadata columns"))
+    return (NULL)  
+  }   
+  
   if (!(cohort_a %in% metadata[[cohort_condition]] && cohort_b %in% metadata[[cohort_condition]])) {
     warning(paste0("Invalid ", cohort_a, " or ", cohort_b))
     return(NULL)
   }
-  cohort_a <- make.names(gsub("condition", "", cohort_a))
-  cohort_b <- make.names(gsub("condition", "", cohort_b))
-  metadata[[cohort_condition]] <- make.names(gsub("condition", "", metadata[[cohort_condition]]))
+  
+  cohort_a <- gsub("condition", "", cohort_a)
+  cohort_b <- gsub("condition", "", cohort_b)
+  metadata[[cohort_condition]] <- gsub("condition", "", metadata[[cohort_condition]])
+  
+  cohorts_unique <- as.vector(unique(metadata[[cohort_condition]]))
+  names(cohorts_unique) <- make.names(cohorts_unique, unique = TRUE) 
+  
+  for (names_index in 1:length(cohorts_unique)){
+    replace_by_name <- unname(cohorts_unique)[names_index]
+    replace_with_name <- names(cohorts_unique)[names_index]
+    metadata <- metadata %>% dplyr::mutate(!! sym(cohort_condition) := replace(as.character(!! sym(cohort_condition)), !! sym(cohort_condition) == replace_by_name, replace_with_name))  
+  }
+  
+  cohort_a <- names(cohorts_unique[unname(cohorts_unique) %in% cohort_a])  
+  cohort_b <- names(cohorts_unique[unname(cohorts_unique) %in% cohort_b])
+  
   metadata[, 1] <- make.names(metadata[, 1])
   colnames(prot_norm_mat) <- make.names(colnames(prot_norm_mat))
   if ((cohort_a == "") | (cohort_b == "")) {
@@ -56,6 +85,8 @@ diff_exp_limma <- function (prot_norm_mat, metadata, cohort_condition, cohort_a,
   contrast_matrix <- limma::makeContrasts(contrasts = c(paste(cohort_b, cohort_a, sep = "-")), levels = design)
   cohort_a_columns <- metadata[metadata[cohort_condition] == cohort_a, ][, 1]
   cohort_b_columns <- metadata[metadata[cohort_condition] == cohort_b, ][, 1]
+  
+  limma_results_df <- NULL  
   if (length(cohort_a_columns) <= 1 | length(cohort_b_columns) <= 1) {
     warning("Since, your selected cohorts have no replicates in the data, you might want to change the cohorts or cohort condition and try again.")
     return(NULL)
@@ -75,10 +106,11 @@ diff_exp_limma <- function (prot_norm_mat, metadata, cohort_condition, cohort_a,
       limma_results_df[, p_val_correct] <- p.adjust(limma_results_df$P.Value, 
                                                     method = p_val_correct_method)
     }
-
+    
     limma_results_df <- limma_results_df[order(match(rownames(limma_results_df), rownames(prot_norm_mat_log2))), , drop = FALSE]
-
-    message("Calculate Differential Expression Limma Completed...")
-    return(limma_results_df)
   }
+  
+  message("Calculate Differential Expression Limma Completed...")
+  
+  return(limma_results_df)    
 }
