@@ -33,10 +33,10 @@ create_boxplot_on_matrix <- function(sample_raw_mat = NULL, x_label = "", y_labe
           plot.title = element_text(colour="black", size = 18, face = "plain", hjust=0.5),
           axis.title = element_text(colour="black", size = 14, face = plot_axis_format), # axis title
           axis.text.x = element_text(colour="black", size = plot_axis_text_size, angle = 90,
-                                     hjust = 1, margin=unit(c(0.5,0.5,0.1,0.1), "cm"),
+                                     hjust = 1, margin=unit(c(0.2,0.2,0.1,0.1), "cm"),
                                      face = plot_axis_format), # x-axis text in fontsize 10
           axis.text.y = element_text(colour="black", size = plot_axis_text_size,
-                                     margin=unit(c(0.5,0.5,0.1,0.1), "cm"), 
+                                     margin=unit(c(0.2,0.2,0.1,0.1), "cm"), 
                                      face = plot_axis_format), # y-axis text in fontsize 10
           axis.ticks.length = unit(0.25, "cm"))
   

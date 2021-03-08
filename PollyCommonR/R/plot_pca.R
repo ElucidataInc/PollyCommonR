@@ -77,8 +77,8 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
           panel.border = element_blank(), panel.background = element_blank(), # no borders and background color
           plot.title = element_text(colour="black", size = title_label_size, face = "plain", hjust=0.5),
           axis.title = element_text(colour="black", size = axis_title_size, face = pca_plot_axis_format), # axis title
-          axis.text.x = element_text(colour="black", size = pca_plot_axis_text_size, margin=unit(c(0.5,0.5,0.1,0.1), "cm"), face = pca_plot_axis_format), # x-axis text in fontsize 10
-          axis.text.y = element_text(colour="black", size = pca_plot_axis_text_size, margin=unit(c(0.5,0.5,0.1,0.1), "cm"), face = pca_plot_axis_format), # y-axis text in fontsize 10
+          axis.text.x = element_text(colour="black", size = pca_plot_axis_text_size, margin=unit(c(0.2,0.2,0.1,0.1), "cm"), face = pca_plot_axis_format), # x-axis text in fontsize 10
+          axis.text.y = element_text(colour="black", size = pca_plot_axis_text_size, margin=unit(c(0.2,0.2,0.1,0.1), "cm"), face = pca_plot_axis_format), # y-axis text in fontsize 10
           legend.text = element_text(size = pca_cohort_sample_size, face = pca_cohort_text_format),
           legend.title = element_text(colour="black", size= pca_cohort_title_size, face= pca_cohort_text_format),
           axis.ticks.length = unit(0.25, "cm"))
