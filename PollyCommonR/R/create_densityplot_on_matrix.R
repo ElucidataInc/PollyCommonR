@@ -45,7 +45,7 @@ create_densityplot_on_matrix <- function(sample_raw_mat = NULL, data_type = "all
           panel.border = element_blank(), panel.background = element_blank(), # no borders and background color
           axis.title = element_text(colour="black", size = 18, face = "plain"), # axis title
           axis.text.x = element_text(colour="black", size = 18,# angle = 90,
-                                     hjust = 1, margin=unit(c(0.2,0.2,0.1,0.1), "cm"),
+                                     margin=unit(c(0.2,0.2,0.1,0.1), "cm"),
                                      face = "plain"), # x-axis text in fontsize 10
           axis.text.y = element_text(colour="black", size = 18,
                                      margin=unit(c(0.2,0.2,0.1,0.1), "cm"), 

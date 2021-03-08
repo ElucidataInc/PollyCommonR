@@ -183,7 +183,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
             panel.grid.major = element_blank(),	# major grids included
             panel.grid.minor = element_blank(),	# no minor grids
             panel.border = element_blank(), panel.background = element_blank(), # no borders and background color
-            plot.title = element_text(colour="black", size = 18, face = "plain", hjust=0.5),
+            plot.title = element_text(colour="black", size = 18, face = "plain"),
             axis.title = element_text(colour="black", size = 15, face = "bold"), # axis title 
             axis.text.x = element_text(colour="black", size = 10, margin=unit(c(0.2,0.2,0.1,0.1), "cm"), face = "bold"), # x-axis text in fontsize 10
             axis.text.y = element_text(colour="black", size = 10, margin=unit(c(0.2,0.2,0.1,0.1), "cm"), face = "bold"), # y-axis text in fontsize 10

@@ -20,7 +20,7 @@ plot_proportion_of_variance <- function(PCAObj_Summary){
     labs(title="Proportion of Variance", x="Principal Component", y="Variance (%)", fill='PC') +
     geom_bar(stat = "identity") + scale_x_discrete(limits=data$pc) + coord_cartesian(ylim=c(0,100))+
     scale_y_continuous(breaks = pretty(0:100, n=10))+
-    theme(plot.title = element_text(hjust=0.5, size=18, face = "bold"),
+    theme(plot.title = element_text(size=18, face = "bold"),
           legend.position = "none", legend.direction = "none", # legend positioned at the bottom, horizantal direction,
           axis.line = element_line(size=1, colour = "black"),	# axis line of size 1 inch in black color
           panel.grid.major = element_blank(),	# major grids included
