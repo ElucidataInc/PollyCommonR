@@ -92,12 +92,12 @@ create_samplewise_barplot <- function(sample_raw_mat = NULL, metadata_df = NULL,
             plot.title = element_text(colour="black", size = 18, face = "plain", hjust=0.5),
             axis.title = element_text(colour="black", size = 14, face = "plain"), # axis title
             axis.text.x = element_text(colour="black", size = 10, angle = 90,
-                                       hjust = 1, margin=unit(c(0.5,0.5,0.1,0.1), "cm"),
+                                       margin=unit(c(0.2,0.2,0.1,0.1), "cm"),
                                        face = "plain"), # x-axis text in fontsize 10
             axis.text.y = element_text(colour="black", size = 10,
-                                       margin=unit(c(0.5,0.5,0.1,0.1), "cm"), 
+                                       margin=unit(c(0.2,0.2,0.1,0.1), "cm"), 
                                        face = "plain"), # y-axis text in fontsize 10
-            axis.ticks.length = unit(-0.25, "cm"))
+            axis.ticks.length = unit(0.25, "cm"))
   }
   
   message("Create Samplewise Barplot Started...")
