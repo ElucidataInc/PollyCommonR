@@ -111,7 +111,7 @@ create_cohortwise_identifier_boxplot <- function (sample_raw_mat = NULL, metadat
             panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
             panel.border = element_blank(), panel.background = element_blank(), 
             plot.title = element_text(colour = "black", size = 18, 
-                                      face = "plain"), 
+                                      face = "plain", hjust=0.5), 
             axis.title = element_text(colour = "black",
                                       size = 14, face = "plain"), 
             axis.text.x = element_text(colour = "black", size = 10, angle = 90, 

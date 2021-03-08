@@ -30,7 +30,7 @@ create_boxplot_on_matrix <- function(sample_raw_mat = NULL, x_label = "", y_labe
           panel.grid.major = element_blank(), # major grids included
           panel.grid.minor = element_blank(), # no minor grids
           panel.border = element_blank(), panel.background = element_blank(), # no borders and background color
-          plot.title = element_text(colour="black", size = 18, face = "plain"),
+          plot.title = element_text(colour="black", size = 18, face = "plain", hjust=0.5),
           axis.title = element_text(colour="black", size = 14, face = plot_axis_format), # axis title
           axis.text.x = element_text(colour="black", size = plot_axis_text_size, angle = 90,
                                      margin=unit(c(0.2,0.2,0.1,0.1), "cm"),

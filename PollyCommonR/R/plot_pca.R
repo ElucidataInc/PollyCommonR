@@ -75,7 +75,7 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
           panel.grid.major = element_blank(), # major grids included
           panel.grid.minor = element_blank(), # no minor grids
           panel.border = element_blank(), panel.background = element_blank(), # no borders and background color
-          plot.title = element_text(colour="black", size = title_label_size, face = "plain"),
+          plot.title = element_text(colour="black", size = title_label_size, face = "plain", hjust=0.5),
           axis.title = element_text(colour="black", size = axis_title_size, face = pca_plot_axis_format), # axis title
           axis.text.x = element_text(colour="black", size = pca_plot_axis_text_size, margin=unit(c(0.2,0.2,0.1,0.1), "cm"), face = pca_plot_axis_format), # x-axis text in fontsize 10
           axis.text.y = element_text(colour="black", size = pca_plot_axis_text_size, margin=unit(c(0.2,0.2,0.1,0.1), "cm"), face = pca_plot_axis_format), # y-axis text in fontsize 10
