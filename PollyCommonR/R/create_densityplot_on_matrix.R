@@ -50,7 +50,7 @@ create_densityplot_on_matrix <- function(sample_raw_mat = NULL, data_type = "all
           axis.text.y = element_text(colour="black", size = 18,
                                      margin=unit(c(0.5,0.5,0.1,0.1), "cm"), 
                                      face = "plain"), # y-axis text in fontsize 10
-          axis.ticks.length = unit(-0.25, "cm"))
+          axis.ticks.length = unit(0.25, "cm"))
   
   message("Create Densityplot On Matrix Completed...")
   

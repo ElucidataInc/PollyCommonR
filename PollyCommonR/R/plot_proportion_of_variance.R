@@ -31,7 +31,7 @@ plot_proportion_of_variance <- function(PCAObj_Summary){
           axis.text.y = element_text(colour="black", size = 10, margin=unit(c(0.5,0.5,0.1,0.1), "cm"), face = "bold"), # y-axis text in fontsize 10
           legend.text = element_text(size = 10, face = "bold"),
           legend.title = element_text(colour="black", size=12, face="bold"),
-          axis.ticks.length = unit(-0.25, "cm")) # ticks facing inward with 0.25cm length    
+          axis.ticks.length = unit(0.25, "cm")) # ticks facing inward with 0.25cm length    
   
   p <- ggplotly(p, tooltip = c("variance")) %>%
     plotly::config(displaylogo = FALSE,

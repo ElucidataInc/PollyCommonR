@@ -38,7 +38,7 @@ create_boxplot_on_matrix <- function(sample_raw_mat = NULL, x_label = "", y_labe
           axis.text.y = element_text(colour="black", size = plot_axis_text_size,
                                      margin=unit(c(0.5,0.5,0.1,0.1), "cm"), 
                                      face = plot_axis_format), # y-axis text in fontsize 10
-          axis.ticks.length = unit(-0.25, "cm"))
+          axis.ticks.length = unit(0.25, "cm"))
   
   if (flip_coord == TRUE ){
     p <- p +

@@ -81,7 +81,7 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
           axis.text.y = element_text(colour="black", size = pca_plot_axis_text_size, margin=unit(c(0.5,0.5,0.1,0.1), "cm"), face = pca_plot_axis_format), # y-axis text in fontsize 10
           legend.text = element_text(size = pca_cohort_sample_size, face = pca_cohort_text_format),
           legend.title = element_text(colour="black", size= pca_cohort_title_size, face= pca_cohort_text_format),
-          axis.ticks.length = unit(-0.25, "cm"))
+          axis.ticks.length = unit(0.25, "cm"))
   if (show_ellipse == TRUE){
     p <- p + stat_ellipse(geom = "polygon", alpha = 1/6, aes(fill = comb_pca_metadata[,condition]))
   }

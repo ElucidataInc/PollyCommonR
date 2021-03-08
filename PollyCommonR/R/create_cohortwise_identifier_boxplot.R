@@ -118,7 +118,7 @@ create_cohortwise_identifier_boxplot <- function (sample_raw_mat = NULL, metadat
                                        margin = unit(c(0.5,0.5, 0.1, 0.1), "cm"), face = "plain"),
             axis.text.y = element_text(colour = "black", size = 10, 
                                        margin = unit(c(0.5, 0.5, 0.1, 0.1), "cm"), face = "plain"), 
-            axis.ticks.length = unit(-0.25, "cm"))
+            axis.ticks.length = unit(0.25, "cm"))
   }    
   
   message("Create Cohortwise Identifier Boxplot Started...")

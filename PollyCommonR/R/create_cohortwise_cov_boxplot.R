@@ -73,7 +73,7 @@ create_cohortwise_cov_boxplot <- function(calculated_cov_df, cohorts_order = NUL
             axis.text.y = element_text(colour="black", size = 10,
                                        margin=unit(c(0.5,0.5,0.1,0.1), "cm"), 
                                        face = "plain"), # y-axis text in fontsize 10
-            axis.ticks.length = unit(-0.25, "cm"))
+            axis.ticks.length = unit(0.25, "cm"))
     
     if (length(y_breaks_seq) <= 16){
       p <- p + scale_y_continuous(breaks = y_breaks_seq)
