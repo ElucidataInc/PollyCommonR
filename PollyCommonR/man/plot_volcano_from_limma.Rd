@@ -11,6 +11,7 @@ plot_volcano_from_limma(
   fdr_cutoff = NULL,
   annotate_id = NULL,
   row_desc = NULL,
+  annotate_col = NULL,
   text_hover_col = NULL,
   category_col = NULL,
   title_label = "",
@@ -27,9 +28,11 @@ plot_volcano_from_limma(
 
 \item{fdr_cutoff}{The FDR cutoff}
 
-\item{annotate_id}{A vector of genes/metabolites to be annotated}
+\item{annotate_id}{A vector of ids (rownames of row_desc) to be annotated}
 
 \item{row_desc}{A dataframe of row descriptors of the matrix}
+
+\item{annotate_col}{A row descriptor column which is used to show names for annotated ids on plot}
 
 \item{text_hover_col}{A row descriptor column which is used to hover text on plot}
 
