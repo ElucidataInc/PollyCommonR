@@ -11,6 +11,8 @@
 #' @param annotate_col A row descriptor column which is used to show names for annotated ids on plot
 #' @param text_hover_col A row descriptor column which is used to hover text on plot
 #' @param category_col A row descriptor column which is used to add shapes to different categories
+#' @param x_label Label x-axis
+#' @param y_label Label y-axis
 #' @param title_label Title of the plot
 #' @param marker_size Size of marker point
 #' @param interactive make plot interactive (default is TRUE)
@@ -23,7 +25,8 @@
 plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, p_val_cutoff = NULL, 
                                     fdr_cutoff = NULL, annotate_id = NULL, row_desc = NULL, 
                                     annotate_col = NULL, text_hover_col = NULL, category_col = NULL,
-                                    title_label = "", marker_size = 8, interactive = TRUE) {
+                                    x_label = NULL, y_label = NULL, title_label = NULL, marker_size = 8, 
+                                    interactive = TRUE) {
   message("Make Volcano Plot Started...")
   require(ggplot2)
   require(plotly)
@@ -154,6 +157,8 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
   }
   
   if (interactive == TRUE){
+    if (identical(x_label, NULL)){ x_label <- xaxis_lab_pl }
+    if (identical(y_label, NULL)){ y_label <- yaxis_lab_pl }
     diff_exp_rdesc$text_hover <- row.names(diff_exp_rdesc)
     diff_exp_rdesc$category_sym <- NULL  
     if (!identical(row_desc, NULL)){     
@@ -199,8 +204,8 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
       
       layout(
         title = title_label,
-        yaxis = list(title = yaxis_lab_pl),
-        xaxis = list(title = xaxis_lab_pl),
+        yaxis = list(title = y_label),
+        xaxis = list(title = x_label),
         annotations = a,
         showlegend = TRUE
       ) %>%
@@ -215,11 +220,14 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
                                            list('toImage')), 
                      mathjax = 'cdn')
   } else {
-    if (identical(annotate_col, NULL)){ annotate_col <- "id" } 
+    if (identical(annotate_col, NULL)){ annotate_col <- "id" }
+    if (identical(x_label, NULL)){ x_label <- xaxis_lab_gg }
+    if (identical(y_label, NULL)){ y_label <- yaxis_lab_gg }      
+    
     p <- ggplot(diff_exp_rdesc, aes_string(x = x_col, y = y_col, color = "threshold", fill = "threshold", shape = category_col), text = id) + 
       geom_point( size = marker_size/2, alpha = 0.7) + # scatter plot function with shape of points defined as 21 scale.   
       ggtitle(title_label) +       
-      labs(x = xaxis_lab_gg, y = yaxis_lab_gg, color = "Significance", fill = "Significance", shape = "Category") + # x and y axis labels
+      labs(x = x_label, y = y_label, color = "Significance", fill = "Significance", shape = "Category") + # x and y axis labels
       theme(legend.position = "right", legend.direction = "vertical", # legend positioned at the bottom, horizantal direction,
             axis.line = element_line(size=1, colour = "black"),	# axis line of size 1 inch in black color
             panel.grid.major = element_blank(),	# major grids included

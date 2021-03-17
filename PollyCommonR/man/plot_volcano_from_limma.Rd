@@ -14,7 +14,9 @@ plot_volcano_from_limma(
   annotate_col = NULL,
   text_hover_col = NULL,
   category_col = NULL,
-  title_label = "",
+  x_label = NULL,
+  y_label = NULL,
+  title_label = NULL,
   marker_size = 8,
   interactive = TRUE
 )
@@ -37,6 +39,10 @@ plot_volcano_from_limma(
 \item{text_hover_col}{A row descriptor column which is used to hover text on plot}
 
 \item{category_col}{A row descriptor column which is used to add shapes to different categories}
+
+\item{x_label}{Label x-axis}
+
+\item{y_label}{Label y-axis}
 
 \item{title_label}{Title of the plot}
 
