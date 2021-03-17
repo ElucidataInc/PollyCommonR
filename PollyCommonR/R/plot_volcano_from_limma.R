@@ -6,8 +6,9 @@
 #' @param log2fc_range Vector of log2FC range
 #' @param p_val_cutoff The pval cutoff
 #' @param fdr_cutoff The FDR cutoff
-#' @param annotate_id A vector of genes/metabolites to be annotated
+#' @param annotate_id A vector of ids (rownames of row_desc) to be annotated
 #' @param row_desc A dataframe of row descriptors of the matrix
+#' @param annotate_col A row descriptor column which is used to show names for annotated ids on plot
 #' @param text_hover_col A row descriptor column which is used to hover text on plot
 #' @param category_col A row descriptor column which is used to add shapes to different categories
 #' @param title_label Title of the plot
@@ -21,8 +22,8 @@
 #' @export
 plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, p_val_cutoff = NULL, 
                                     fdr_cutoff = NULL, annotate_id = NULL, row_desc = NULL, 
-                                    text_hover_col = NULL, category_col = NULL, title_label = "",
-                                    marker_size = 8, interactive = TRUE) {
+                                    annotate_col = NULL, text_hover_col = NULL, category_col = NULL,
+                                    title_label = "", marker_size = 8, interactive = TRUE) {
   message("Make Volcano Plot Started...")
   require(ggplot2)
   require(plotly)
@@ -33,6 +34,59 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
   if (identical(diff_exp_rdesc, NULL)){
     warning("Differential Expression dataframe is NULL")
     return (NULL)
+  }
+  
+  if (!identical(row_desc, NULL)){
+    if (!identical(class(row_desc), "data.frame")){
+      warning("The row_desc is not a dataframe, please provide valid row_desc")
+      return(NULL) 
+    }   
+    
+    if (!all(row.names(diff_exp_rdesc) %in% row.names(row_desc))){
+      warning("Not all rownames of diff_exp_rdesc are present in rownames of row_desc")
+      return (NULL)  
+    }
+    
+    if (!identical(annotate_col, NULL)){
+      if (!(annotate_col %in% colnames(row_desc))){
+        warning(c(annotate_col, " column is not present in row_desc"))
+        return (NULL)
+      } 
+    }      
+    
+    if (!identical(text_hover_col, NULL)){
+      if (!(text_hover_col %in% colnames(row_desc))){
+        warning(c(text_hover_col, " column is not present in row_desc"))
+        return (NULL)
+      }      
+    }
+    
+    if (!identical(category_col, NULL)){
+      if (!(category_col %in% colnames(row_desc))){
+        warning(c(category_col, " column is not present in row_desc"))
+        return (NULL)
+      }      
+    }
+    
+    diff_exp_rdesc <- base::transform(base::merge(diff_exp_rdesc,row_desc,by=0), row.names=Row.names, Row.names=NULL) 
+  }
+  else {
+    annotate_col <- "id"
+    text_hover_col <- NULL
+    category_col <- NULL    
+  }  
+  
+  if (!identical(annotate_id, NULL)){
+    common_annotate_id <- base::intersect(annotate_id, row.names(diff_exp_rdesc))
+    if (length(common_annotate_id) < 1){
+      warning("The annotate ids are not matched with rownames of diff_exp_rdesc")    
+    }
+    else {
+      diff_annotate_id <- base::setdiff(annotate_id, row.names(diff_exp_rdesc))
+      if (length(diff_annotate_id) >= 1){
+        warning(paste("The following annotate ids are not matched with rownames of diff_exp_rdesc :", paste(sQuote(diff_annotate_id), collapse = ", "), collapse = " ")) 
+      }  
+    }       
   }
   
   diff_exp_rdesc <- diff_exp_rdesc[!is.infinite(rowSums(diff_exp_rdesc[, c("logFC", "P.Value", "adj.P.Val")])), ]
@@ -87,55 +141,44 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
     
   }
   
-  
-  if (!identical(row_desc, NULL)){
-    
-  }   
+  diff_exp_rdesc$text_hover <- row.names(diff_exp_rdesc)
+  diff_exp_rdesc$category_sym <- NULL  
+  if (!identical(row_desc, NULL)){     
+    if (!identical(text_hover_col, NULL)){
+      diff_exp_rdesc$text_hover <- diff_exp_rdesc[[text_hover_col]]
+    } 
+    if (!identical(category_col, NULL)){
+      diff_exp_rdesc[[category_col]][unlist(lapply(diff_exp_rdesc[[category_col]], function(x) x %in% c(NA, "NA", "")))] <- "NA"
+      diff_exp_rdesc$category_sym <- diff_exp_rdesc[[category_col]]                                             
+    }                                            
+  }
   
   if (interactive == TRUE){
     diff_exp_rdesc$text_hover <- row.names(diff_exp_rdesc)
-    diff_exp_rdesc$category_sym <- NULL
-    
-    if (!identical(row_desc, NULL)){
-      if (!identical(class(row_desc), "data.frame")){
-        warning("The row_desc is not a dataframe, please provide valid row_desc")
-        return(NULL) 
-      }   
-      
-      if (!all(row.names(diff_exp_rdesc) %in% row.names(row_desc))){
-        warning("Not all rownames of diff_exp_rdesc are present in rownames of row_desc")
-        return (NULL)  
-      }
-      
-      row_desc <- row_desc[row.names(diff_exp_rdesc), ]
-      
+    diff_exp_rdesc$category_sym <- NULL  
+    if (!identical(row_desc, NULL)){     
       if (!identical(text_hover_col, NULL)){
-        if (!(text_hover_col %in% colnames(row_desc))){
-          warning(c(text_hover_col, " column is not present in row_desc"))
-          return (NULL)
-        } else { 
-          diff_exp_rdesc$text_hover <- row_desc[[text_hover_col]]
-        }
+        diff_exp_rdesc$text_hover <- diff_exp_rdesc[[text_hover_col]]
       } 
-      
       if (!identical(category_col, NULL)){
-        if (!(category_col %in% colnames(row_desc))){
-          warning(c(category_col, " column is not present in row_desc"))
-          return (NULL)
-        } else { 
-          diff_exp_rdesc$category_sym <- row_desc[[category_col]]
-        }
-      }    
+        diff_exp_rdesc[[category_col]][unlist(lapply(diff_exp_rdesc[[category_col]], function(x) x %in% c(NA, "NA", "")))] <- "NA"
+        diff_exp_rdesc$category_sym <- diff_exp_rdesc[[category_col]]                                             
+      }                                            
     }      
     
     filtered_diff_exp <- diff_exp_rdesc[row.names(diff_exp_rdesc) %in% annotate_id, ]
     if(nrow(filtered_diff_exp) == 0){
       a <- NULL
     } else {
+      annotate_text <- row.names(filtered_diff_exp)  
+      if (!identical(row_desc, NULL)){  
+        if (!identical(annotate_col, NULL)){ annotate_text <- filtered_diff_exp[[annotate_col]] }
+      }
+      
       a <- list(
         x = filtered_diff_exp$logFC,
         y = -log10(filtered_diff_exp[[pval_type]]),
-        text = row.names(filtered_diff_exp),
+        text = annotate_text,
         xref = "x",
         yref = "y",
         showarrow = TRUE,
@@ -151,8 +194,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
         color = diff_exp_rdesc$threshold,
         colors = pal,
         symbol = diff_exp_rdesc$category_sym,
-        text = diff_exp_rdesc$text_hover
-        
+        text = diff_exp_rdesc$text_hover  
       ) %>%
       
       layout(
@@ -172,12 +214,12 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
                                            list("zoomOut2d"), 
                                            list('toImage')), 
                      mathjax = 'cdn')
-  } else {     
-    p <- ggplot(diff_exp_rdesc, aes_string(x = x_col, y = y_col, fill = "threshold"), text = id) + 
-      geom_point(shape = 21, size = marker_size/2, alpha = 0.7) + # scatter plot function with shape of points defined as 21 scale.   
+  } else {
+    if (identical(annotate_col, NULL)){ annotate_col <- "id" } 
+    p <- ggplot(diff_exp_rdesc, aes_string(x = x_col, y = y_col, color = "threshold", fill = "threshold", shape = category_col), text = id) + 
+      geom_point( size = marker_size/2, alpha = 0.7) + # scatter plot function with shape of points defined as 21 scale.   
       ggtitle(title_label) +       
-      labs(x = xaxis_lab_gg, y = yaxis_lab_gg,  fill = "Significance", shape = "Category") + # x and y axis labels
-      ggsci::scale_color_aaas() + # filling the point colors
+      labs(x = xaxis_lab_gg, y = yaxis_lab_gg, color = "Significance", fill = "Significance", shape = "Category") + # x and y axis labels
       theme(legend.position = "right", legend.direction = "vertical", # legend positioned at the bottom, horizantal direction,
             axis.line = element_line(size=1, colour = "black"),	# axis line of size 1 inch in black color
             panel.grid.major = element_blank(),	# major grids included
@@ -190,7 +232,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
             legend.text = element_text(size = 10, face = "bold"),
             legend.title = element_text(colour="black", size=12, face="bold"),
             axis.ticks.length = unit(0.25, "cm")) # ticks facing inward with 0.25cm length
-    p <- p + ggrepel::geom_text_repel(data = subset(diff_exp_rdesc, id %in% annotate_id), aes(label = id),size = 5,
+    p <- p + ggrepel::geom_text_repel(data = subset(diff_exp_rdesc, id %in% annotate_id), aes_string(label = annotate_col), color = "black", size = 3,
                                       box.padding = unit(0.5, 'lines'),
                                       point.padding = unit(1.6, 'lines'),
                                       segment.size = 0.5,
