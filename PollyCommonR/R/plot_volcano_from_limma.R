@@ -203,7 +203,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
       ) %>%
       
       layout(
-        title = title_label,
+        title = list(text = title_label, xref = "paper", yref = "paper"),
         yaxis = list(title = y_label),
         xaxis = list(title = x_label),
         annotations = a,
