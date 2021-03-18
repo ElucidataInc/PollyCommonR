@@ -20,6 +20,7 @@ create_boxplot_on_matrix <- function(sample_raw_mat = NULL, x_label = "", y_labe
   require(ggplot2)
   message("Create Boxplot On Matrix Started...")
   
+  sample_raw_mat <- as.data.frame(sample_raw_mat, stringsAsFactors = FALSE, check.names = FALSE)
   p <- ggplot(stack(sample_raw_mat), aes(x = ind, y = values, fill=ind))+
     geom_boxplot(show.legend = FALSE)+
     ggtitle(title_label)+
