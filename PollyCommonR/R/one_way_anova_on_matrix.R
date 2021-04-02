@@ -64,25 +64,28 @@ one_way_anova_on_matrix <- function(sample_raw_mat = NULL, metadata_df = NULL, c
     identifier_df <- sample_raw_mat[, identifier_cols, drop = FALSE]
   }
   
-  sample_intensity_mat <- sample_raw_mat[, sample_cols, drop = FALSE]
-  sample_df <- data.frame(Sample = colnames(sample_intensity_mat))
+  sample_intensity_mat <- sample_raw_mat[, sample_cols, drop = FALSE]  
+  sample_df <- data.frame(Sample = colnames(sample_intensity_mat), stringsAsFactors = FALSE, check.names = FALSE)
   anova_input_df <- merge(sample_df, metadata_df, by = 1)
   anova_input_df[, cohort_col] <-  as.character(anova_input_df[[cohort_col]])
   
   anova_results <- apply(sample_intensity_mat, 1, function(x) {
     anova_input_df$value <- x
-    anova_input_df <- anova_input_df[apply(anova_input_df, 1, function(x) is.finite(as.numeric(x[['value']]))), , drop = FALSE]
+    anova_input_df <- anova_input_df[apply(anova_input_df, 1, function(x) is.finite(as.numeric(x[['value']]))), , drop = FALSE]                                       
     F_val <- NA
     p_val <- NA
-    if (nrow(anova_input_df) > 0){
-      frm <- paste("value", cohort_col, sep = "~")
-      anv1 <- stats::lm(stats::formula(frm), anova_input_df)
-      a <- stats::aov(anv1)
-      if (all(c("F value", "Pr(>F)") %in% colnames(summary(a)[[1]]))) {
-        F_val = summary(a)[[1]]["F value"][cohort_col, "F value"]
-        p_val = summary(a)[[1]]["Pr(>F)"][[1]][1]
+    try({
+      if (nrow(anova_input_df) > 0 & length(unique(anova_input_df[[cohort_col]])) > 1){   
+        frm <- paste("value", cohort_col, sep = "~")
+        anv1 <- stats::lm(stats::formula(frm), anova_input_df)
+        a <- stats::aov(anv1)
+        if (all(c("F value", "Pr(>F)") %in% colnames(summary(a)[[1]]))) {
+          F_val = summary(a)[[1]]["F value"][cohort_col, "F value"]
+          p_val = summary(a)[[1]]["Pr(>F)"][[1]][1]
+        }
       }
-    }
+    }, silent = TRUE) 
+    
     return(list(F_statistic = F_val, p_value = p_val))
     
   })
