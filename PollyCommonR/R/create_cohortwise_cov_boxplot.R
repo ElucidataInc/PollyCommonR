@@ -50,7 +50,8 @@ create_cohortwise_cov_boxplot <- function(calculated_cov_df, cohorts_order = NUL
         showlegend = FALSE
       ) %>% plotly::config(displaylogo = FALSE,
                            modeBarButtons = list(list("zoomIn2d"), 
-                                                 list("zoomOut2d")),
+                                                 list("zoomOut2d"),
+                                                 list('toImage')),
                            mathjax = 'cdn')
   } else{
     p <- ggplot(calculated_cov_df_filtered, aes(x = cohort, y = cv, fill=cohort))+
