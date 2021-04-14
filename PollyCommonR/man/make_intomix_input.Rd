@@ -57,6 +57,6 @@ Create an intomix input file
 make_intomix_input(norm_data = NULL, metadata = NULL, cohorts = NULL,  
                    cohorts_compare_data = NULL, cohort_col = 'Cohort', 
                    rownames_col = 'uniqueId', remove_duplicates = TRUE, 
-                   id_col = 'compoundId', p_val_correct_methods = 'BH',
+                   id_col = 'compoundId', pval_adjust_method = 'BH',
                    log_flag = TRUE )
 }
