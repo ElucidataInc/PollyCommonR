@@ -14,7 +14,7 @@ make_intomix_input(
   remove_duplicates = TRUE,
   id_col = "compoundId",
   pval_type = "P.Value",
-  p_val_correct_methods = "BH",
+  pval_adjust_method = "BH",
   log_flag = TRUE,
   drop_na = FALSE,
   replace_na_with_zero = FALSE
@@ -39,7 +39,7 @@ make_intomix_input(
 
 \item{pval_type}{Select p value type from P.Value or adj.P.Val}
 
-\item{p_val_correct_methods}{character vector containing p-val correction methods ('Bonferroni', 'BH(FDR)') to be applied.}
+\item{pval_adjust_method}{Provide pval adjust method ("holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none"). Also check p.adjust from stats.}
 
 \item{log_flag}{Check if data is log transformed (TRUE) or not (FALSE). If not (FALSE) then do internally log2 transformation.}
 
