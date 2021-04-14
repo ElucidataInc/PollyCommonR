@@ -5,27 +5,27 @@
 \title{diff_exp_limma}
 \usage{
 diff_exp_limma(
-  prot_norm_mat,
-  metadata,
-  cohort_condition,
-  cohort_a,
-  cohort_b,
-  p_val_correct_methods = "BH",
+  sample_raw_mat = NULL,
+  metadata = NULL,
+  cohort_col = NULL,
+  cohort_a = NULL,
+  cohort_b = NULL,
+  pval_adjust_method = "BH",
   log_flag = TRUE
 )
 }
 \arguments{
-\item{prot_norm_mat}{sample matrix with samples in columns and ids as rownames.}
+\item{sample_raw_mat}{The sample matrix with samples in columns and ids as rownames.}
 
-\item{metadata}{dataframe containing metadata information}
+\item{metadata}{The dataframe containing metadata information}
 
-\item{cohort_condition}{A metadata column where cohorts are present}
+\item{cohort_col}{A metadata column where cohorts are present}
 
-\item{cohort_a}{string cohort_a}
+\item{cohort_a}{Vector of cohorts used as cohort_a}
 
-\item{cohort_b}{string cohort_b}
+\item{cohort_b}{Vector of cohorts used as cohort_b}
 
-\item{p_val_correct_methods}{character vector containing p-val correction methods ('Bonferroni', 'BH(FDR)') to be applied.}
+\item{pval_adjust_method}{Provide pval adjust method ("holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none"). Also check p.adjust from stats.}
 
 \item{log_flag}{Check if data is log transformed (TRUE) or not (FALSE). If not (FALSE) then do internally log2 transformation.}
 }
@@ -36,5 +36,5 @@ dataframe, If logFC >0, it implies abundance is greater in cohort_b.
 calls limma differential expression algorithms
 }
 \examples{
-diff_exp_limma(prot_norm_mat, metadata, 'Cohort', 'Cohort1', 'Cohort2', p_val_correct_methods = 'BH(FDR)',log_flag = FALSE)
+diff_exp_limma(sample_raw_mat, metadata, 'Cohort', 'Cohort1', 'Cohort2')
 }
