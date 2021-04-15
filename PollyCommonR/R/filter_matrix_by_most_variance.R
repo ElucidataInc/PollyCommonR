@@ -6,7 +6,7 @@
 #' @param top_n Filter top n number of ids'.
 #' @param algo An algorithm used to sort ids', options are anova and mad.
 #' @param metadata_df A dataframe with samples to cohort mapping.
-#' @param cohort_col A metadata column where cohorts are present.
+#' @param cohort_col A vector of metadata columns used in anova test.
 #' @param remove_duplicates remove duplicates using some column id from row descriptors.
 #' @param row_desc A dataframe of row descriptors of the matrix.
 #' @param id_col The id column of row descriptors dataframe used to remove duplicates.
@@ -84,23 +84,13 @@ filter_matrix_by_most_variance <- function(sample_raw_mat = NULL, top_n = NULL, 
       return(NULL) 
     }
     
-    if (!(cohort_col %in% colnames(metadata_df))){
-      warning(c(cohort_col, " column is not present in metadata"))
-      return(NULL)
-    }
-    
-    if (length(unique(metadata_df[[cohort_col]])) < 2) {
-      warning("The number of cohorts should be greater than 2")
-      return(NULL)
-    }     
-    
-    score_results <- PollyCommonR::one_way_anova_on_matrix(sample_raw_mat, metadata_df, cohort_col)
+    score_results <- PollyCommonR::compute_anova(sample_raw_mat, metadata_df, cohort_col)
     if (!identical(score_results, NULL)){
       score_results$Score_FP <- (score_results$F.Value) * log10(1/score_results$P.Value)
       score_results <- score_results[order(-score_results$Score_FP), , drop = FALSE]
+      score_results <- score_results[!(duplicated(score_results$id)), , drop = FALSE]  
     }    
   }
-  
   else if (algo %in% "mad"){                             
     mad_score <- apply(sample_raw_mat, 1, function(x) {
       x <- x[is.finite(as.numeric(x))]
@@ -119,17 +109,16 @@ filter_matrix_by_most_variance <- function(sample_raw_mat = NULL, top_n = NULL, 
     return(NULL)
   }  
   
-  
   if (remove_duplicates){ 
     score_results <- merge(score_results, row_desc, by.x = "id", by.y = 0, sort = FALSE)
-    score_results <- score_results[!(duplicated(score_results[[id_col]])), ]
+    score_results <- score_results[!(duplicated(score_results[[id_col]])), , drop = FALSE]
   }
   
   if (!identical(top_n, NULL)){
     score_results <- head(score_results, top_n)   
   }
   
-  filtered_data <- sample_raw_mat[score_results$id, , drop = FALSE]
+  filtered_data <- sample_raw_mat[unique(score_results$id), , drop = FALSE]
   
   message("Filter Matrix By Most Variance Completed...")
   

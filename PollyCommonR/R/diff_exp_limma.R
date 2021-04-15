@@ -2,28 +2,26 @@
 #'
 #' calls limma differential expression algorithms
 #'
-#' @param prot_norm_mat sample matrix with samples in columns and ids as rownames.
-#' @param metadata dataframe containing metadata information
-#' @param cohort_condition A metadata column where cohorts are present
-#' @param cohort_a string cohort_a
-#' @param cohort_b string cohort_b
-#' @param p_val_correct_methods character vector containing p-val correction methods ('Bonferroni', 'BH(FDR)') to be applied.
-#'
+#' @param sample_raw_mat The sample matrix with samples in columns and ids as rownames.
+#' @param metadata The dataframe containing metadata information
+#' @param cohort_col A metadata column where cohorts are present
+#' @param cohort_a Vector of cohorts used as cohort_a
+#' @param cohort_b Vector of cohorts used as cohort_b
+#' @param pval_adjust_method Provide pval adjust method ("holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none"). Also check p.adjust from stats.
 #' @param log_flag Check if data is log transformed (TRUE) or not (FALSE). If not (FALSE) then do internally log2 transformation.
-#'
 #' @return dataframe, If logFC >0, it implies abundance is greater in cohort_b.
 #' @examples
-#' diff_exp_limma(prot_norm_mat, metadata, 'Cohort', 'Cohort1', 'Cohort2', p_val_correct_methods = 'BH(FDR)',log_flag = FALSE)
+#' diff_exp_limma(sample_raw_mat, metadata, 'Cohort', 'Cohort1', 'Cohort2')
 #' @import limma dplyr
 #' @export
-diff_exp_limma <- function (prot_norm_mat, metadata, cohort_condition, cohort_a, 
-                            cohort_b, p_val_correct_methods = "BH", log_flag = TRUE) {
+diff_exp_limma <- function (sample_raw_mat = NULL, metadata = NULL, cohort_col = NULL, 
+                            cohort_a = NULL, cohort_b = NULL, pval_adjust_method = "BH", log_flag = TRUE) {
   message("Calculate Differential Expression Limma Started...")
   require(limma)
   require(dplyr)
   
-  if (identical(prot_norm_mat, NULL)){
-    warning("The prot_norm_mat is NULL")
+  if (identical(sample_raw_mat, NULL)){
+    warning("The sample_raw_mat is NULL")
     return (NULL)  
   }
   
@@ -32,83 +30,106 @@ diff_exp_limma <- function (prot_norm_mat, metadata, cohort_condition, cohort_a,
     return (NULL)  
   }
   
-  if (!(cohort_condition %in% colnames(metadata))){
-    warning(paste0(cohort_condition, " is not present in metadata columns"))
+  if (identical(cohort_col, NULL)){
+    warning("The cohort_col is NULL")
     return (NULL)  
-  }   
+  }
   
-  if (!(cohort_a %in% metadata[[cohort_condition]] && cohort_b %in% metadata[[cohort_condition]])) {
-    warning(paste0("Invalid ", cohort_a, " or ", cohort_b))
+  if (identical(cohort_a, NULL)){
+    warning("The cohort_a is NULL")
+    return (NULL)  
+  }
+  
+  if (identical(cohort_b, NULL)){
+    warning("The cohort_b is NULL")
+    return (NULL)  
+  }
+  
+  if (identical(pval_adjust_method, NULL)){
+    pval_adjust_method <- "BH"  
+    warning("The pval_adjust_method is NULL, using 'BH' as default method.")  
+  }    
+  
+  if (identical(log_flag, NULL)){
+    log_flag <- TRUE  
+    warning("The log_flag is NULL, using 'TRUE' as default method.")  
+  }
+  
+  if (!(cohort_col %in% colnames(metadata))){
+    warning(paste0(cohort_col, " is not present in metadata columns"))
+    return (NULL)  
+  }
+  
+  if (identical(cohort_col, "Comparison")){
+    colnames(metadata)[which(names(metadata) == cohort_col)] <- "Cohort"  
+    cohort_col <- "Cohort"
+  }
+  
+  common_a_and_b <- base::intersect(cohort_a, cohort_b)
+  if (length(common_a_and_b) > 0){
+    warning(paste0("The following cohorts are common in cohort_a and cohort_b: ", paste0(common_a_and_b, collapse = ", ")))
     return(NULL)
   }
   
-  cohort_a <- gsub("condition", "", cohort_a)
-  cohort_b <- gsub("condition", "", cohort_b)
-  metadata[[cohort_condition]] <- gsub("condition", "", metadata[[cohort_condition]])
-  
-  cohorts_unique <- as.vector(unique(metadata[[cohort_condition]]))
-  names(cohorts_unique) <- make.names(cohorts_unique, unique = TRUE) 
-  
-  for (names_index in 1:length(cohorts_unique)){
-    replace_by_name <- unname(cohorts_unique)[names_index]
-    replace_with_name <- names(cohorts_unique)[names_index]
-    metadata <- metadata %>% dplyr::mutate(!! sym(cohort_condition) := replace(as.character(!! sym(cohort_condition)), !! sym(cohort_condition) == replace_by_name, replace_with_name))  
-  }
-  
-  cohort_a <- names(cohorts_unique[unname(cohorts_unique) %in% cohort_a])  
-  cohort_b <- names(cohorts_unique[unname(cohorts_unique) %in% cohort_b])
-  
-  metadata[, 1] <- make.names(metadata[, 1])
-  colnames(prot_norm_mat) <- make.names(colnames(prot_norm_mat))
-  if ((cohort_a == "") | (cohort_b == "")) {
-    warning("One of your cohorts is empty, try changing the cohort condition.")
+  diff_cohort_a <- base::setdiff(cohort_a, metadata[[cohort_col]])
+  if (length(diff_cohort_a) > 0){
+    warning(paste0("The following cohorts in cohort_a are invalid: ", paste0(diff_cohort_a, collapse = ", ")))
     return(NULL)
   }
-  prot_norm_mat_samples <- colnames(prot_norm_mat)
-  metadata_samples <- as.character(metadata[, 1])
-  common_samples <- base::intersect(metadata_samples, prot_norm_mat_samples)
-  if (length(common_samples) == 0) {
+  
+  diff_cohort_b <- base::setdiff(cohort_b, metadata[[cohort_col]])
+  if (length(diff_cohort_b) > 0){
+    warning(paste0("The following cohorts in cohort_b are invalid: ", paste0(diff_cohort_b, collapse = ", ")))
+    return(NULL)
+  }    
+  
+  metadata <- metadata[metadata[, cohort_col] %in% c(cohort_a, cohort_b), , drop = FALSE]
+  metadata[, "Comparison"] <- NA
+  metadata[metadata[, cohort_col] %in% cohort_a, "Comparison"] <- "A"
+  metadata[metadata[, cohort_col] %in% cohort_b, "Comparison"] <- "B"
+  
+  common_samples <- base::intersect(metadata[, 1], colnames(sample_raw_mat))
+  if (length(common_samples) < 1) {
     warning("No common samples in matrix and metadata")
     return(NULL)
   }
-  metadata <- dplyr::filter(metadata, !!(sym(colnames(metadata)[1])) %in% !!common_samples)
-  metadata <- dplyr::filter(metadata, !!(sym(cohort_condition)) %in% c(cohort_a, cohort_b))
+  
+  diff_samples_metadata <- base::setdiff(metadata[, 1], colnames(sample_raw_mat))
+  if (length(diff_samples_metadata) > 0) {
+    warning(paste0("The following samples from metadata are not present in sample_raw_mat: ", paste0(diff_samples_metadata, collapse = ", ")))
+  }    
+  
+  metadata <- metadata[!(metadata[, 1] %in% diff_samples_metadata), , drop = FALSE] 
+  
   if (log_flag) {
-    prot_norm_mat_log2 <- prot_norm_mat[, metadata[, 1]]
+    sample_raw_mat_log2 <- sample_raw_mat[, metadata[, 1], drop = FALSE]
   }
   else {
-    prot_norm_mat_log2 <- log2(prot_norm_mat[, metadata[, 1]])
+    sample_raw_mat_log2 <- log2(sample_raw_mat[, metadata[, 1], drop = FALSE])
   }
-  condition <- metadata[[cohort_condition]]
-  design <- model.matrix(~condition + 0)
-  colnames(design) <- gsub("condition", "", colnames(design))
-  contrast_matrix <- limma::makeContrasts(contrasts = c(paste(cohort_b, cohort_a, sep = "-")), levels = design)
-  cohort_a_columns <- metadata[metadata[cohort_condition] == cohort_a, ][, 1]
-  cohort_b_columns <- metadata[metadata[cohort_condition] == cohort_b, ][, 1]
   
-  limma_results_df <- NULL  
-  if (length(cohort_a_columns) <= 1 | length(cohort_b_columns) <= 1) {
+  cohort_a_samples <- metadata[metadata[, "Comparison"] == "A", ][, 1]
+  cohort_b_samples <- metadata[metadata[, "Comparison"] == "B", ][, 1]
+  if (length(cohort_a_samples) <= 1 | length(cohort_b_samples) <= 1) {
     warning("Since, your selected cohorts have no replicates in the data, you might want to change the cohorts or cohort condition and try again.")
     return(NULL)
   }
-  else {
-    fit <- limma::lmFit(prot_norm_mat_log2, design)
-    fit <- limma::contrasts.fit(fit, contrast_matrix)
-    fit <- limma::eBayes(fit)
-    limma_results_df <- limma::topTable(fit, coef = paste(cohort_b, cohort_a, sep = "-"), number = nrow(prot_norm_mat_log2))
-    for (p_val_correct in p_val_correct_methods) {
-      if (p_val_correct == "Bonferroni") {
-        p_val_correct_method <- "bonferroni"
-      }
-      else {
-        p_val_correct_method <- "BH"
-      }
-      limma_results_df[, p_val_correct] <- p.adjust(limma_results_df$P.Value, 
-                                                    method = p_val_correct_method)
-    }
-    
-    limma_results_df <- limma_results_df[order(match(rownames(limma_results_df), rownames(prot_norm_mat_log2))), , drop = FALSE]
-  }
+  
+  limma_results_df <- NULL
+  tryCatch(
+    {
+      condition <- metadata[, "Comparison"]     
+      design <- stats::model.matrix(~condition + 0)
+      colnames(design) <- gsub("condition", "", colnames(design))
+      contrast_matrix <- limma::makeContrasts(contrasts = c(paste("B", "A", sep = "-")), levels = design)
+      fit <- limma::lmFit(sample_raw_mat_log2, design)
+      fit <- limma::contrasts.fit(fit, contrast_matrix)
+      fit <- limma::eBayes(fit)
+      limma_results_df <- limma::topTable(fit, coef = paste("B", "A", sep = "-"), number = nrow(sample_raw_mat_log2), adjust.method = pval_adjust_method)
+      limma_results_df <- limma_results_df[order(match(rownames(limma_results_df), rownames(sample_raw_mat_log2))), , drop = FALSE]
+    },
+    error = function(cond) {message(paste("\nCannot run limma, caused an error: ", cond))}
+  )
   
   message("Calculate Differential Expression Limma Completed...")
   

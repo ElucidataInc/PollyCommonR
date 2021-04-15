@@ -11,7 +11,7 @@
 #' @param remove_duplicates Remove duplicate ids rows based on pval
 #' @param id_col A column id which will be used to remove duplicates
 #' @param pval_type Select p value type from P.Value or adj.P.Val
-#' @param p_val_correct_methods character vector containing p-val correction methods ('Bonferroni', 'BH(FDR)') to be applied.
+#' @param pval_adjust_method Provide pval adjust method ("holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none"). Also check p.adjust from stats.
 #' @param log_flag Check if data is log transformed (TRUE) or not (FALSE). If not (FALSE) then do internally log2 transformation.
 #' @param drop_na Drop rows having NA's used in sample_intensity_matrix function.
 #' @param replace_na_with_zero Replace all NA's with zero used in sample_intensity_matrix function.
@@ -21,14 +21,14 @@
 #' make_intomix_input(norm_data = NULL, metadata = NULL, cohorts = NULL,  
 #'                    cohorts_compare_data = NULL, cohort_col = 'Cohort', 
 #'                    rownames_col = 'uniqueId', remove_duplicates = TRUE, 
-#'                    id_col = 'compoundId', p_val_correct_methods = 'BH',
+#'                    id_col = 'compoundId', pval_adjust_method = 'BH',
 #'                    log_flag = TRUE )
 #' @import stringr
 #' @export
 make_intomix_input <- function(norm_data = NULL, metadata = NULL,
                                cohorts = NULL, cohorts_compare_data = NULL, cohort_col = 'Cohort', 
                                rownames_col = 'uniqueId', remove_duplicates = TRUE, 
-                               id_col = 'compoundId',pval_type = "P.Value", p_val_correct_methods = 'BH',
+                               id_col = 'compoundId',pval_type = "P.Value", pval_adjust_method = 'BH',
                                log_flag = TRUE, drop_na = FALSE, replace_na_with_zero = FALSE){
   message("Make Intomix Input Started...")
   
@@ -54,7 +54,6 @@ make_intomix_input <- function(norm_data = NULL, metadata = NULL,
     return(NULL)      
   }  
   if (identical(cohorts_compare_data, NULL)){  
-    
     if (identical(cohorts, NULL)){
       warning("No 'cohorts' parameter specified")
       return(NULL)
@@ -69,8 +68,8 @@ make_intomix_input <- function(norm_data = NULL, metadata = NULL,
       return(NULL)
     }
     
-    cohorts_comb_df <- expand.grid(state1 = common_cohorts, state2 = common_cohorts, stringsAsFactors = F)
-    cohorts_comb_df <- cohorts_comb_df[apply(cohorts_comb_df,1 , function(x) x["state2"] != x["state1"]),]
+    cohorts_comb_df <- base::expand.grid(state1 = common_cohorts, state2 = common_cohorts, stringsAsFactors = F)
+    cohorts_comb_df <- cohorts_comb_df[apply(cohorts_comb_df, 1 , function(x) x["state2"] != x["state1"]),]
     cohorts_comb_df <- cohorts_comb_df[order(cohorts_comb_df$state1), ]
     
   } else {
@@ -94,28 +93,28 @@ make_intomix_input <- function(norm_data = NULL, metadata = NULL,
   
   overall_diff_exp <- data.frame()
   for (each_comb in 1:nrow(cohorts_comb_df)){
-    cohort_a <- stringr::str_trim(as.character(cohorts_comb_df[each_comb,]$state2))
-    cohort_b <- stringr::str_trim(as.character(cohorts_comb_df[each_comb,]$state1)) 
-    if (cohort_a == cohort_b){
+    state1 <- as.character(cohorts_comb_df[each_comb, ]$state1)
+    state2 <- as.character(cohorts_comb_df[each_comb, ]$state2)                      
+    cohort_a <- stringr::str_trim(stringr::str_split(state2, pattern = ";")[[1]])
+    cohort_b <- stringr::str_trim(stringr::str_split(state1, pattern = ";")[[1]]) 
+    if (any(cohort_a %in% cohort_b)){
       next
     }
     
-    compare_cohorts <- c(cohort_a, cohort_b)
-    
-    if (!all(compare_cohorts %in% metadata[[cohort_col]])){
+    if (!all(c(cohort_a, cohort_b) %in% metadata[[cohort_col]])){
       next
     }
     diff_exp <- NULL
-    try(diff_exp <- PollyCommonR::diff_exp_limma(prot_norm_mat = sample_raw_mat, 
-                                                 metadata = metadata, cohort_col,
-                                                 compare_cohorts[1], compare_cohorts[2],
-                                                 p_val_correct_methods, log_flag), silent = TRUE)
+    try(diff_exp <- PollyCommonR::diff_exp_limma(sample_raw_mat = sample_raw_mat, metadata = metadata,
+                                                 cohort_col = cohort_col, cohort_a = cohort_a, 
+                                                 cohort_b = cohort_b, pval_adjust_method = pval_adjust_method, 
+                                                 log_flag = log_flag), silent = TRUE)
     
     if (identical(diff_exp, NULL)){
       next
     }
-    diff_exp_update <- data.frame(id = rownames(diff_exp), state1 = compare_cohorts[2], 
-                                  state2 = compare_cohorts[1], diff_exp, stringsAsFactors = FALSE)
+    diff_exp_update <- data.frame(id = rownames(diff_exp), state1 = state1, 
+                                  state2 = state2, diff_exp, stringsAsFactors = FALSE)
     merged_diff_exp <- merge(norm_data[, c("uniqueId", id_col)], diff_exp_update, by.x = "uniqueId", by.y = "id")
     
     if (remove_duplicates){
@@ -125,7 +124,6 @@ make_intomix_input <- function(norm_data = NULL, metadata = NULL,
     } else {
       overall_diff_exp <- rbind(overall_diff_exp, merged_diff_exp) 
     }    
-    
   }
   
   if (nrow(overall_diff_exp) < 1){

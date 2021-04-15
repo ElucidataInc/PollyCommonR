@@ -24,7 +24,7 @@ filter_matrix_by_most_variance(
 
 \item{metadata_df}{A dataframe with samples to cohort mapping.}
 
-\item{cohort_col}{A metadata column where cohorts are present.}
+\item{cohort_col}{A vector of metadata columns used in anova test.}
 
 \item{remove_duplicates}{remove duplicates using some column id from row descriptors.}
 
