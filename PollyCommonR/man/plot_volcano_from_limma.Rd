@@ -18,6 +18,7 @@ plot_volcano_from_limma(
   y_label = NULL,
   title_label = NULL,
   marker_size = 8,
+  plot_id = NULL,
   interactive = TRUE
 )
 }
@@ -47,6 +48,8 @@ plot_volcano_from_limma(
 \item{title_label}{Title of the plot}
 
 \item{marker_size}{Size of marker point}
+
+\item{plot_id}{source id for the plotly plot}
 
 \item{interactive}{make plot interactive (default is TRUE)}
 }
