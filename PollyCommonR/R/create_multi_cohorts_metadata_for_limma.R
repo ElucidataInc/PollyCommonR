@@ -59,6 +59,12 @@ create_multi_cohorts_metadata_for_limma <- function(metadata = NULL, cohort_col 
     return(NULL)
   }    
   
+  if (identical(cohort_col, new_colname)){
+    temp_cohort_col <- paste0(new_colname, "_old") 
+    colnames(metadata)[which(names(metadata) == cohort_col)] <- temp_cohort_col
+    cohort_col <- temp_cohort_col
+  }
+  
   new_colname <- as.character(new_colname)  
   metadata <- metadata[metadata[, cohort_col] %in% c(cohort_a, cohort_b), , drop = FALSE]  
   metadata[, new_colname] <- NA
