@@ -11,6 +11,7 @@
 #' @import dplyr stats
 #' @export
 one_way_anova_on_matrix <- function(sample_raw_mat = NULL, metadata_df = NULL, cohort_col = "Cohort"){
+  .Deprecated("compute_anova")
   message("One Way Anova On Matrix Started...")
   
   if (!identical(class(sample_raw_mat), "data.frame")){

@@ -83,7 +83,7 @@ diff_exp_limma <- function (sample_raw_mat = NULL, metadata = NULL, cohort_col =
     return(NULL)
   }    
   
-  metadata <- metadata[metadata[, cohort_col] %in% c(cohort_a, cohort_b),]
+  metadata <- metadata[metadata[, cohort_col] %in% c(cohort_a, cohort_b), , drop = FALSE]
   metadata[, "Comparison"] <- NA
   metadata[metadata[, cohort_col] %in% cohort_a, "Comparison"] <- "A"
   metadata[metadata[, cohort_col] %in% cohort_b, "Comparison"] <- "B"
