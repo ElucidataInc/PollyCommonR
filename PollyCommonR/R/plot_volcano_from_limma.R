@@ -15,6 +15,7 @@
 #' @param y_label Label y-axis
 #' @param title_label Title of the plot
 #' @param marker_size Size of marker point
+#' @param plot_id source id for the plotly plot
 #' @param interactive make plot interactive (default is TRUE)
 #' @return plotly object
 #' @examples
@@ -26,7 +27,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
                                     fdr_cutoff = NULL, annotate_id = NULL, row_desc = NULL, 
                                     annotate_col = NULL, text_hover_col = NULL, category_col = NULL,
                                     x_label = NULL, y_label = NULL, title_label = NULL, marker_size = 8, 
-                                    interactive = TRUE) {
+                                    plot_id = NULL, interactive = TRUE) {
   message("Make Volcano Plot Started...")
   require(ggplot2)
   require(plotly)
@@ -100,8 +101,8 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
     return (NULL)
   }
   
+  diff_exp_rdesc <- data.frame(id = row.names(diff_exp_rdesc), diff_exp_rdesc, stringsAsFactors = FALSE, check.names = FALSE)
   diff_exp_rdesc$threshold <- "not significant"
-  diff_exp_rdesc$id <- row.names(diff_exp_rdesc)
   pal <- c("grey", "red")
   
   if(identical(fdr_cutoff, NULL)){
@@ -191,9 +192,9 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
         ax = 20,
         ay = -40
       )}
-    p <- plotly::plot_ly() %>%
+    p <- plotly::plot_ly(source = plot_id) %>%
       add_trace(
-        x = x_val, y = y_val,
+        x = x_val, y = y_val, customdata = diff_exp_rdesc$id,
         type = "scattergl", mode = "markers",
         marker = list(size = marker_size),
         color = diff_exp_rdesc$threshold,
