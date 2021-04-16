@@ -15,7 +15,8 @@
 #' @import ggplot2 plotly
 #' @export
 create_densityplot_on_matrix <- function(sample_raw_mat = NULL, data_type = "all", col_name = NULL,
-                                         x_label = NULL, y_label = NULL, title_label = NULL, interactive = FALSE){
+                                         x_label = NULL, y_label = NULL, title_label = NULL, 
+                                         interactive = FALSE){
   require(ggplot2)
   require(plotly)
   message("Create Densityplot On Matrix Started...")
