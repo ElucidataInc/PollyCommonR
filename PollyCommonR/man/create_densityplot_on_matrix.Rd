@@ -7,7 +7,11 @@
 create_densityplot_on_matrix(
   sample_raw_mat = NULL,
   data_type = "all",
-  col_name = NULL
+  col_name = NULL,
+  x_label = NULL,
+  y_label = NULL,
+  title_label = NULL,
+  interactive = FALSE
 )
 }
 \arguments{
@@ -16,6 +20,14 @@ create_densityplot_on_matrix(
 \item{data_type}{use datafrom whole matrix or a column ("all" or "column")}
 
 \item{col_name}{A column name from sample_raw_mat}
+
+\item{x_label}{Label x-axis}
+
+\item{y_label}{Label y-axis}
+
+\item{title_label}{Title of the plot}
+
+\item{interactive}{Make plot interactive using plotly}
 }
 \value{
 ggplot object
