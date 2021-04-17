@@ -1,11 +1,11 @@
 #' volcano_plot
 #'
-#' makes a plotly volcano plot
+#' makes a volcano plot
 #'
-#' @param diff_exp_rdesc The differential expression dataframe from limma
-#' @param log2fc_range Vector of log2FC range
+#' @param diff_exp The differential expression dataframe from limma
+#' @param log2fc_range The absolute log2FC value to set threshold
 #' @param p_val_cutoff The pval cutoff
-#' @param fdr_cutoff The FDR cutoff
+#' @param p_val_type The pval type (P.Value or adj.P.Val)
 #' @param annotate_id A vector of ids (rownames of row_desc) to be annotated
 #' @param row_desc A dataframe of row descriptors of the matrix
 #' @param annotate_col A row descriptor column which is used to show names for annotated ids on plot
@@ -19,12 +19,12 @@
 #' @param interactive make plot interactive (default is TRUE)
 #' @return plotly object
 #' @examples
-#' plot_volcano_from_limma(diff_exp_rdesc, log2fc_range = 0.5, p_val_cutoff = 0.05, fdr_cutoff = NULL,
+#' plot_volcano_from_limma(diff_exp, log2fc_range = 0.5, p_val_cutoff = 0.05, fdr_cutoff = NULL,
 #'  annotate_id = c('a','b'), interactive = TRUE)
 #' @import ggplot2 plotly ggsci ggrepel latex2exp
 #' @export
-plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, p_val_cutoff = NULL, 
-                                    fdr_cutoff = NULL, annotate_id = NULL, row_desc = NULL, 
+plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_cutoff = NULL, 
+                                    p_val_type = "P.Value", annotate_id = NULL, row_desc = NULL, 
                                     annotate_col = NULL, text_hover_col = NULL, category_col = NULL,
                                     x_label = NULL, y_label = NULL, title_label = NULL, marker_size = 8, 
                                     plot_id = NULL, interactive = TRUE) {
@@ -35,10 +35,45 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
   require(ggrepel)
   require(latex2exp)
   
-  if (identical(diff_exp_rdesc, NULL)){
-    warning("Differential Expression dataframe is NULL")
+  if (identical(diff_exp, NULL)){
+    warning("The diff_exp is NULL")
     return (NULL)
   }
+  
+  if (!identical(class(diff_exp), "data.frame")){
+    warning("The diff_exp is not a dataframe, please provide valid diff_exp")
+    return(NULL) 
+  }     
+  
+  pval_type <- c("P.Value", "adj.P.Val")
+  common_pval <- base::intersect(pval_type, colnames(diff_exp))
+  if (length(common_pval) < 1){
+    warning(paste0("The diff_exp should have at least one or both pval type from ", paste0(pval_type, collapse = " and ")))
+    return (NULL)
+  }  
+  
+  if (!("logFC" %in% colnames(diff_exp))){
+    warning("The diff_exp should contain 'logFC' column")
+    return (NULL)
+  }
+  
+  required_cols <- c("logFC", common_pval)  
+  
+  
+  if (identical(p_val_type, NULL)){
+    p_val_type <- pval_type[1]  
+    warning("The p_val_type is NULL, using 'P.Value' as default")
+  }
+  
+  if (!(p_val_type %in% pval_type)){
+    warning("Invalid p_val_type, select 'P.Value' or 'adj.P.Val'")
+    return(NULL)  
+  }
+  
+  if (!(p_val_type %in% colnames(diff_exp))){
+    warning(paste0("The ", p_val_type, " is not present in diff_exp"))
+    return (NULL)
+  }    
   
   if (!identical(row_desc, NULL)){
     if (!identical(class(row_desc), "data.frame")){
@@ -46,8 +81,8 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
       return(NULL) 
     }   
     
-    if (!all(row.names(diff_exp_rdesc) %in% row.names(row_desc))){
-      warning("Not all rownames of diff_exp_rdesc are present in rownames of row_desc")
+    if (!all(row.names(diff_exp) %in% row.names(row_desc))){
+      warning("Not all rownames of diff_exp are present in rownames of row_desc")
       return (NULL)  
     }
     
@@ -72,7 +107,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
       }      
     }
     
-    diff_exp_rdesc <- base::transform(base::merge(diff_exp_rdesc,row_desc,by=0), row.names=Row.names, Row.names=NULL) 
+    diff_exp <- base::transform(base::merge(diff_exp,row_desc,by=0), row.names=Row.names, Row.names=NULL) 
   }
   else {
     annotate_col <- "id"
@@ -81,98 +116,84 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
   }  
   
   if (!identical(annotate_id, NULL)){
-    common_annotate_id <- base::intersect(annotate_id, row.names(diff_exp_rdesc))
+    common_annotate_id <- base::intersect(annotate_id, row.names(diff_exp))
     if (length(common_annotate_id) < 1){
-      warning("The annotate ids are not matched with rownames of diff_exp_rdesc")    
+      warning("The annotate ids are not matched with rownames of diff_exp")    
     }
     else {
-      diff_annotate_id <- base::setdiff(annotate_id, row.names(diff_exp_rdesc))
+      diff_annotate_id <- base::setdiff(annotate_id, row.names(diff_exp))
       if (length(diff_annotate_id) >= 1){
-        warning(paste("The following annotate ids are not matched with rownames of diff_exp_rdesc :", paste(sQuote(diff_annotate_id), collapse = ", "), collapse = " ")) 
+        warning(paste("The following annotate ids are not matched with rownames of diff_exp :", paste(sQuote(diff_annotate_id), collapse = ", "), collapse = " ")) 
       }  
     }       
   }
   
-  diff_exp_rdesc <- diff_exp_rdesc[!is.infinite(rowSums(diff_exp_rdesc[, c("logFC", "P.Value", "adj.P.Val")])), ]
-  diff_exp_rdesc <- diff_exp_rdesc[!apply(diff_exp_rdesc[, c("logFC","P.Value", "adj.P.Val")], 1, anyNA), ]
+  diff_exp <- diff_exp[!is.infinite(rowSums(diff_exp[, required_cols])), ]
+  diff_exp <- diff_exp[!apply(diff_exp[, required_cols], 1, anyNA), ]
   
-  if (nrow(diff_exp_rdesc) < 1){
+  if (nrow(diff_exp) < 1){
     warning("Differential Expression dataframe has zero valid rows")
     return (NULL)
   }
   
-  diff_exp_rdesc <- data.frame(id = row.names(diff_exp_rdesc), diff_exp_rdesc, stringsAsFactors = FALSE, check.names = FALSE)
-  diff_exp_rdesc$threshold <- "not significant"
-  pal <- c("grey", "red")
+  diff_exp <- data.frame(id = row.names(diff_exp), diff_exp, stringsAsFactors = FALSE, check.names = FALSE)
+  diff_exp$threshold <- "not significant"  
+  diff_exp[(abs(diff_exp$logFC) >= log2fc_range) & (diff_exp[, p_val_type] <= p_val_cutoff), "threshold"] <- "significant"
+  significance_table <- base::table(diff_exp$threshold)
+  print (significance_table)
   
-  if(identical(fdr_cutoff, NULL)){
-    diff_exp_rdesc[(abs(diff_exp_rdesc$logFC) >= log2fc_range) &
-                     (diff_exp_rdesc[, "P.Value"] <= p_val_cutoff), "threshold"] <- "significant"
-    print(table(diff_exp_rdesc$threshold))
-    
-    xaxis_lab_gg <- latex2exp::TeX("$\\log_{2}(fold \\, change)$")
-    yaxis_lab_gg <- latex2exp::TeX("$-\\log_{10}(p \\, value)$")
-    
-    xaxis_lab_pl <- plotly::TeX("\\log_{2}(\\text{fold change})")
-    yaxis_lab_pl <- plotly::TeX("-\\log_{10}(\\text{p value})")
-    
-    x_col = "logFC"
-    y_col = "-log10(P.Value)"
-    
-    x_val <- diff_exp_rdesc$logFC
-    y_val <- -log10(diff_exp_rdesc$P.Value)
-    
-    pval_type <- "P.Value"
-    
-  }else{
-    diff_exp_rdesc[(abs(diff_exp_rdesc$logFC) >= log2fc_range) &
-                     (diff_exp_rdesc[, "adj.P.Val"] <= fdr_cutoff), "threshold"] <- "significant"
-    print(table(diff_exp_rdesc$threshold))
-    
-    xaxis_lab_gg <- latex2exp::TeX("$\\log_{2}(fold \\, change)$")
-    yaxis_lab_gg <- latex2exp::TeX("$-\\log_{10}(adjusted \\,p \\, value)$")
-    
-    xaxis_lab_pl <- plotly::TeX("\\log_{2}(\\text{fold change})")
-    yaxis_lab_pl <- plotly::TeX("-\\log_{10}(\\text{adjusted p value})")
-    
-    x_col <- "logFC"
-    y_col <- "-log10(adj.P.Val)"
-    
-    x_val <- diff_exp_rdesc$logFC
-    y_val <- -log10(diff_exp_rdesc$adj.P.Val)
-    
-    pval_type <- "adj.P.Val"
-    
+  if (identical(row_desc, NULL) | identical(category_col, NULL)){
+    for (sig_type in unique(diff_exp$threshold)){
+      diff_exp[diff_exp$threshold == sig_type, "threshold"] <- paste0(sig_type, " (", significance_table[[sig_type]], ")") 
+    }
   }
   
-  diff_exp_rdesc$text_hover <- row.names(diff_exp_rdesc)
-  diff_exp_rdesc$category_sym <- NULL  
-  if (!identical(row_desc, NULL)){     
+  diff_exp$text_hover <- row.names(diff_exp)
+  diff_exp$category_sym <- NULL  
+  if (!identical(row_desc, NULL)){
     if (!identical(text_hover_col, NULL)){
-      diff_exp_rdesc$text_hover <- diff_exp_rdesc[[text_hover_col]]
+      diff_exp$text_hover <- diff_exp[[text_hover_col]]
     } 
     if (!identical(category_col, NULL)){
-      diff_exp_rdesc[[category_col]][unlist(lapply(diff_exp_rdesc[[category_col]], function(x) x %in% c(NA, "NA", "")))] <- "NA"
-      diff_exp_rdesc$category_sym <- diff_exp_rdesc[[category_col]]                                             
-    }                                            
+      diff_exp[[category_col]][unlist(lapply(diff_exp[[category_col]], function(x) x %in% c(NA, "NA", "")))] <- "NA"
+      diff_exp$category_sym <- diff_exp[[category_col]]                                             
+    }
+    
   }
+  
+  significance_color <- c("grey", "red")  
+  xaxis_lab_gg <- latex2exp::TeX("$\\log_{2}(fold \\, change)$")
+  xaxis_lab_pl <- plotly::TeX("\\log_{2}(\\text{fold change})")
+  if(identical(p_val_type, "P.Value")){
+    yaxis_lab_gg <- latex2exp::TeX("$-\\log_{10}(p \\, value)$")
+    yaxis_lab_pl <- plotly::TeX("-\\log_{10}(\\text{p value})")
+  }
+  else if(identical(p_val_type, "adj.P.Val")){
+    yaxis_lab_gg <- latex2exp::TeX("$-\\log_{10}(adjusted \\,p \\, value)$")
+    yaxis_lab_pl <- plotly::TeX("-\\log_{10}(\\text{adjusted p value})")  
+  }
+  
+  x_col = "logFC"
+  y_col = gsub("pval", p_val_type, "-log10(pval)")  
+  x_val <- diff_exp$logFC
+  y_val <- -log10(diff_exp[, p_val_type])                                               
   
   if (interactive == TRUE){
     if (identical(x_label, NULL)){ x_label <- xaxis_lab_pl }
     if (identical(y_label, NULL)){ y_label <- yaxis_lab_pl }
-    diff_exp_rdesc$text_hover <- row.names(diff_exp_rdesc)
-    diff_exp_rdesc$category_sym <- NULL  
+    diff_exp$text_hover <- row.names(diff_exp)
+    diff_exp$category_sym <- NULL  
     if (!identical(row_desc, NULL)){     
       if (!identical(text_hover_col, NULL)){
-        diff_exp_rdesc$text_hover <- diff_exp_rdesc[[text_hover_col]]
+        diff_exp$text_hover <- diff_exp[[text_hover_col]]
       } 
       if (!identical(category_col, NULL)){
-        diff_exp_rdesc[[category_col]][unlist(lapply(diff_exp_rdesc[[category_col]], function(x) x %in% c(NA, "NA", "")))] <- "NA"
-        diff_exp_rdesc$category_sym <- diff_exp_rdesc[[category_col]]                                             
+        diff_exp[[category_col]][unlist(lapply(diff_exp[[category_col]], function(x) x %in% c(NA, "NA", "")))] <- "NA"
+        diff_exp$category_sym <- diff_exp[[category_col]]                                             
       }                                            
     }      
     
-    filtered_diff_exp <- diff_exp_rdesc[row.names(diff_exp_rdesc) %in% annotate_id, ]
+    filtered_diff_exp <- diff_exp[row.names(diff_exp) %in% annotate_id, ]
     if(nrow(filtered_diff_exp) == 0){
       a <- NULL
     } else {
@@ -183,7 +204,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
       
       a <- list(
         x = filtered_diff_exp$logFC,
-        y = -log10(filtered_diff_exp[[pval_type]]),
+        y = -log10(filtered_diff_exp[, p_val_type]),
         text = annotate_text,
         xref = "x",
         yref = "y",
@@ -194,13 +215,13 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
       )}
     p <- plotly::plot_ly(source = plot_id) %>%
       add_trace(
-        x = x_val, y = y_val, customdata = diff_exp_rdesc$id,
+        x = x_val, y = y_val, customdata = diff_exp$id,
         type = "scattergl", mode = "markers",
         marker = list(size = marker_size),
-        color = diff_exp_rdesc$threshold,
-        colors = pal,
-        symbol = diff_exp_rdesc$category_sym,
-        text = diff_exp_rdesc$text_hover  
+        color = diff_exp$threshold,
+        colors = significance_color,
+        symbol = diff_exp$category_sym,
+        text = diff_exp$text_hover  
       ) %>%
       
       layout(
@@ -225,7 +246,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
     if (identical(x_label, NULL)){ x_label <- xaxis_lab_gg }
     if (identical(y_label, NULL)){ y_label <- yaxis_lab_gg }      
     
-    p <- ggplot(diff_exp_rdesc, aes_string(x = x_col, y = y_col, color = "threshold", fill = "threshold", shape = category_col), text = id) + 
+    p <- ggplot(diff_exp, aes_string(x = x_col, y = y_col, color = "threshold", fill = "threshold", shape = category_col), text = id) + 
       geom_point( size = marker_size/2, alpha = 0.7) + # scatter plot function with shape of points defined as 21 scale.   
       ggtitle(title_label) +       
       labs(x = x_label, y = y_label, color = "Significance", fill = "Significance", shape = "Category") + # x and y axis labels
@@ -241,7 +262,7 @@ plot_volcano_from_limma <- function(diff_exp_rdesc = NULL, log2fc_range = NULL, 
             legend.text = element_text(size = 10, face = "bold"),
             legend.title = element_text(colour="black", size=12, face="bold"),
             axis.ticks.length = unit(0.25, "cm")) # ticks facing inward with 0.25cm length
-    p <- p + ggrepel::geom_text_repel(data = subset(diff_exp_rdesc, id %in% annotate_id), aes_string(label = annotate_col), color = "black", size = 3,
+    p <- p + ggrepel::geom_text_repel(data = subset(diff_exp, id %in% annotate_id), aes_string(label = annotate_col), color = "black", size = 3,
                                       box.padding = unit(0.5, 'lines'),
                                       point.padding = unit(1.6, 'lines'),
                                       segment.size = 0.5,
