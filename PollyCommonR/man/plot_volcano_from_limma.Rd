@@ -5,10 +5,10 @@
 \title{volcano_plot}
 \usage{
 plot_volcano_from_limma(
-  diff_exp_rdesc = NULL,
+  diff_exp = NULL,
   log2fc_range = NULL,
   p_val_cutoff = NULL,
-  fdr_cutoff = NULL,
+  p_val_type = "P.Value",
   annotate_id = NULL,
   row_desc = NULL,
   annotate_col = NULL,
@@ -23,13 +23,13 @@ plot_volcano_from_limma(
 )
 }
 \arguments{
-\item{diff_exp_rdesc}{The differential expression dataframe from limma}
+\item{diff_exp}{The differential expression dataframe from limma}
 
-\item{log2fc_range}{Vector of log2FC range}
+\item{log2fc_range}{The absolute log2FC value to set threshold}
 
 \item{p_val_cutoff}{The pval cutoff}
 
-\item{fdr_cutoff}{The FDR cutoff}
+\item{p_val_type}{The pval type (P.Value or adj.P.Val)}
 
 \item{annotate_id}{A vector of ids (rownames of row_desc) to be annotated}
 
@@ -57,9 +57,9 @@ plot_volcano_from_limma(
 plotly object
 }
 \description{
-makes a plotly volcano plot
+makes a volcano plot
 }
 \examples{
-plot_volcano_from_limma(diff_exp_rdesc, log2fc_range = 0.5, p_val_cutoff = 0.05, fdr_cutoff = NULL,
+plot_volcano_from_limma(diff_exp, log2fc_range = 0.5, p_val_cutoff = 0.05, fdr_cutoff = NULL,
  annotate_id = c('a','b'), interactive = TRUE)
 }
