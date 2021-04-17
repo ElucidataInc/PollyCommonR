@@ -40,7 +40,7 @@ plot_pca(
 
 \item{interactive}{make plot interactive (default is TRUE)}
 
-\item{color_palette}{The vector of colors}
+\item{color_palette}{The named vector with colors as values and cohorts as keys}
 
 \item{title_label}{Title of the plot}
 

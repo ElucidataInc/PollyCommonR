@@ -9,7 +9,7 @@
 #' @param pc_y PC to keep on y-axis
 #' @param show_ellipse show ellipse on plot (default is FALSE)
 #' @param interactive make plot interactive (default is TRUE)
-#' @param color_palette The vector of colors
+#' @param color_palette The named vector with colors as values and cohorts as keys
 #' @param title_label Title of the plot
 #' @param marker_size The size of marker point
 #' @param title_label_size Size of title label

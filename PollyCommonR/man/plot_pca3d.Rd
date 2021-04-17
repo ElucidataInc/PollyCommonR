@@ -8,6 +8,7 @@ plot_pca3d(
   PCAObj_Summary,
   metadata,
   condition,
+  color_palette = NULL,
   pc_x = 1,
   pc_y = 2,
   pc_z = 3,
@@ -20,6 +21,8 @@ plot_pca3d(
 \item{metadata}{dataframe containing samples to cohort mapping information}
 
 \item{condition}{A metadata column where cohorts are present}
+
+\item{color_palette}{The named vector with colors as values and cohorts as keys}
 
 \item{pc_x}{PC to keep on x-axis}
 
