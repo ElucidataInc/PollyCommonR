@@ -9,7 +9,7 @@
 #' @param pc_y PC to keep on y-axis
 #' @param show_ellipse show ellipse on plot (default is FALSE)
 #' @param interactive make plot interactive (default is TRUE)
-#' @param color_palette The vector of colors
+#' @param color_palette The named vector with colors as values and cohorts as keys
 #' @param title_label Title of the plot
 #' @param marker_size The size of marker point
 #' @param title_label_size Size of title label
@@ -37,7 +37,7 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
   require(stringr)
   require(ggplot2)
   require(plotly)
-
+  
   if (identical(PCAObj_Summary, NULL)){
     message("PCAObj_Summary is NULL")
     
@@ -58,7 +58,7 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
   pca_var_df$variable <- rownames(pca_var_df)
   metadata[, condition] <- gsub(",", "_", as.character(metadata[, condition]), fixed = TRUE)
   comb_pca_metadata <- merge(pca_var_df, metadata, by.x = 'variable', by.y = 1, sort = FALSE)
-  #print (head(comb_pca_metadata)) 
+  
   p <- ggplot2::ggplot(comb_pca_metadata, aes(x = eval(parse(text=paste("PC", pc_x, sep = ""))),
                                               y = eval(parse(text=paste("PC", pc_y, sep = ""))),
                                               text = paste(variable, !! sym(condition), sep = "<br>"),
@@ -92,7 +92,16 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
       return(NULL)
     }
     
-    color_bool <- function(pallete){ sapply(pallete, function(x) { tryCatch(is.matrix(col2rgb(x)), error = function(e) FALSE)})}  
+    if (!identical(names(color_palette), NULL)){
+      names(color_palette) <- gsub(",", "_", names(color_palette), fixed = TRUE)
+      diff_cohort <- base::setdiff(unique(metadata[, condition]), names(color_palette))
+      if (length(diff_cohort) > 0){
+        warning(paste0("The following cohorts are absent from color_palette names: ", paste0(diff_cohort, collapse = ", ")))
+        return(NULL) 
+      }     
+    }
+    
+    color_bool <- function(pallete){ sapply(pallete, function(x) { tryCatch(is.matrix(grDevices::col2rgb(x)), error = function(e) FALSE)})}  
     if (!all(color_bool(color_palette))){
       warning("The color_palette is not a valid color vector")
       return(NULL)  

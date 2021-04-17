@@ -60,6 +60,5 @@ plotly object
 makes a volcano plot
 }
 \examples{
-plot_volcano_from_limma(diff_exp, log2fc_range = 0.5, p_val_cutoff = 0.05, fdr_cutoff = NULL,
- annotate_id = c('a','b'), interactive = TRUE)
+plot_volcano_from_limma(diff_exp, log2fc_range = 0.5, p_val_cutoff = 0.05, p_val_type = "P.Value")
 }
