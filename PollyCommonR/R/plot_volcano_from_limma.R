@@ -19,8 +19,7 @@
 #' @param interactive make plot interactive (default is TRUE)
 #' @return plotly object
 #' @examples
-#' plot_volcano_from_limma(diff_exp, log2fc_range = 0.5, p_val_cutoff = 0.05, fdr_cutoff = NULL,
-#'  annotate_id = c('a','b'), interactive = TRUE)
+#' plot_volcano_from_limma(diff_exp, log2fc_range = 0.5, p_val_cutoff = 0.05, p_val_type = "P.Value")
 #' @import ggplot2 plotly ggsci ggrepel latex2exp
 #' @export
 plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_cutoff = NULL, 
