@@ -8,11 +8,12 @@
 #' @return A dataframe with calculated F.Value and P.Value.
 #' @examples 
 #' compute_anova(sample_raw_mat, metadata_df, cohort_col = "Cohort")
-#' @import stats
+#' @import stats stringr
 #' @export
 compute_anova <- function(sample_raw_mat = NULL, metadata_df = NULL, cohort_col = "Cohort"){
   message("Compute Anova On Matrix Started...")
   require(stats)
+  require(stringr)
   
   if (!identical(class(sample_raw_mat), "data.frame")){
     warning("The sample_raw_mat is not a dataframe, please provide valid sample_raw_mat")
@@ -75,7 +76,7 @@ compute_anova <- function(sample_raw_mat = NULL, metadata_df = NULL, cohort_col 
       anv_lm <- stats::lm(stats::formula(frm), anova_input_df)
       aov_obj <- stats::aov(anv_lm)
       anova_r <- summary(aov_obj)[[1]]
-      anova_r <- data.frame(id = row_name, interaction = row.names(anova_r), anova_r[, c("F value", "Pr(>F)")], stringsAsFactors = FALSE, check.names = FALSE)
+      anova_r <- data.frame(id = row_name, interaction = stringr::str_trim(row.names(anova_r)), anova_r[, c("F value", "Pr(>F)")], stringsAsFactors = FALSE, check.names = FALSE)
       anova_r <- anova_r[!stringr::str_trim(row.names(anova_r)) %in% c("Residuals"), , drop = FALSE]
       colnames(anova_r) <- c("id", "interaction", "F.Value", "P.Value")
       row.names(anova_r) <- NULL                                                                    
