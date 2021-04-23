@@ -1,4 +1,4 @@
-#' volcano_plot
+#' plot_volcano_from_limma
 #'
 #' makes a volcano plot
 #'
@@ -17,7 +17,7 @@
 #' @param marker_size Size of marker point
 #' @param plot_id source id for the plotly plot
 #' @param interactive make plot interactive (default is TRUE)
-#' @return plotly object
+#' @return plotly or ggplot object
 #' @examples
 #' plot_volcano_from_limma(diff_exp, log2fc_range = 0.5, p_val_cutoff = 0.05, p_val_type = "P.Value")
 #' @import ggplot2 plotly ggsci ggrepel latex2exp
@@ -106,7 +106,7 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
       }      
     }
     
-    diff_exp <- base::transform(base::merge(diff_exp,row_desc,by=0), row.names=Row.names, Row.names=NULL) 
+    diff_exp <- base::transform(base::merge(diff_exp,row_desc,by=0, sort = FALSE), row.names=Row.names, Row.names=NULL) 
   }
   else {
     annotate_col <- "id"
@@ -157,7 +157,6 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
       diff_exp[[category_col]][unlist(lapply(diff_exp[[category_col]], function(x) x %in% c(NA, "NA", "")))] <- "NA"
       diff_exp$category_sym <- diff_exp[[category_col]]                                             
     }
-    
   }
   
   significance_color <- c("grey", "red")  
@@ -180,18 +179,7 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
   if (interactive == TRUE){
     if (identical(x_label, NULL)){ x_label <- xaxis_lab_pl }
     if (identical(y_label, NULL)){ y_label <- yaxis_lab_pl }
-    diff_exp$text_hover <- row.names(diff_exp)
-    diff_exp$category_sym <- NULL  
-    if (!identical(row_desc, NULL)){     
-      if (!identical(text_hover_col, NULL)){
-        diff_exp$text_hover <- diff_exp[[text_hover_col]]
-      } 
-      if (!identical(category_col, NULL)){
-        diff_exp[[category_col]][unlist(lapply(diff_exp[[category_col]], function(x) x %in% c(NA, "NA", "")))] <- "NA"
-        diff_exp$category_sym <- diff_exp[[category_col]]                                             
-      }                                            
-    }      
-    
+
     filtered_diff_exp <- diff_exp[row.names(diff_exp) %in% annotate_id, ]
     if(nrow(filtered_diff_exp) == 0){
       a <- NULL

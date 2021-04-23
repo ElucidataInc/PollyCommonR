@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_volcano_from_limma.R
 \name{plot_volcano_from_limma}
 \alias{plot_volcano_from_limma}
-\title{volcano_plot}
+\title{plot_volcano_from_limma}
 \usage{
 plot_volcano_from_limma(
   diff_exp = NULL,
@@ -54,7 +54,7 @@ plot_volcano_from_limma(
 \item{interactive}{make plot interactive (default is TRUE)}
 }
 \value{
-plotly object
+plotly or ggplot object
 }
 \description{
 makes a volcano plot
