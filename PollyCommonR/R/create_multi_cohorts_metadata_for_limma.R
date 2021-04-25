@@ -25,6 +25,11 @@ create_multi_cohorts_metadata_for_limma <- function(metadata = NULL, cohort_col 
     warning("The cohort_col is NULL")
     return (NULL)  
   }
+
+  if (!(cohort_col %in% colnames(metadata))){
+    warning(paste0("The ", cohort_col, " column is not present in metadata" ))
+    return(NULL)  
+  }
   
   if (identical(cohort_a, NULL)){
     warning("The cohort_a is NULL")
