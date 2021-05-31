@@ -211,8 +211,15 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = NULL, interaction_type 
                       font = list(size = (23.91034/18)*13),
                       legendtitle=TRUE, showarrow=FALSE ) %>% 
       plotly::config(displaylogo = FALSE,
-                     modeBarButtons = list(list("zoomIn2d"), 
-                                           list("zoomOut2d"), 
+                     modeBarButtons = list(list("zoom2d"),
+                                           list("select2d"),
+                                           list("lasso2d"),
+                                           list("autoScale2d"),
+                                           list("resetScale2d"),
+                                           list("pan2d"),
+                                           list("zoomIn2d"), 
+                                           list("zoomOut2d"),
+                                           list("hoverClosestCartesian"),
                                            list('toImage')), 
                      mathjax = 'cdn')
   } else {
