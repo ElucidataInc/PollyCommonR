@@ -20,7 +20,7 @@
 #' @return plotly or ggplot object
 #' @examples
 #' plot_volcano_from_limma(diff_exp, log2fc_range = 0.5, p_val_cutoff = 0.05, p_val_type = "P.Value")
-#' @import ggplot2 plotly ggsci ggrepel latex2exp
+#' @import dplyr ggplot2 plotly ggsci ggrepel latex2exp
 #' @export
 plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_cutoff = NULL, 
                                     p_val_type = "P.Value", annotate_id = NULL, row_desc = NULL, 
@@ -28,6 +28,7 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
                                     x_label = NULL, y_label = NULL, title_label = NULL, marker_size = 8, 
                                     plot_id = NULL, interactive = TRUE) {
   message("Make Volcano Plot Started...")
+  require(dplyr)
   require(ggplot2)
   require(plotly)
   require(ggsci)
@@ -127,6 +128,14 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
     }       
   }
   
+  diff_exp <- data.frame(id = row.names(diff_exp), diff_exp, stringsAsFactors = FALSE, check.names = FALSE)
+  diff_exp$threshold <- "not significant"
+  
+  diff_exp <- dplyr::mutate(diff_exp, threshold = dplyr::case_when((abs(logFC) >= log2fc_range) & (!!(dplyr::sym(p_val_type)) <= p_val_cutoff) ~ "significant", TRUE ~ threshold))
+  
+  significance_table <- base::table(diff_exp$threshold)
+  print (significance_table)
+  
   diff_exp <- diff_exp[!is.infinite(rowSums(diff_exp[, required_cols])), ]
   diff_exp <- diff_exp[!apply(diff_exp[, required_cols], 1, anyNA), ]
   
@@ -134,12 +143,6 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
     warning("Differential Expression dataframe has zero valid rows")
     return (NULL)
   }
-  
-  diff_exp <- data.frame(id = row.names(diff_exp), diff_exp, stringsAsFactors = FALSE, check.names = FALSE)
-  diff_exp$threshold <- "not significant"  
-  diff_exp[(abs(diff_exp$logFC) >= log2fc_range) & (diff_exp[, p_val_type] <= p_val_cutoff), "threshold"] <- "significant"
-  significance_table <- base::table(diff_exp$threshold)
-  print (significance_table)
   
   if (identical(row_desc, NULL) | identical(category_col, NULL)){
     for (sig_type in unique(diff_exp$threshold)){
