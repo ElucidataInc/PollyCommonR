@@ -104,7 +104,7 @@ compute_anova <- function(sample_raw_mat = NULL, metadata_df = NULL, cohort_col 
         anova_r <- rbind(anova_r, interm_anova_df)
       }
     }, 
-    error = function(cond) {message(paste("\nCannot run anova, caused an error: ", cond))}
+    error = function(cond) {message(paste("Feature: ", row_name, "\nCannot run anova, caused an error: ", cond))}
     )
     
     if (identical(anova_r, NULL)){
@@ -128,7 +128,10 @@ compute_anova <- function(sample_raw_mat = NULL, metadata_df = NULL, cohort_col 
   error = function(cond) {message(paste("\nCannot create anova result dataframe, caused an error: ", cond))}
   )
   
-  if (nrow(combined_anova_results_df) < 1){
+  if (all(c("F.Value", "P.Value") %in% colnames(combined_anova_results_df))){ 
+    filtered_anova_results_df <- combined_anova_results_df[rowSums(is.na(combined_anova_results_df[, c("F.Value", "P.Value")])) == 0, , drop = FALSE]
+  }
+  if (nrow(filtered_anova_results_df) < 1){
     warning("Unable to perform anova test on this dataset")
     return(NULL)
   }
