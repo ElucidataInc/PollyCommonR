@@ -19,7 +19,7 @@
 #' @return plotly or ggplot object
 #' @examples
 #' plot_anova(diff_exp, p_val_cutoff = 0.05)
-#' @import ggplot2 plotly ggsci ggrepel latex2exp
+#' @import dplyr ggplot2 plotly ggsci ggrepel latex2exp
 #' @export
 plot_anova <- function(anova_data = NULL, p_val_cutoff = NULL, interaction_type = NULL,
                        annotate_id = NULL, row_desc = NULL, annotate_col = NULL, 
@@ -27,6 +27,7 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = NULL, interaction_type 
                        y_label = NULL, title_label = NULL, marker_size = 8, plot_id = NULL, 
                        interactive = TRUE) {
   message("Make Volcano Plot Started...")
+  require(dplyr)  
   require(ggplot2)
   require(plotly)
   require(ggsci)
@@ -117,6 +118,15 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = NULL, interaction_type 
     }
   }
   
+  id_index_df <- data.frame(index = 1:length(unique(anova_data$id)), id = unique(anova_data$id), stringsAsFactors = FALSE, check.names = FALSE)
+  anova_data <- merge(anova_data, id_index_df, by = "id", sort = FALSE)
+  anova_data$threshold <- "not significant"
+  
+  anova_data <- dplyr::mutate(anova_data, threshold = dplyr::case_when(P.Value <= p_val_cutoff ~ "significant", TRUE ~ threshold))
+  
+  significance_table <- base::table(anova_data$threshold)
+  print (significance_table)
+  
   anova_data <- anova_data[!is.infinite(anova_data[, "P.Value"]), ]
   anova_data <- anova_data[!sapply(anova_data[, "P.Value"], anyNA), ]
   
@@ -124,13 +134,6 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = NULL, interaction_type 
     warning("The anova data has zero valid rows")
     return (NULL)
   }
-  
-  id_index_df <- data.frame(index = 1:length(unique(anova_data$id)), id = unique(anova_data$id), stringsAsFactors = FALSE, check.names = FALSE)
-  anova_data <- merge(anova_data, id_index_df, by = "id", sort = FALSE)
-  anova_data$threshold <- "not significant"  
-  anova_data[anova_data[, "P.Value"] <= p_val_cutoff, "threshold"] <- "significant"
-  significance_table <- base::table(anova_data$threshold)
-  print (significance_table)
   
   if (identical(row_desc, NULL) | identical(category_col, NULL)){
     for (sig_type in unique(anova_data$threshold)){
