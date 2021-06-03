@@ -128,7 +128,7 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
     }       
   }
   
-  diff_exp <- data.frame(id = row.names(diff_exp), diff_exp, stringsAsFactors = FALSE, check.names = FALSE)
+  diff_exp$id <- row.names(diff_exp)
   diff_exp$threshold <- "not significant"
   
   diff_exp <- dplyr::mutate(diff_exp, threshold = dplyr::case_when((abs(logFC) >= log2fc_range) & (!!(dplyr::sym(p_val_type)) <= p_val_cutoff) ~ "significant", TRUE ~ threshold))
