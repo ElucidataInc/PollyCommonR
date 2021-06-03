@@ -84,7 +84,8 @@ compute_anova <- function(sample_raw_mat = NULL, metadata_df = NULL, cohort_col 
   sample_df <- data.frame(Sample = colnames(sample_intensity_mat), stringsAsFactors = FALSE, check.names = FALSE)
   anova_results_df <- data.frame(stringsAsFactors = FALSE, check.names = FALSE)    
   for (row_name in row.names(sample_intensity_mat)){
-    anova_r <- NULL  
+    row_anova <- NULL
+    anova_r <- NULL
     anova_input_df <- merge(sample_df, metadata_df, by = 1, sort = FALSE)
     tryCatch({  
       anova_input_df$value <- as.numeric(sample_intensity_mat[row_name, anova_input_df$Sample])
@@ -103,15 +104,15 @@ compute_anova <- function(sample_raw_mat = NULL, metadata_df = NULL, cohort_col 
         interm_anova_df <- data.frame(id = row_name, interaction = diff_interaction, F.Value = NA, P.Value = NA, stringsAsFactors = FALSE, check.names = FALSE)
         anova_r <- rbind(anova_r, interm_anova_df)
       }
+      row_anova <- anova_r                                     
     }, 
     error = function(cond) {message(paste("Feature: ", row_name, "\nCannot run anova, caused an error: ", cond))}
     )
     
-    if (identical(anova_r, NULL)){
-      anova_r <- data.frame(id = row_name, interaction = cohort_interactions, F.Value = NA, P.Value = NA, stringsAsFactors = FALSE, check.names = FALSE)
+    if (identical(row_anova, NULL) | !(all(c("id", "interaction", "F.Value", "P.Value") %in% colnames(row_anova)))){
+      row_anova <- data.frame(id = row_name, interaction = cohort_interactions, F.Value = NA, P.Value = NA, stringsAsFactors = FALSE, check.names = FALSE)
     }
-    
-    anova_results_df <- rbind(anova_results_df, anova_r)                                  
+    anova_results_df <- rbind(anova_results_df, row_anova)                                  
   }
   
   combined_anova_results_df <- data.frame()
