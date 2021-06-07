@@ -8,10 +8,11 @@
 #' @return A dataframe with calculated F.Value and P.Value.
 #' @examples 
 #' compute_anova(sample_raw_mat, metadata_df, cohort_col = "Cohort")
-#' @import stats stringr
+#' @import dplyr stats stringr
 #' @export
 compute_anova <- function(sample_raw_mat = NULL, metadata_df = NULL, cohort_col = "Cohort"){
   message("Compute Anova On Matrix Started...")
+  require(dplyr)
   require(stats)
   require(stringr)
   
@@ -56,8 +57,9 @@ compute_anova <- function(sample_raw_mat = NULL, metadata_df = NULL, cohort_col 
     return(NULL)
   }
   
-  names(metadata_df)[match(cohort_col, names(metadata_df))] <- make.names(cohort_col)
-  cohort_col <- make.names(cohort_col)
+  anova_cohort_cols <- cohort_col
+  names(anova_cohort_cols) <- make.names(anova_cohort_cols)
+  names(metadata_df)[match(unname(anova_cohort_cols), names(metadata_df))] <- names(anova_cohort_cols)
   
   identifier_cols <- raw_intensity_cols[!(raw_intensity_cols %in% sample_cols)]
   if (length(identifier_cols) > 0) {
@@ -67,18 +69,24 @@ compute_anova <- function(sample_raw_mat = NULL, metadata_df = NULL, cohort_col 
     identifier_df <- data.frame()
   }
   
-  cohort_comb_list <- list()
-  for (cohort_ind in 1:length(cohort_col)){ 
-    cohort_comb_df <- as.data.frame(gtools::combinations(length(cohort_col), cohort_ind, cohort_col, repeats.allowed = FALSE), stringsAsFactors = FALSE)
-    for (comb_index in 1:nrow(cohort_comb_df)){
-      cohort_comb_list <- c(cohort_comb_list, list(as.character(cohort_comb_df[comb_index, ])))
+  get_anova_interactions <- function(cohort_vector){  
+    cohort_comb_list <- list()
+    for (cohort_ind in 1:length(cohort_vector)){ 
+      cohort_comb_df <- as.data.frame(gtools::combinations(length(cohort_vector), cohort_ind, cohort_vector, repeats.allowed = FALSE), stringsAsFactors = FALSE)
+      for (comb_index in 1:nrow(cohort_comb_df)){
+        cohort_comb_list <- c(cohort_comb_list, list(as.character(cohort_comb_df[comb_index, ])))
+      }
     }
+    cohort_interactions <- vector()
+    for (cohort_comb in cohort_comb_list){
+      cohort_comb <- cohort_comb[order(match(cohort_comb, cohort_vector))]
+      cohort_interactions <- c(cohort_interactions, paste(cohort_comb, collapse = ":"))
+    }
+    return (cohort_interactions)  
   }
-  cohort_interactions <- vector()
-  for (cohort_comb in cohort_comb_list){
-    cohort_comb <- cohort_comb[order(match(cohort_comb, cohort_col))]
-    cohort_interactions <- c(cohort_interactions, paste(cohort_comb, collapse = ":"))
-  }
+  
+  anova_interactions <- get_anova_interactions(unname(anova_cohort_cols))
+  names(anova_interactions) <- get_anova_interactions(names(anova_cohort_cols))
   
   sample_intensity_mat <- sample_raw_mat[, sample_cols, drop = FALSE]  
   sample_df <- data.frame(Sample = colnames(sample_intensity_mat), stringsAsFactors = FALSE, check.names = FALSE)
@@ -90,7 +98,7 @@ compute_anova <- function(sample_raw_mat = NULL, metadata_df = NULL, cohort_col 
     tryCatch({  
       anova_input_df$value <- as.numeric(sample_intensity_mat[row_name, anova_input_df$Sample])
       anova_input_df <- anova_input_df[apply(anova_input_df, 1, function(x) is.finite(as.numeric(x[['value']]))), , drop = FALSE]                                       
-      frm <- paste("value", paste(cohort_col, collapse = " * "), sep = " ~ ")
+      frm <- paste("value", paste(names(anova_cohort_cols), collapse = " * "), sep = " ~ ")
       anv_lm <- stats::lm(stats::formula(frm), anova_input_df)
       aov_obj <- stats::aov(anv_lm)
       anova_r <- summary(aov_obj)[[1]]
@@ -99,7 +107,7 @@ compute_anova <- function(sample_raw_mat = NULL, metadata_df = NULL, cohort_col 
       colnames(anova_r) <- c("id", "interaction", "F.Value", "P.Value")
       row.names(anova_r) <- NULL
       
-      diff_interaction <- base::setdiff(cohort_interactions, anova_r$interaction)                                                
+      diff_interaction <- base::setdiff(names(anova_interactions), anova_r$interaction)                                                
       if (length(diff_interaction) > 0){
         interm_anova_df <- data.frame(id = row_name, interaction = diff_interaction, F.Value = NA, P.Value = NA, stringsAsFactors = FALSE, check.names = FALSE)
         anova_r <- rbind(anova_r, interm_anova_df)
@@ -110,7 +118,7 @@ compute_anova <- function(sample_raw_mat = NULL, metadata_df = NULL, cohort_col 
     )
     
     if (identical(row_anova, NULL) | !(all(c("id", "interaction", "F.Value", "P.Value") %in% colnames(row_anova)))){
-      row_anova <- data.frame(id = row_name, interaction = cohort_interactions, F.Value = NA, P.Value = NA, stringsAsFactors = FALSE, check.names = FALSE)
+      row_anova <- data.frame(id = row_name, interaction = names(anova_interactions), F.Value = NA, P.Value = NA, stringsAsFactors = FALSE, check.names = FALSE)
     }
     anova_results_df <- rbind(anova_results_df, row_anova)                                  
   }
@@ -135,6 +143,14 @@ compute_anova <- function(sample_raw_mat = NULL, metadata_df = NULL, cohort_col 
   if (nrow(filtered_anova_results_df) < 1){
     warning("Unable to perform anova test on this dataset")
     return(NULL)
+  }
+  
+  if ("interaction" %in% colnames(combined_anova_results_df)){                                      
+    combined_anova_results_df <- dplyr::mutate(combined_anova_results_df, 
+                                               interaction = factor(interaction,
+                                                                    levels = names(anova_interactions),
+                                                                    labels = unname(anova_interactions)))
+    combined_anova_results_df$interaction <- as.character(combined_anova_results_df$interaction)                                   
   }
   
   message("Compute Anova On Matrix Completed...")
