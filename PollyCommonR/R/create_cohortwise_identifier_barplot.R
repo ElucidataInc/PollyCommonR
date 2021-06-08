@@ -99,11 +99,6 @@ create_cohortwise_identifier_barplot <- function (sample_raw_mat = NULL, metadat
                                    categoryarray = filtered_cohorts_vec), 
                       yaxis = list(title = y_label, titlefont = list(size = 16)),
                       showlegend = TRUE) %>%
-      add_annotations(text=cohort_col, xref="paper", yref="paper",
-                      x=1.04, xanchor="left",
-                      y=0.98, yanchor="bottom",
-                      font = list(size = 16),
-                      legendtitle=TRUE, showarrow=FALSE ) %>%
       plotly::config(displaylogo = FALSE, modeBarButtons = list(list("zoomIn2d"), list("zoomOut2d"), 
                                                                 list("toImage")), mathjax = "cdn")
   }
