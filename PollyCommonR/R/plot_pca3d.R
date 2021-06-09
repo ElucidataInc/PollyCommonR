@@ -69,11 +69,6 @@ plot_pca3d <- function(PCAObj_Summary, metadata, condition, color_palette = NULL
                         yaxis = list(title = paste("PC",pc_y, '(', round(PCAObj_Summary$importance[2,pc_y]*100, 2), '%)')),
                         zaxis = list(title = paste("PC",pc_z, '(', round(PCAObj_Summary$importance[2,pc_z]*100, 2), '%)'))
            )) %>%
-    add_annotations(text=condition, xref="paper", yref="paper",
-                    x=1.04, xanchor="left",
-                    y=0.98, yanchor="bottom",
-                    font = list(size = 14),
-                    legendtitle=TRUE, showarrow=FALSE )  %>%                                      
     plotly::config(displaylogo = FALSE,
                    modeBarButtons = list(list("zoomIn2d"),
                                          list("zoomOut2d"),
