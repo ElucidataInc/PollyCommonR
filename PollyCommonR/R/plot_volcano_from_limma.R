@@ -132,7 +132,7 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
   diff_exp$threshold <- "not significant"
   
   diff_exp <- dplyr::mutate(diff_exp, threshold = dplyr::case_when((abs(logFC) >= log2fc_range) & (!!(dplyr::sym(p_val_type)) <= p_val_cutoff) ~ "significant", TRUE ~ threshold))
-  
+  row.names(diff_exp) <- diff_exp$id
   significance_table <- base::table(diff_exp$threshold)
   print (significance_table)
   
@@ -150,7 +150,7 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
     }
   }
   
-  diff_exp$text_hover <- row.names(diff_exp)
+  diff_exp$text_hover <- diff_exp$id
   diff_exp$category_sym <- NULL  
   if (!identical(row_desc, NULL)){
     if (!identical(text_hover_col, NULL)){
@@ -182,12 +182,12 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
   if (interactive == TRUE){
     if (identical(x_label, NULL)){ x_label <- xaxis_lab_pl }
     if (identical(y_label, NULL)){ y_label <- yaxis_lab_pl }
-
-    filtered_diff_exp <- diff_exp[row.names(diff_exp) %in% annotate_id, ]
+    
+    filtered_diff_exp <- diff_exp[diff_exp$id %in% annotate_id, ]
     if(nrow(filtered_diff_exp) == 0){
       a <- NULL
     } else {
-      annotate_text <- row.names(filtered_diff_exp)  
+      annotate_text <- filtered_diff_exp$id  
       if (!identical(row_desc, NULL)){  
         if (!identical(annotate_col, NULL)){ annotate_text <- filtered_diff_exp[[annotate_col]] }
       }
