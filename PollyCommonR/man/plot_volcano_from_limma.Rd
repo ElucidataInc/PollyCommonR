@@ -14,10 +14,13 @@ plot_volcano_from_limma(
   annotate_col = NULL,
   text_hover_col = NULL,
   category_col = NULL,
+  marker_size_by_expr = TRUE,
+  marker_size_range = c(5, 25),
+  marker_size = 8,
+  marker_opacity = 0.5,
   x_label = NULL,
   y_label = NULL,
   title_label = NULL,
-  marker_size = 8,
   plot_id = NULL,
   interactive = TRUE
 )
@@ -41,13 +44,19 @@ plot_volcano_from_limma(
 
 \item{category_col}{A row descriptor column which is used to add shapes to different categories}
 
+\item{marker_size_by_expr}{Show size of markers by average expression values (AveExpr), TRUE/FALSE}
+
+\item{marker_size_range}{A numeric vector of minimum and maximum values of size of markers}
+
+\item{marker_size}{Size of marker point}
+
+\item{marker_opacity}{The opacity of the markers}
+
 \item{x_label}{Label x-axis}
 
 \item{y_label}{Label y-axis}
 
 \item{title_label}{Title of the plot}
-
-\item{marker_size}{Size of marker point}
 
 \item{plot_id}{source id for the plotly plot}
 

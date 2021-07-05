@@ -11,10 +11,13 @@
 #' @param annotate_col A row descriptor column which is used to show names for annotated ids on plot
 #' @param text_hover_col A row descriptor column which is used to hover text on plot
 #' @param category_col A row descriptor column which is used to add shapes to different categories
+#' @param marker_size_by_expr Show size of markers by average expression values (AveExpr), TRUE/FALSE
+#' @param marker_size_range A numeric vector of minimum and maximum values of size of markers
+#' @param marker_size Size of marker point
+#' @param marker_opacity The opacity of the markers
 #' @param x_label Label x-axis
 #' @param y_label Label y-axis
 #' @param title_label Title of the plot
-#' @param marker_size Size of marker point
 #' @param plot_id source id for the plotly plot
 #' @param interactive make plot interactive (default is TRUE)
 #' @return plotly or ggplot object
@@ -25,8 +28,9 @@
 plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_cutoff = NULL, 
                                     p_val_type = "P.Value", annotate_id = NULL, row_desc = NULL, 
                                     annotate_col = NULL, text_hover_col = NULL, category_col = NULL,
-                                    x_label = NULL, y_label = NULL, title_label = NULL, marker_size = 8, 
-                                    plot_id = NULL, interactive = TRUE) {
+                                    marker_size_by_expr = TRUE, marker_size_range = c(5, 25),
+                                    marker_size = 8,  marker_opacity = 0.5, x_label = NULL, y_label = NULL,
+                                    title_label = NULL, plot_id = NULL, interactive = TRUE) {
   message("Make Volcano Plot Started...")
   require(dplyr)
   require(ggplot2)
@@ -59,7 +63,6 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
   
   required_cols <- c("logFC", common_pval)  
   
-  
   if (identical(p_val_type, NULL)){
     p_val_type <- pval_type[1]  
     warning("The p_val_type is NULL, using 'P.Value' as default")
@@ -73,6 +76,40 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
   if (!(p_val_type %in% colnames(diff_exp))){
     warning(paste0("The ", p_val_type, " is not present in diff_exp"))
     return (NULL)
+  }
+  
+  if (identical(marker_size_by_expr, TRUE)){
+    if (!("AveExpr" %in% colnames(diff_exp))){
+      warning("The average expression (AveExpr) column is not present in diff_exp")
+      return (NULL)
+    }
+    
+    if (!is.numeric(marker_size_range)){
+      warning("The marker_size_range is not a numeric vector") 
+      return (NULL)
+    }
+    
+    if (length(marker_size_range) != 2){
+      warning("The marker_size_range is not a numeric vector of two elements") 
+      return (NULL)
+    }     
+  }
+  else {
+    if(!identical(marker_size, NULL)){
+      marker_size <- as.numeric(marker_size)
+      if (is.na(marker_size)){
+        warning("The marker_size is not a numeric value") 
+        return (NULL)
+      }  
+    }  
+  }
+  
+  if(!identical(marker_opacity, NULL)){
+    marker_opacity <- as.numeric(marker_opacity)
+    if (is.na(marker_opacity)){
+      warning("The marker_opacity is not a numeric value") 
+      return (NULL)
+    }  
   }    
   
   if (!identical(row_desc, NULL)){
@@ -150,8 +187,35 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
     }
   }
   
-  diff_exp$text_hover <- diff_exp$id
-  diff_exp$category_sym <- NULL  
+  ave_expr <- diff_exp$AveExpr
+  ave_expr <- ave_expr[is.finite(ave_expr)]
+  ave_expr_range <- c(min(ave_expr), max(ave_expr))
+  if (identical(marker_size_by_expr, TRUE)){
+    slope_m <- (marker_size_range[2] - marker_size_range[1]) / (ave_expr_range[2] - ave_expr_range[1])
+    eq_constant <- marker_size_range[2] - (slope_m * ave_expr_range[2])                                           
+    diff_exp$marker_size <- sapply(diff_exp$AveExpr, function(x) {
+      y <- (slope_m * x) + eq_constant
+      if (!is.finite(y)){ y <- marker_size_range[1]}
+      return(y)
+    })                                       
+  }
+  else { diff_exp$marker_size <- marker_size}                                                                                     
+  
+  if ("AveExpr" %in% colnames(diff_exp)){ 
+    diff_exp$text_hover<-  paste0(paste0("id: ", diff_exp$id),
+                                  "<br>", paste0("logFC: ", diff_exp$logFC),
+                                  "<br>", paste0(gsub("pval", p_val_type, "-log10(pval)"), ": ", - log10(diff_exp[[p_val_type]])),
+                                  "<br>", paste0(p_val_type, ": ", diff_exp[[p_val_type]]),
+                                  "<br>", paste0("Average Expression (AveExpr): ", diff_exp$AveExpr))
+  }
+  else {
+    diff_exp$text_hover<-  paste0(paste0("id: ", diff_exp$id),
+                                  "<br>", paste0("logFC: ", diff_exp$logFC),
+                                  "<br>", paste0(gsub("pval", p_val_type, "-log10(pval)"), ": ", - log10(diff_exp[[p_val_type]])),
+                                  "<br>", paste0(p_val_type, ": ", diff_exp[[p_val_type]]))
+  } 
+  
+  diff_exp$category_sym <- 1
   if (!identical(row_desc, NULL)){
     if (!identical(text_hover_col, NULL)){
       diff_exp$text_hover <- diff_exp[[text_hover_col]]
@@ -164,7 +228,7 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
   
   significance_color <- c("grey", "red")  
   xaxis_lab_gg <- latex2exp::TeX("$\\log_{2}(fold \\, change)$")
-  xaxis_lab_pl <- plotly::TeX("\\log_{2}(\\text{fold change})")
+  xaxis_lab_pl <- plotly::TeX("\\log_{2}(\\text{fold change})")                                         
   if(identical(p_val_type, "P.Value")){
     yaxis_lab_gg <- latex2exp::TeX("$-\\log_{10}(p \\, value)$")
     yaxis_lab_pl <- plotly::TeX("-\\log_{10}(\\text{p value})")
@@ -175,9 +239,7 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
   }
   
   x_col = "logFC"
-  y_col = gsub("pval", p_val_type, "-log10(pval)")  
-  x_val <- diff_exp$logFC
-  y_val <- -log10(diff_exp[, p_val_type])                                               
+  y_col <- paste0("-log10(", p_val_type,")")                                          
   
   if (interactive == TRUE){
     if (identical(x_label, NULL)){ x_label <- xaxis_lab_pl }
@@ -203,23 +265,31 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
         ax = 20,
         ay = -40
       )}
-    p <- plotly::plot_ly(source = plot_id) %>%
-      add_trace(
-        x = x_val, y = y_val, customdata = diff_exp$id,
-        type = "scattergl", mode = "markers",
-        marker = list(size = marker_size),
-        color = diff_exp$threshold,
-        colors = significance_color,
-        symbol = diff_exp$category_sym,
-        text = diff_exp$text_hover  
-      ) %>%
-      
+    if (identical(marker_size_by_expr, TRUE)){
+      p <- plotly::plot_ly(data = diff_exp, source = plot_id,
+                           x = stats::as.formula(paste0("~", x_col)), y = stats::as.formula(paste0("~", y_col)),
+                           customdata = ~id, type = "scatter", mode = "markers", size = ~marker_size, 
+                           fill = ~'', sizes = marker_size_range,
+                           marker = list(sizemode = 'diameter', opacity = marker_opacity),
+                           color = ~threshold, colors = significance_color,
+                           symbol = ~category_sym, text = ~text_hover)
+    }
+    else {
+      p <- plotly::plot_ly(data = diff_exp, source = plot_id,
+                           x = stats::as.formula(paste0("~", x_col)), y = stats::as.formula(paste0("~", y_col)),
+                           customdata = ~id, type = "scatter", mode = "markers",
+                           marker = list(size = marker_size, sizemode = 'diameter', opacity = marker_opacity),
+                           color = ~threshold, colors = significance_color,
+                           symbol = ~category_sym, text = ~text_hover)        
+    }  
+    
+    p <- p %>%
       layout(
         title = list(text = title_label, xref = "paper", yref = "paper"),
         yaxis = list(title = y_label),
         xaxis = list(title = x_label),
         annotations = a,
-        showlegend = TRUE
+        showlegend = TRUE  
       ) %>%
       add_annotations(text="Significance", xref="paper", yref="paper",
                       x=1.04, xanchor="left",
@@ -241,16 +311,24 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
   } else {
     if (identical(annotate_col, NULL)){ annotate_col <- "id" }
     if (identical(x_label, NULL)){ x_label <- xaxis_lab_gg }
-    if (identical(y_label, NULL)){ y_label <- yaxis_lab_gg }      
+    if (identical(y_label, NULL)){ y_label <- yaxis_lab_gg }
     
-    p <- ggplot(diff_exp, aes_string(x = x_col, y = y_col, color = "threshold", fill = "threshold", shape = category_col), text = id) + 
-      geom_point( size = marker_size/2, alpha = 0.7) + # scatter plot function with shape of points defined as 21 scale.   
-      ggtitle(title_label) +       
-      labs(x = x_label, y = y_label, color = "Significance", fill = "Significance", shape = "Category") + # x and y axis labels
+    diff_exp[!is.finite(diff_exp$AveExpr), "AveExpr"] <- ave_expr_range[1]
+    p <- ggplot(diff_exp, aes_string(x = x_col, y = y_col, color = "threshold", fill = "threshold", shape = category_col), text = id)
+    if (identical(marker_size_by_expr, TRUE)){
+      p <- p + geom_point(aes_string(size = "AveExpr"), alpha = marker_opacity) + 
+        scale_size_continuous(range = marker_size_range/3)    
+    }
+    else {
+      p <- p + geom_point(size = marker_size/2, alpha = marker_opacity) +
+        ggplot2::guides(size = FALSE )
+    }  
+    p <- p +
+      labs(x = x_label, y = y_label, title = title_label, size = "Average Expression", color = "Significance", fill = "Significance", shape = "Category") + # x and y axis labels
       theme(legend.position = "right", legend.direction = "vertical", # legend positioned at the bottom, horizantal direction,
             axis.line = element_line(size=1, colour = "black"),	# axis line of size 1 inch in black color
-            panel.grid.major = element_blank(),	# major grids included
-            panel.grid.minor = element_blank(),	# no minor grids
+            panel.grid.major = element_blank(), # major grids included
+            panel.grid.minor = element_blank(), # no minor grids
             panel.border = element_blank(), panel.background = element_blank(), # no borders and background color
             plot.title = element_text(colour="black", size = 18, face = "plain", hjust=0.5),
             axis.title = element_text(colour="black", size = 15, face = "bold"), # axis title 
