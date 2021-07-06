@@ -94,9 +94,10 @@ compute_anova <- function(sample_raw_mat = NULL, metadata_df = NULL, cohort_col 
   for (row_name in row.names(sample_intensity_mat)){
     row_anova <- NULL
     anova_r <- NULL
-    anova_input_df <- merge(sample_df, metadata_df, by = 1, sort = FALSE)
+    anova_input_df <- base::merge(sample_df, metadata_df, by = 1, sort = FALSE)
+    feature_intensity <- as.numeric(sample_intensity_mat[row_name, anova_input_df$Sample])
     tryCatch({  
-      anova_input_df$value <- as.numeric(sample_intensity_mat[row_name, anova_input_df$Sample])
+      anova_input_df$value <- feature_intensity
       anova_input_df <- anova_input_df[apply(anova_input_df, 1, function(x) is.finite(as.numeric(x[['value']]))), , drop = FALSE]                                       
       frm <- paste("value", paste(names(anova_cohort_cols), collapse = " * "), sep = " ~ ")
       anv_lm <- stats::lm(stats::formula(frm), anova_input_df)
@@ -120,6 +121,7 @@ compute_anova <- function(sample_raw_mat = NULL, metadata_df = NULL, cohort_col 
     if (identical(row_anova, NULL) | !(all(c("id", "interaction", "F.Value", "P.Value") %in% colnames(row_anova)))){
       row_anova <- data.frame(id = row_name, interaction = names(anova_interactions), F.Value = NA, P.Value = NA, stringsAsFactors = FALSE, check.names = FALSE)
     }
+    row_anova$AveExpr <- mean(feature_intensity, na.rm = TRUE)                                  
     anova_results_df <- rbind(anova_results_df, row_anova)                                  
   }
   
