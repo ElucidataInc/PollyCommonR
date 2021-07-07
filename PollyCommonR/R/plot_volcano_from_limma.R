@@ -25,7 +25,7 @@
 #' plot_volcano_from_limma(diff_exp, log2fc_range = 0.5, p_val_cutoff = 0.05, p_val_type = "P.Value")
 #' @import dplyr ggplot2 plotly ggsci ggrepel latex2exp
 #' @export
-plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_cutoff = NULL, 
+plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = 1, p_val_cutoff = 0.05, 
                                     p_val_type = "P.Value", annotate_id = NULL, row_desc = NULL, 
                                     annotate_col = NULL, text_hover_col = NULL, category_col = NULL,
                                     marker_size_by_expr = TRUE, marker_size_range = c(5, 25),
@@ -47,7 +47,31 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
   if (!identical(class(diff_exp), "data.frame")){
     warning("The diff_exp is not a dataframe, please provide valid diff_exp")
     return(NULL) 
-  }     
+  }
+  
+  if (identical(log2fc_range, NULL)){
+    warning("The log2fc_range is NULL")
+    return (NULL)
+  }
+  else {
+    log2fc_range <- as.numeric(log2fc_range)
+    if (is.na(log2fc_range)){
+      warning("The log2fc_range is not a numeric value") 
+      return (NULL)
+    }  
+  }
+  
+  if (identical(p_val_cutoff, NULL)){
+    warning("The p_val_cutoff is NULL")
+    return (NULL)
+  }
+  else {
+    p_val_cutoff <- as.numeric(p_val_cutoff)
+    if (is.na(p_val_cutoff)){
+      warning("The p_val_cutoff is not a numeric value") 
+      return (NULL)
+    }  
+  }   
   
   pval_type <- c("P.Value", "adj.P.Val")
   common_pval <- base::intersect(pval_type, colnames(diff_exp))
@@ -84,6 +108,11 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
       return (NULL)
     }
     
+    if (identical(marker_size_range, NULL)){ 
+      warning("The marker_size_range is NULL")
+      return (NULL)  
+    } 
+    
     if (!is.numeric(marker_size_range)){
       warning("The marker_size_range is not a numeric vector") 
       return (NULL)
@@ -92,19 +121,27 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = NULL, p_val_
     if (length(marker_size_range) != 2){
       warning("The marker_size_range is not a numeric vector of two elements") 
       return (NULL)
-    }     
+    }
   }
   else {
-    if(!identical(marker_size, NULL)){
+    if(identical(marker_size, NULL)){
+      warning("The marker_size is NULL")
+      return (NULL)  
+    }
+    else {
       marker_size <- as.numeric(marker_size)
       if (is.na(marker_size)){
         warning("The marker_size is not a numeric value") 
         return (NULL)
       }  
-    }  
+    }
   }
   
-  if(!identical(marker_opacity, NULL)){
+  if(identical(marker_opacity, NULL)){
+    warning("The marker_opacity is NULL")
+    return (NULL)
+  } 
+  else {
     marker_opacity <- as.numeric(marker_opacity)
     if (is.na(marker_opacity)){
       warning("The marker_opacity is not a numeric value") 

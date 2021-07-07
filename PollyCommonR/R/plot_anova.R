@@ -1,6 +1,6 @@
 #' plot_anova
 #'
-#' makes a anova plot
+#' makes the anova plot
 #'
 #' @param anova_data The anova data from compoute anova function
 #' @param p_val_cutoff The pval cutoff
@@ -10,23 +10,27 @@
 #' @param annotate_col A row descriptor column which is used to show names for annotated ids on plot
 #' @param text_hover_col A row descriptor column which is used to hover text on plot
 #' @param category_col A row descriptor column which is used to add shapes to different categories
+#' @param marker_size_by_expr Show size of markers by average expression values (AveExpr), TRUE/FALSE
+#' @param marker_size_range A numeric vector of minimum and maximum values of size of markers
+#' @param marker_size Size of marker point
+#' @param marker_opacity The opacity of the markers
 #' @param x_label Label x-axis
 #' @param y_label Label y-axis
 #' @param title_label Title of the plot
-#' @param marker_size Size of marker point
 #' @param plot_id source id for the plotly plot
 #' @param interactive make plot interactive (default is TRUE)
 #' @return plotly or ggplot object
 #' @examples
-#' plot_anova(diff_exp, p_val_cutoff = 0.05)
+#' plot_anova(anova_data, p_val_cutoff = 0.05)
 #' @import dplyr ggplot2 plotly ggsci ggrepel latex2exp
 #' @export
-plot_anova <- function(anova_data = NULL, p_val_cutoff = NULL, interaction_type = NULL,
+plot_anova <- function(anova_data = NULL, p_val_cutoff = 0.05, interaction_type = NULL,
                        annotate_id = NULL, row_desc = NULL, annotate_col = NULL, 
-                       text_hover_col = NULL, category_col = NULL, x_label = NULL, 
-                       y_label = NULL, title_label = NULL, marker_size = 8, plot_id = NULL, 
+                       text_hover_col = NULL, category_col = NULL, marker_size_by_expr = TRUE, 
+                       marker_size_range = c(5, 25), marker_size = 8,  marker_opacity = 0.5,
+                       x_label = NULL, y_label = NULL, title_label = NULL, plot_id = NULL, 
                        interactive = TRUE) {
-  message("Make Volcano Plot Started...")
+  message("Plot Anova Started...")
   require(dplyr)  
   require(ggplot2)
   require(plotly)
@@ -52,7 +56,66 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = NULL, interaction_type 
   if (!("P.Value" %in% colnames(anova_data))){
     warning("The anova_data should contain 'P.Value' column")
     return (NULL)
+  }
+  
+  if (identical(p_val_cutoff, NULL)){
+    warning("The p_val_cutoff is NULL")
+    return (NULL)
+  }
+  else {
+    p_val_cutoff <- as.numeric(p_val_cutoff)
+    if (is.na(p_val_cutoff)){
+      warning("The p_val_cutoff is not a numeric value") 
+      return (NULL)
+    }  
+  }     
+  
+  if (identical(marker_size_by_expr, TRUE)){
+    if (!("AveExpr" %in% colnames(anova_data))){
+      warning("The average expression (AveExpr) column is not present in anova_data")
+      return (NULL)
+    }
+    
+    if(identical(marker_size_range, NULL)){
+      warning("The marker_size_range is NULL")
+      return (NULL)
+    }      
+    
+    if (!is.numeric(marker_size_range)){
+      warning("The marker_size_range is not a numeric vector") 
+      return (NULL)
+    }
+    
+    if (length(marker_size_range) != 2){
+      warning("The marker_size_range is not a numeric vector of two elements") 
+      return (NULL)
+    }     
+  }
+  else {
+    if(identical(marker_size, NULL)){
+      warning("The marker_size is NULL")
+      return (NULL)
+    }
+    else {  
+      marker_size <- as.numeric(marker_size)
+      if (is.na(marker_size)){
+        warning("The marker_size is not a numeric value") 
+        return (NULL)
+      }  
+    }  
+  }
+  
+  if(identical(marker_opacity, NULL)){
+    warning("The marker_opacity is NULL")
+    return (NULL)
   }  
+  else {
+    marker_opacity <- as.numeric(marker_opacity)
+    if (is.na(marker_opacity)){
+      warning("The marker_opacity is not a numeric value") 
+      return (NULL)
+    }  
+  }    
   
   if (!identical(row_desc, NULL)){
     if (!identical(class(row_desc), "data.frame")){
@@ -141,10 +204,37 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = NULL, interaction_type 
     }
   }
   
+  ave_expr <- anova_data$AveExpr
+  ave_expr <- ave_expr[is.finite(ave_expr)]
+  ave_expr_range <- c(min(ave_expr), max(ave_expr))
+  if (identical(marker_size_by_expr, TRUE)){
+    slope_m <- (marker_size_range[2] - marker_size_range[1]) / (ave_expr_range[2] - ave_expr_range[1])
+    eq_constant <- marker_size_range[2] - (slope_m * ave_expr_range[2])                                           
+    anova_data$marker_size <- sapply(anova_data$AveExpr, function(x) {
+      y <- (slope_m * x) + eq_constant
+      if (!is.finite(y)){ y <- marker_size_range[1]}
+      return(y)
+    })                                       
+  }
+  else { anova_data$marker_size <- marker_size}                                                                                     
+  
+  if ("AveExpr" %in% colnames(anova_data)){ 
+    anova_data$text_hover<-  paste0(paste0("id: ", anova_data$id),
+                                    "<br>", paste0("-log10(P.Value)): ", - log10(anova_data[["P.Value"]])),
+                                    "<br>", paste0("P.Value: ", anova_data[["P.Value"]]),
+                                    "<br>", paste0("Average Expression (AveExpr): ", anova_data$AveExpr))
+  }
+  else {
+    anova_data$text_hover<-  paste0(paste0("id: ", anova_data$id),
+                                    "<br>", paste0("-log10(P.Value)): ", - log10(anova_data[["P.Value"]])),
+                                    "<br>", paste0("P.Value: ", anova_data[["P.Value"]]))
+  }
+  
   if ("interaction" %in% colnames(anova_data)){
-    anova_data$text_hover <- paste0(anova_data$id, "\n", "interaction: ", anova_data$interaction)
-  } else { anova_data$text_hover <- anova_data$id}
-  anova_data$category_sym <- NULL  
+    anova_data$text_hover <- paste0(anova_data$text_hover, "<br>", paste0("interaction: ", anova_data$interaction))
+  }
+  
+  anova_data$category_sym <- 1  
   if (!identical(row_desc, NULL)){
     if (!identical(text_hover_col, NULL)){
       anova_data$text_hover <- anova_data[[text_hover_col]]
@@ -159,12 +249,10 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = NULL, interaction_type 
   xaxis_lab_gg <- latex2exp::TeX("$Features$")
   xaxis_lab_pl <- plotly::TeX("\\text{Features}")
   yaxis_lab_gg <- latex2exp::TeX("$-\\log_{10}(p \\, value)$")
-  yaxis_lab_pl <- plotly::TeX("-\\log_{10}(\\text{p value})")
+  yaxis_lab_pl <- plotly::TeX("-\\log_{10}(\\text{p value})")                                              
   
   x_col = "index"
-  y_col = "-log10(P.Value)" 
-  x_val <- anova_data$index
-  y_val <- -log10(anova_data[, "P.Value"])                                              
+  y_col <- "-log10(P.Value)"                                              
   
   if (interactive == TRUE){
     if (identical(x_label, NULL)){ x_label <- xaxis_lab_pl }
@@ -190,17 +278,26 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = NULL, interaction_type 
         ax = 20,
         ay = -40
       )}
-    p <- plotly::plot_ly(source = plot_id) %>%
-      add_trace(
-        x = x_val, y = y_val, customdata = anova_data$id,
-        type = "scattergl", mode = "markers",
-        marker = list(size = marker_size),
-        color = anova_data$threshold,
-        colors = significance_color,
-        symbol = anova_data$category_sym,
-        text = anova_data$text_hover 
-      ) %>%
-      
+    
+    if (identical(marker_size_by_expr, TRUE)){
+      p <- plotly::plot_ly(data = anova_data, source = plot_id,
+                           x = stats::as.formula(paste0("~", x_col)), y = stats::as.formula(paste0("~", y_col)),
+                           customdata = ~id, type = "scatter", mode = "markers", size = ~marker_size, 
+                           fill = ~'', sizes = marker_size_range,
+                           marker = list(sizemode = 'diameter', opacity = marker_opacity),
+                           color = ~threshold, colors = significance_color,
+                           symbol = ~category_sym, text = ~text_hover)
+    }
+    else {
+      p <- plotly::plot_ly(data = anova_data, source = plot_id,
+                           x = stats::as.formula(paste0("~", x_col)), y = stats::as.formula(paste0("~", y_col)),
+                           customdata = ~id, type = "scatter", mode = "markers",
+                           marker = list(size = marker_size, sizemode = 'diameter', opacity = marker_opacity),
+                           color = ~threshold, colors = significance_color,
+                           symbol = ~category_sym, text = ~text_hover)        
+    }
+    
+    p <- p %>% 
       layout(
         title = list(text = title_label, xref = "paper", yref = "paper"),
         yaxis = list(title = y_label),
@@ -229,11 +326,18 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = NULL, interaction_type 
     if (identical(annotate_col, NULL)){ annotate_col <- "id" }
     if (identical(x_label, NULL)){ x_label <- xaxis_lab_gg }
     if (identical(y_label, NULL)){ y_label <- yaxis_lab_gg }      
-    p <- ggplot(anova_data, aes_string(x = x_col, y = y_col, color = "threshold", fill = "threshold", shape = category_col), text = id) + 
-      geom_point( size = marker_size/2, alpha = 0.7) + # scatter plot function with shape of points defined as 21 scale.   
-      scale_x_continuous(breaks = scales::pretty_breaks(n = 10))+
-      ggtitle(title_label) +       
-      labs(x = x_label, y = y_label, color = "Significance", fill = "Significance", shape = "Category") + # x and y axis labels
+    anova_data[!is.finite(anova_data$AveExpr), "AveExpr"] <- ave_expr_range[1]
+    p <- ggplot(anova_data, aes_string(x = x_col, y = y_col, color = "threshold", fill = "threshold", shape = category_col), text = id)
+    if (identical(marker_size_by_expr, TRUE)){
+      p <- p + geom_point(aes_string(size = "AveExpr"), alpha = marker_opacity) + 
+        ggplot2::scale_size(range = marker_size_range/3)    
+    }
+    else {
+      p <- p + geom_point(size = marker_size/2, alpha = marker_opacity) +
+        ggplot2::guides(size = FALSE)
+    }         
+    p <- p+  
+      labs(x = x_label, y = y_label, title = title_label, size = "Average Expression", color = "Significance", fill = "Significance", shape = "Category") + # x and y axis labels
       theme(legend.position = "right", legend.direction = "vertical", # legend positioned at the bottom, horizantal direction,
             axis.line = element_line(size=1, colour = "black"),	# axis line of size 1 inch in black color
             panel.grid.major = element_blank(),	# major grids included
@@ -255,7 +359,7 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = NULL, interaction_type 
                                       max.iter = 3e3)
   }
   
-  message("Make Volcano Plot Completed...")
+  message("Plot Anova Completed...")
   
   return (p)
 }
