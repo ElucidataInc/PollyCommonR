@@ -354,7 +354,7 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = 1, p_val_cut
     p <- ggplot(diff_exp, aes_string(x = x_col, y = y_col, color = "threshold", fill = "threshold", shape = category_col), text = id)
     if (identical(marker_size_by_expr, TRUE)){
       p <- p + geom_point(aes_string(size = "AveExpr"), alpha = marker_opacity) + 
-        scale_size_continuous(range = marker_size_range/3)    
+        ggplot2::scale_size(range = marker_size_range/3)    
     }
     else {
       p <- p + geom_point(size = marker_size/2, alpha = marker_opacity) +
