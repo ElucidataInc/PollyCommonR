@@ -6,8 +6,8 @@
 \usage{
 plot_volcano_from_limma(
   diff_exp = NULL,
-  log2fc_range = NULL,
-  p_val_cutoff = NULL,
+  log2fc_range = 1,
+  p_val_cutoff = 0.05,
   p_val_type = "P.Value",
   annotate_id = NULL,
   row_desc = NULL,
