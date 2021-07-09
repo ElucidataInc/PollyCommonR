@@ -22,6 +22,12 @@ plot_volcano_from_limma(
   y_label = NULL,
   title_label = NULL,
   plot_id = NULL,
+  plotly_highlight = FALSE,
+  highlight_on = "plotly_click",
+  highlight_off = "plotly_doubleclick",
+  highlight_persistent = FALSE,
+  highlight_color = "blue",
+  highlight_debounce = 0,
   interactive = TRUE
 )
 }
@@ -59,6 +65,18 @@ plot_volcano_from_limma(
 \item{title_label}{Title of the plot}
 
 \item{plot_id}{source id for the plotly plot}
+
+\item{plotly_highlight}{Highlight points on the plotly plot}
+
+\item{highlight_on}{Highlight points when clicking the points (plotly_click), hovering on points (plotly_hover) or selecting multiple points (plotly_selected)}
+
+\item{highlight_off}{Switch off highlighting points when plotly_doubleclick, plotly_deselect or plotly_relayout}
+
+\item{highlight_persistent}{should selections persist (i.e., accumulate), default is TRUE}
+
+\item{highlight_color}{The color of the highlighted points}
+
+\item{highlight_debounce}{The amount of time to wait before firing an event (in milliseconds). The default of 0 means do not debounce at all. The color of the highlighted points}
 
 \item{interactive}{make plot interactive (default is TRUE)}
 }
