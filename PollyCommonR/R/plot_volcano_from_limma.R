@@ -24,6 +24,7 @@
 #' @param highlight_off Switch off highlighting points when plotly_doubleclick, plotly_deselect or plotly_relayout
 #' @param highlight_persistent should selections persist (i.e., accumulate), default is TRUE
 #' @param highlight_color The color of the highlighted points
+#' @param highlight_debounce The amount of time to wait before firing an event (in milliseconds). The default of 0 means do not debounce at all. The color of the highlighted points
 #' @param interactive make plot interactive (default is TRUE)
 #' @return plotly or ggplot object
 #' @examples
@@ -37,7 +38,8 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = 1, p_val_cut
                                     marker_size = 8,  marker_opacity = 0.5, x_label = NULL, y_label = NULL,
                                     title_label = NULL, plot_id = NULL, plotly_highlight = FALSE, 
                                     highlight_on = "plotly_click", highlight_off = "plotly_doubleclick", 
-                                    highlight_persistent = FALSE, highlight_color = "blue", interactive = TRUE) {
+                                    highlight_persistent = FALSE, highlight_color = "blue", 
+                                    highlight_debounce = 0, interactive = TRUE) {
   message("Make Volcano Plot Started...")
   require(dplyr)
   require(ggplot2)
@@ -181,6 +183,11 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = 1, p_val_cut
       if (identical(highlight_color, NULL) || identical(color_name, NULL)){
         warning("Select the valid highlight_color, using 'blue' as default")
         highlight_color <- "blue"
+      }
+      
+      if (identical(highlight_debounce, NULL) || !is.numeric(highlight_debounce)){
+        warning("Select the valid highlight_debounce, using 0 as default")
+        highlight_debounce <- 0
       }  
     } 
   }
@@ -385,8 +392,9 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = 1, p_val_cut
                                            list('toImage')),
                      mathjax = 'cdn')
     if (identical(plotly_highlight, TRUE)){
-      p <- plotly::highlight(p, on = highlight_on, off = highlight_off, persistent = highlight_persistent, 
-                             color = highlight_color, selected = plotly::attrs_selected(showlegend = FALSE))
+      p <- plotly::highlight(p, on = highlight_on, off = highlight_off, persistent = highlight_persistent,
+                             color = highlight_color, selected = plotly::attrs_selected(showlegend = FALSE), 
+                             debounce = highlight_debounce)
     }
     
   } else {
