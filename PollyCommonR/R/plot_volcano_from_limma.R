@@ -159,7 +159,6 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = 1, p_val_cut
     }  
   }
   
-  
   if (identical(interactive, TRUE)){
     if (identical(plotly_highlight, TRUE)){
       highlight_on_options <- c('plotly_click', 'plotly_hover', 'plotly_selected') 
@@ -397,6 +396,7 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = 1, p_val_cut
                                            list("hoverClosestCartesian"),
                                            list('toImage')),
                      mathjax = 'cdn')
+    
     if (identical(plotly_highlight, TRUE)){
       p <- plotly::highlight(p, on = highlight_on, off = highlight_off, persistent = highlight_persistent,
                              color = highlight_color, opacityDim = highlight_opacitydim, selected = plotly::attrs_selected(showlegend = FALSE), 
