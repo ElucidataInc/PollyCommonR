@@ -9,7 +9,7 @@
 #' @param cohort_b Vector of cohorts used as cohort_b
 #' @param pval_adjust_method Provide pval adjust method ("holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none"). Also check p.adjust from stats.
 #' @param log_flag Check if data is log transformed (TRUE) or not (FALSE). If not (FALSE) then do internally log2 transformation.
-#' @return dataframe, If logFC >0, it implies abundance is greater in cohort_b.
+#' @return dataframe, If logFC >0, it implies abundance is greater in cohort_b, MaxExpr is calculated as the maximum of average of samples within cohorts.
 #' @examples
 #' diff_exp_limma(sample_raw_mat, metadata, 'Cohort', 'Cohort1', 'Cohort2')
 #' @import limma dplyr
@@ -118,7 +118,7 @@ diff_exp_limma <- function (sample_raw_mat = NULL, metadata = NULL, cohort_col =
   limma_results_df <- NULL
   tryCatch(
     {
-      condition <- metadata[, "Comparison"]     
+      condition <- metadata[, "Comparison"]
       design <- stats::model.matrix(~condition + 0)
       colnames(design) <- gsub("condition", "", colnames(design))
       contrast_matrix <- limma::makeContrasts(contrasts = c(paste("B", "A", sep = "-")), levels = design)
@@ -130,6 +130,17 @@ diff_exp_limma <- function (sample_raw_mat = NULL, metadata = NULL, cohort_col =
     },
     error = function(cond) {message(paste("\nCannot run limma, caused an error: ", cond))}
   )
+  
+  for (row_name in row.names(sample_raw_mat_log2)){
+    tryCatch({  
+      feature_df <- data.frame(metadata, stringsAsFactors = FALSE, check.names = FALSE)
+      feature_df$value <- sample_raw_mat_log2[row_name, feature_df[, 1]]
+      mean_df <- feature_df %>% dplyr::group_by(Comparison) %>% dplyr::summarise(mean = mean(value))
+      limma_results_df[row_name, "MaxExpr"] <- max(mean_df$mean)
+    },
+    error = function(cond) {message(paste("Feature: ", row_name, "\nCannot calculate maximum of average of samples within cohorts, caused an error: ", cond))}    
+    )
+  }
   
   message("Calculate Differential Expression Limma Completed...")
   

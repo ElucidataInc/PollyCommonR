@@ -30,7 +30,7 @@ diff_exp_limma(
 \item{log_flag}{Check if data is log transformed (TRUE) or not (FALSE). If not (FALSE) then do internally log2 transformation.}
 }
 \value{
-dataframe, If logFC >0, it implies abundance is greater in cohort_b.
+dataframe, If logFC >0, it implies abundance is greater in cohort_b, MaxExpr is calculated as the maximum of average of samples within cohorts.
 }
 \description{
 calls limma differential expression algorithms
