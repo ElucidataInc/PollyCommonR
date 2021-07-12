@@ -27,6 +27,7 @@ plot_volcano_from_limma(
   highlight_off = "plotly_doubleclick",
   highlight_persistent = FALSE,
   highlight_color = "blue",
+  highlight_opacitydim = 0.8,
   highlight_debounce = 0,
   interactive = TRUE
 )
@@ -76,7 +77,7 @@ plot_volcano_from_limma(
 
 \item{highlight_color}{The color of the highlighted points}
 
-\item{highlight_debounce}{The amount of time to wait before firing an event (in milliseconds). The default of 0 means do not debounce at all. The color of the highlighted points}
+\item{highlight_opacitydim}{A number between 0 and 1 used to reduce the opacity of non-selected traces (by multiplying with the existing opacity)}
 
 \item{interactive}{make plot interactive (default is TRUE)}
 }
