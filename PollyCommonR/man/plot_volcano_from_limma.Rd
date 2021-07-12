@@ -79,6 +79,8 @@ plot_volcano_from_limma(
 
 \item{highlight_opacitydim}{A number between 0 and 1 used to reduce the opacity of non-selected traces (by multiplying with the existing opacity)}
 
+\item{highlight_debounce}{The amount of time to wait before firing an event (in milliseconds). The default of 0 means do not debounce at all. The color of the highlighted points}
+
 \item{interactive}{make plot interactive (default is TRUE)}
 }
 \value{

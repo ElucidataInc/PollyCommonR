@@ -24,8 +24,8 @@
 #' @param highlight_off Switch off highlighting points when plotly_doubleclick, plotly_deselect or plotly_relayout
 #' @param highlight_persistent should selections persist (i.e., accumulate), default is TRUE
 #' @param highlight_color The color of the highlighted points
-#' @param highlight_color The color of the highlighted points
 #' @param highlight_opacitydim A number between 0 and 1 used to reduce the opacity of non-selected traces (by multiplying with the existing opacity)
+#' @param highlight_debounce The amount of time to wait before firing an event (in milliseconds). The default of 0 means do not debounce at all. The color of the highlighted points
 #' @param interactive make plot interactive (default is TRUE)
 #' @return plotly or ggplot object
 #' @examples
