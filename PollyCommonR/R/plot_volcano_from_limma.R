@@ -193,7 +193,7 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = 1, p_val_cut
       
       if (identical(highlight_opacitydim, NULL) || !is.numeric(highlight_opacitydim)){
         warning("Select the valid highlight_opacitydim, using 0.8 as default")
-        highlight_debounce <- 0.8
+        highlight_opacitydim <- 0.8
       }        
     } 
   }
