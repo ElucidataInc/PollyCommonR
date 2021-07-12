@@ -14,7 +14,7 @@ compute_anova(sample_raw_mat = NULL, metadata_df = NULL, cohort_col = "Cohort")
 \item{cohort_col}{A vector of metadata columns used for n way anova.}
 }
 \value{
-A dataframe with calculated F.Value and P.Value.
+A dataframe with calculated F.Value and P.Value, MaxExpr is calculated as the maximum of average of samples within cohorts.
 }
 \description{
 performs n way anova test on the sample raw matrix

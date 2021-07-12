@@ -14,6 +14,7 @@ plot_anova(
   text_hover_col = NULL,
   category_col = NULL,
   marker_size_by_expr = TRUE,
+  marker_expr_col = "MaxExpr",
   marker_size_range = c(5, 25),
   marker_size = 8,
   marker_opacity = 0.5,
@@ -48,7 +49,9 @@ plot_anova(
 
 \item{category_col}{A row descriptor column which is used to add shapes to different categories}
 
-\item{marker_size_by_expr}{Show size of markers by average expression values (AveExpr), TRUE/FALSE}
+\item{marker_size_by_expr}{Show size of markers by expression values, TRUE/FALSE}
+
+\item{marker_expr_col}{A numeric expression column present in anova_data}
 
 \item{marker_size_range}{A numeric vector of minimum and maximum values of size of markers}
 

@@ -134,9 +134,9 @@ diff_exp_limma <- function (sample_raw_mat = NULL, metadata = NULL, cohort_col =
   for (row_name in row.names(sample_raw_mat_log2)){
     tryCatch({  
       feature_df <- data.frame(metadata, stringsAsFactors = FALSE, check.names = FALSE)
-      feature_df$value <- sample_raw_mat_log2[row_name, feature_df[, 1]]
-      mean_df <- feature_df %>% dplyr::group_by(Comparison) %>% dplyr::summarise(mean = mean(value))
-      limma_results_df[row_name, "MaxExpr"] <- max(mean_df$mean)
+      feature_df$value <- as.numeric(sample_raw_mat_log2[row_name, feature_df[, 1]])
+      mean_df <- feature_df %>% dplyr::group_by(Comparison) %>% dplyr::summarise(mean = mean(value, na.rm = TRUE))
+      limma_results_df[row_name, "MaxExpr"] <- max(mean_df$mean, na.rm = TRUE)
     },
     error = function(cond) {message(paste("Feature: ", row_name, "\nCannot calculate maximum of average of samples within cohorts, caused an error: ", cond))}    
     )
