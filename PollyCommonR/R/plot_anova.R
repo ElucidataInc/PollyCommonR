@@ -18,6 +18,13 @@
 #' @param y_label Label y-axis
 #' @param title_label Title of the plot
 #' @param plot_id source id for the plotly plot
+#' @param plotly_highlight Highlight points on the plotly plot
+#' @param highlight_on Highlight points when clicking the points (plotly_click), hovering on points (plotly_hover) or selecting multiple points (plotly_selected)
+#' @param highlight_off Switch off highlighting points when plotly_doubleclick, plotly_deselect or plotly_relayout
+#' @param highlight_persistent should selections persist (i.e., accumulate), default is TRUE
+#' @param highlight_color The color of the highlighted points
+#' @param highlight_opacitydim A number between 0 and 1 used to reduce the opacity of non-selected traces (by multiplying with the existing opacity)
+#' @param highlight_debounce The amount of time to wait before firing an event (in milliseconds). The default of 0 means do not debounce at all. The color of the highlighted points
 #' @param interactive make plot interactive (default is TRUE)
 #' @return plotly or ggplot object
 #' @examples
@@ -28,7 +35,10 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = 0.05, interaction_type 
                        annotate_id = NULL, row_desc = NULL, annotate_col = NULL, 
                        text_hover_col = NULL, category_col = NULL, marker_size_by_expr = TRUE, 
                        marker_size_range = c(5, 25), marker_size = 8,  marker_opacity = 0.5,
-                       x_label = NULL, y_label = NULL, title_label = NULL, plot_id = NULL, 
+                       x_label = NULL, y_label = NULL, title_label = NULL, plot_id = NULL,
+                       plotly_highlight = FALSE, highlight_on = "plotly_click",
+                       highlight_off = "plotly_doubleclick", highlight_persistent = FALSE,
+                       highlight_color = "blue", highlight_opacitydim = 0.8, highlight_debounce = 0, 
                        interactive = TRUE) {
   message("Plot Anova Started...")
   require(dplyr)  
@@ -115,7 +125,45 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = 0.05, interaction_type 
       warning("The marker_opacity is not a numeric value") 
       return (NULL)
     }  
-  }    
+  }
+  
+  if (identical(interactive, TRUE)){
+    if (identical(plotly_highlight, TRUE)){
+      highlight_on_options <- c('plotly_click', 'plotly_hover', 'plotly_selected') 
+      if (identical(highlight_on, NULL) || !(highlight_on %in% highlight_on_options)){
+        warning(paste0("Select highlight_on from :", paste(sQuote(highlight_on_options), collapse = ", "), "\nUsing 'plotly_click' as default")) 
+        highlight_on <- "plotly_click"    
+      } 
+      
+      highlight_off_options <- c('plotly_doubleclick', 'plotly_deselect', 'plotly_relayout')
+      if (identical(highlight_off, NULL) || !(highlight_off %in% highlight_off_options)){
+        warning(paste0("Select highlight_off from :", paste(sQuote(highlight_off_options), collapse = ", "), "\nUsing 'plotly_doubleclick' as default")) 
+        highlight_off <- "plotly_doubleclick"    
+      }
+      
+      if (identical(highlight_persistent, NULL) || !is.logical(highlight_persistent)){
+        warning("The highlight_persistent should be be TRUE/FALSE, using TRUE as default")
+        highlight_persistent <- TRUE
+      }
+      
+      color_name <- NULL  
+      try(color_name <- grDevices::col2rgb(highlight_color, alpha =TRUE), silent = T)  
+      if (identical(highlight_color, NULL) || identical(color_name, NULL)){
+        warning("Select the valid highlight_color, using 'blue' as default")
+        highlight_color <- "blue"
+      }
+      
+      if (identical(highlight_debounce, NULL) || !is.numeric(highlight_debounce)){
+        warning("Select the valid highlight_debounce, using 0 as default")
+        highlight_debounce <- 0
+      }
+      
+      if (identical(highlight_opacitydim, NULL) || !is.numeric(highlight_opacitydim)){
+        warning("Select the valid highlight_opacitydim, using 0.8 as default")
+        highlight_opacitydim <- 0.8
+      }        
+    } 
+  }
   
   if (!identical(row_desc, NULL)){
     if (!identical(class(row_desc), "data.frame")){
@@ -279,6 +327,8 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = 0.05, interaction_type 
         ay = -40
       )}
     
+    if (identical(plotly_highlight, TRUE)){ anova_data <- plotly::highlight_key(anova_data, ~id)}
+    
     if (identical(marker_size_by_expr, TRUE)){
       p <- plotly::plot_ly(data = anova_data, source = plot_id,
                            x = stats::as.formula(paste0("~", x_col)), y = stats::as.formula(paste0("~", y_col)),
@@ -322,6 +372,13 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = 0.05, interaction_type 
                                            list("hoverClosestCartesian"),
                                            list('toImage')), 
                      mathjax = 'cdn')
+    
+    if (identical(plotly_highlight, TRUE)){
+      p <- plotly::highlight(p, on = highlight_on, off = highlight_off, persistent = highlight_persistent,
+                             color = highlight_color, opacityDim = highlight_opacitydim, selected = plotly::attrs_selected(showlegend = FALSE), 
+                             debounce = highlight_debounce)
+    }
+    
   } else {
     if (identical(annotate_col, NULL)){ annotate_col <- "id" }
     if (identical(x_label, NULL)){ x_label <- xaxis_lab_gg }
