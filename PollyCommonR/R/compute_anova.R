@@ -5,7 +5,7 @@
 #' @param sample_raw_mat A dataframe containing samples with raw values.
 #' @param metadata_df A dataframe with samples to cohort mapping.
 #' @param cohort_col A vector of metadata columns used for n way anova.
-#' @return A dataframe with calculated F.Value and P.Value.
+#' @return A dataframe with calculated F.Value and P.Value, MaxExpr is calculated as the maximum of average of samples within cohorts.
 #' @examples 
 #' compute_anova(sample_raw_mat, metadata_df, cohort_col = "Cohort")
 #' @import dplyr stats stringr
@@ -89,15 +89,14 @@ compute_anova <- function(sample_raw_mat = NULL, metadata_df = NULL, cohort_col 
   names(anova_interactions) <- get_anova_interactions(names(anova_cohort_cols))
   
   sample_intensity_mat <- sample_raw_mat[, sample_cols, drop = FALSE]  
-  sample_df <- data.frame(Sample = colnames(sample_intensity_mat), stringsAsFactors = FALSE, check.names = FALSE)
-  anova_results_df <- data.frame(stringsAsFactors = FALSE, check.names = FALSE)    
+  anova_results_df <- data.frame(stringsAsFactors = FALSE, check.names = FALSE)  
   for (row_name in row.names(sample_intensity_mat)){
     row_anova <- NULL
     anova_r <- NULL
-    anova_input_df <- base::merge(sample_df, metadata_df, by = 1, sort = FALSE)
-    feature_intensity <- as.numeric(sample_intensity_mat[row_name, anova_input_df$Sample])
+    feature_df <- data.frame(metadata_df, stringsAsFactors = FALSE, check.names = FALSE)  
+    feature_df$value <- as.numeric(sample_intensity_mat[row_name, feature_df[, 1]])
     tryCatch({  
-      anova_input_df$value <- feature_intensity
+      anova_input_df <- data.frame(feature_df, stringsAsFactors = FALSE, check.names = FALSE)
       anova_input_df <- anova_input_df[apply(anova_input_df, 1, function(x) is.finite(as.numeric(x[['value']]))), , drop = FALSE]                                       
       frm <- paste("value", paste(names(anova_cohort_cols), collapse = " * "), sep = " ~ ")
       anv_lm <- stats::lm(stats::formula(frm), anova_input_df)
@@ -121,8 +120,21 @@ compute_anova <- function(sample_raw_mat = NULL, metadata_df = NULL, cohort_col 
     if (identical(row_anova, NULL) | !(all(c("id", "interaction", "F.Value", "P.Value") %in% colnames(row_anova)))){
       row_anova <- data.frame(id = row_name, interaction = names(anova_interactions), F.Value = NA, P.Value = NA, stringsAsFactors = FALSE, check.names = FALSE)
     }
-    row_anova$AveExpr <- mean(feature_intensity, na.rm = TRUE)                                  
-    anova_results_df <- rbind(anova_results_df, row_anova)                                  
+    
+    tryCatch({  
+      row_anova$AveExpr <- mean(feature_df$value, na.rm = TRUE)
+    },
+    error = function(cond) {message(paste("Feature: ", row_name, "\nCannot calculate average of all samples, caused an error: ", cond))}
+    )
+    
+    tryCatch({  
+      mean_df <- feature_df %>% dplyr::group_by_at(cohort_col) %>% dplyr::summarise(mean = mean(value, na.rm = TRUE))
+      row_anova$MaxExpr <- max(mean_df$mean, na.rm = TRUE)                        
+    },
+    error = function(cond) {message(paste("Feature: ", row_name, "\nCannot calculate maximum of average of samples within cohorts, caused an error: ", cond))}
+    )                                    
+    
+    anova_results_df <- rbind(anova_results_df, row_anova)  
   }
   
   combined_anova_results_df <- data.frame()
