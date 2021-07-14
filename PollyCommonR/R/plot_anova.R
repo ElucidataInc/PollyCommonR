@@ -343,7 +343,7 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = 0.05, interaction_type 
     if (identical(marker_size_by_expr, TRUE)){
       p <- plotly::plot_ly(data = anova_data, source = plot_id,
                            x = stats::as.formula(paste0("~", x_col)), y = stats::as.formula(paste0("~", y_col)),
-                           customdata = ~id, type = "scatter", mode = "markers", size = ~marker_size, 
+                           customdata = ~id, type = "scattergl", mode = "markers", size = ~marker_size, 
                            fill = ~'', sizes = marker_size_range,
                            marker = list(sizemode = 'diameter', opacity = marker_opacity),
                            color = ~threshold, colors = significance_color,
@@ -352,7 +352,7 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = 0.05, interaction_type 
     else {
       p <- plotly::plot_ly(data = anova_data, source = plot_id,
                            x = stats::as.formula(paste0("~", x_col)), y = stats::as.formula(paste0("~", y_col)),
-                           customdata = ~id, type = "scatter", mode = "markers",
+                           customdata = ~id, type = "scattergl", mode = "markers",
                            marker = list(size = marker_size, sizemode = 'diameter', opacity = marker_opacity),
                            color = ~threshold, colors = significance_color,
                            symbol = ~category_sym, text = ~text_hover)        
