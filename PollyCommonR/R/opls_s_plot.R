@@ -17,7 +17,7 @@ opls_s_plot =  function(opl, x_label = "Loadings", y_label = "Correlation", titl
   if(opl@typeC!="OPLS-DA"){
     warning("You are not using a valid OPLS-DA computed on the 'opls' object. Check the 'typeC' subclass in the opls s4 object.")
   }
-  if(opl==NULL){
+  if(is.null(opl)){
     stop("NULL object cannot be plotted.")
   }
   
