@@ -63,10 +63,6 @@ opls_scores_plot = function(scores_data, metadata=NULL, condition = NULL,
   opls_var_df <- as.data.frame(scores_data)
   opls_var_df$variable <- rownames(opls_var_df)
   
-  if(opls_var_df['variable']!=metadata[,1]){
-    stop("The metadata object must have the first column as the sample names which correspond to those in the rownames of scores_data object.")
-  }
-  
   comb_opl_metadata <- merge(opls_var_df, metadata, by.x = 'variable', by.y = 1, sort = FALSE)
   # This line of code can cause problem when the metadata provided does not have the sample names as col 1 but as indices only
   
