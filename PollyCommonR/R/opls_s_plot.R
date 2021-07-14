@@ -1,5 +1,7 @@
 #' opls_s_plot
 #' 
+#' Plots the S-plot for OPLS-DA loadings.
+#' 
 #' @param opl The computed "opls" object (ropls library) on which the plot has to be made.
 #' @param x_label The label for x axis.
 #' @param y_label The label for y axis.

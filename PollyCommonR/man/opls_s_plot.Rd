@@ -24,5 +24,5 @@ opls_s_plot(
 A plotly plot
 }
 \description{
-opls_s_plot
+Plots the S-plot for OPLS-DA loadings.
 }

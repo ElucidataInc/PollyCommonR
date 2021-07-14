@@ -9,6 +9,8 @@
 #' @param significance_data A numeric of length 2 containing the significance level distances of both axes.
 #' @param interactive make plot interactive (default is TRUE)
 #' @param title_label Title of the plot
+#' @param x_title The title for x-axis
+#' @param y_title The title for y-axis
 #' @param marker_size The size of marker point
 #' @param title_label_size Size of title label
 #' @param axis_title_size Size of axis title
@@ -31,7 +33,8 @@
 opls_distance_plot = function(dist_data, metadata=NULL, condition = NULL,
                               significance = FALSE, significance_data = NULL,
                               interactive = TRUE,
-                              title_label = "",marker_size = 6,title_label_size = 18 ,
+                              title_label = "", x_title = "Score Component Distance", y_title = "Orthogonal Component Distance",
+                              marker_size = 6,title_label_size = 18 ,
                               axis_title_size = 14,opls_cohort_text_format= 'bold' ,
                               opls_cohort_text_align= "right" ,opls_cohort_title_size= 18 ,
                               opls_cohort_sample_size= 15 ,opls_plot_axis_format= 'bold' ,
@@ -83,7 +86,7 @@ opls_distance_plot = function(dist_data, metadata=NULL, condition = NULL,
   
   
   p = p + ggtitle(title_label)+
-    labs(x = "Score Distance", y = "Orthogonal Distance", fill = condition) + # x and y axis labels
+    labs(x = x_title, y = y_title, fill = condition) + # x and y axis labels
     theme(legend.position = opls_cohort_text_align, legend.direction = "vertical", # legend positioned at the bottom, horizantal direction,
           axis.line = element_line(size = 1, colour = "black"), # axis line of size 1 inch in black color
           panel.grid.major = element_blank(), # major grids included

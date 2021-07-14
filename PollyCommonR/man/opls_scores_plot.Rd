@@ -11,6 +11,8 @@ opls_scores_plot(
   show_ellipse = FALSE,
   interactive = TRUE,
   title_label = "",
+  x_title = "Score",
+  y_title = "Orthogonal Score",
   marker_size = 6,
   title_label_size = 18,
   axis_title_size = 14,
@@ -32,6 +34,10 @@ opls_scores_plot(
 \item{interactive}{make plot interactive (default is TRUE)}
 
 \item{title_label}{Title of the plot}
+
+\item{x_title}{The title for x-axis}
+
+\item{y_title}{The title for y-axis}
 
 \item{marker_size}{The size of marker point}
 

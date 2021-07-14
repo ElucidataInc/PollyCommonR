@@ -9,6 +9,8 @@
 #' @param significance_data A numeric of length 2 containing the significance level distances of both axes.
 #' @param interactive make plot interactive (default is TRUE)
 #' @param title_label Title of the plot
+#' @param x_title The title for x-axis
+#' @param y_title The title for y-axis
 #' @param marker_size The size of marker point
 #' @param title_label_size Size of title label
 #' @param axis_title_size Size of axis title
@@ -28,13 +30,14 @@
 
 opls_scores_plot = function(scores_data, metadata=NULL, condition = NULL,
                             show_ellipse = FALSE,interactive = TRUE,
-                            title_label = "",marker_size = 6,title_label_size = 18 ,
+                            title_label = "", x_title = "Score", y_title = "Orthogonal Score",
+                            marker_size = 6,title_label_size = 18,
                             axis_title_size = 14,opls_cohort_text_format= 'bold' ,
                             opls_cohort_text_align= "right" ,opls_cohort_title_size= 18 ,
                             opls_cohort_sample_size= 15 ,opls_plot_axis_format= 'bold' ,
                             opls_plot_axis_text_size= 14){
   
-
+  
   
   if (identical(scores_data, NULL)){
     message("dist_data is NULL")
@@ -58,22 +61,18 @@ opls_scores_plot = function(scores_data, metadata=NULL, condition = NULL,
     return(NULL)
   }
   
-  # Data Processing
-  names(scores_data) = c("p1","o1")
-  opls_var_df <- as.data.frame(scores_data)
-  opls_var_df$variable <- rownames(opls_var_df)
+  # Data Processing for unequivocal call to columns.
+  names(scores_data) = c("p1",paste("o",1:(ncol(scores_data)-1),sep=''))
   
-  comb_opl_metadata <- merge(opls_var_df, metadata, by.x = 'variable', by.y = 1, sort = FALSE)
-  # This line of code can cause problem when the metadata provided does not have the sample names as col 1 but as indices only
-  
-  p <- ggplot2::ggplot(comb_opl_metadata, aes(x = p1, y = o1,
-                                              text = paste(variable, !! sym(condition), sep = "<br>"),
-                                              group = metadata[, condition],
-                                              fill = metadata[, condition]
+  # Plotting now
+  p <- ggplot2::ggplot(scores_data, aes(x = p1, y = o1,
+                                        text = rownames(scores_data),#paste(, !! sym(condition), sep = "<br>"),
+                                        group = metadata[, condition],
+                                        fill = metadata[, condition]
   )) + # calls the ggplot function with dose on the x-axis and len on the y-axis
-    geom_point(shape = 21, size = 6, alpha = 0.7) + # scatter plot function with shape of points defined as 21 scale.
-    ggtitle("Scores Plot")+
-    labs(x = "Score", y = "Orthogonal Component", fill = condition) + # x and y axis labels
+    geom_point(shape = 21, size = marker_size, alpha = 0.7) + # scatter plot function with shape of points defined as 21 scale.
+    ggtitle(title_label)+
+    labs(x = x_title, y = y_title, fill = condition) + # x and y axis labels
     theme(legend.position = opls_cohort_text_align, legend.direction = "vertical", # legend positioned at the bottom, horizantal direction,
           axis.line = element_line(size = 1, colour = "black"), # axis line of size 1 inch in black color
           panel.grid.major = element_blank(), # major grids included
@@ -87,21 +86,21 @@ opls_scores_plot = function(scores_data, metadata=NULL, condition = NULL,
           legend.title = element_text(colour="black", size= opls_cohort_title_size, face= opls_cohort_text_format),
           axis.ticks.length = unit(0.25, "cm"))
   if (show_ellipse == TRUE){
-    p <- p + stat_ellipse(geom = "polygon", alpha = 1/6, aes(fill = comb_opl_metadata[,condition]))
+    p <- p + stat_ellipse(geom = "polygon", alpha = 1/6, aes(fill = metadata[,condition]))
   }
   
   if(interactive ==TRUE){
-  p <- p + theme(legend.title = element_blank())
-  p <- plotly::ggplotly(p, tooltip = "text") %>% layout(hovermode = TRUE) %>%
-    add_annotations(text=condition, xref="paper", yref="paper",
-                    x=1.03, xanchor="left",
-                    y=0.97, yanchor="bottom",
-                    font = list(size = (23.91034/18)*opls_cohort_title_size),
-                    legendtitle=TRUE, showarrow=FALSE ) %>% plotly::config(displaylogo = FALSE,
-                                                                           modeBarButtons = list(list("zoomIn2d"), 
-                                                                                                 list("zoomOut2d"), 
-                                                                                                 list('toImage')), 
-                                                                           mathjax = 'cdn')
+    p <- p + theme(legend.title = element_blank())
+    p <- plotly::ggplotly(p, tooltip = "text") %>% layout(hovermode = TRUE) %>%
+      add_annotations(text=condition, xref="paper", yref="paper",
+                      x=1.03, xanchor="left",
+                      y=0.97, yanchor="bottom",
+                      font = list(size = (23.91034/18)*opls_cohort_title_size),
+                      legendtitle=TRUE, showarrow=FALSE ) %>% plotly::config(displaylogo = FALSE,
+                                                                             modeBarButtons = list(list("zoomIn2d"), 
+                                                                                                   list("zoomOut2d"), 
+                                                                                                   list('toImage')), 
+                                                                             mathjax = 'cdn')
   }
   return(p)
 }
