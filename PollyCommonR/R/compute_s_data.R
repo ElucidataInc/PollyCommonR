@@ -6,7 +6,7 @@
 #' @return A dataframe
 #' @examples
 #' compute_s_data(opls_object)
-#' @import ropls stat
+#' @import ropls stats
 #' @export
 compute_s_data = function(opl=NULL){
   
