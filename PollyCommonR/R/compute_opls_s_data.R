@@ -1,6 +1,6 @@
-#' compute_s_data
+#' compute_opls_s_data
 #' 
-#' Computes the loading and vorrelation dataframe required for S-plot.
+#' Computes the loading and correlation dataframe required for S-plot.
 #' 
 #' @param opl An opls object
 #' @return A dataframe
@@ -8,7 +8,7 @@
 #' compute_s_data(opls_object)
 #' @import ropls stats
 #' @export
-compute_s_data = function(opl=NULL){
+compute_opls_s_data = function(opl=NULL){
   
   if(is.null(opl)){
     warning("NULL object cannot be used.")
