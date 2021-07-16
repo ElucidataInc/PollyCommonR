@@ -19,7 +19,8 @@ Imports:
     dplyr(>= 0.8.3),
     ggrepel(>= 0.8.1),
     SuperExactTest(>= 1.0.7),
-    UpSetR(>= 1.4.0)
+    UpSetR(>= 1.4.0),
+    ropls(>=1.18.0)	
 Suggests:
     testthat,
     devtools,
