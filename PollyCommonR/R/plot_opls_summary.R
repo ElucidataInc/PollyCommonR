@@ -1,4 +1,4 @@
-#' opls_summary_plot
+#' plot_opls_summary
 #' 
 #' Plots the summary statistics of the opls object.
 #' 
@@ -11,24 +11,21 @@
 #' @param opls_legend_title_size set font size of cohort title
 #' @param opls_plot_axis_format set axis format
 #' @param opls_plot_axis_text_size set axis text size
-#' 
 #' @returns a ggplot2 object
-#' 
 #' @examples 
-#' opla_summary_plot(OPLS_object,title_label="My Graph")
-#' 
-#' @import ggplot2 ropls
+#' plot_opls_summary(OPLS_object,title_label="My Graph")
+#' @import ggplot2 ropls reshape2
 #' @export
-
-opls_summary_plot = function(opl,
-                             title_label = "Model Summary Diagnostics",title_label_size = 18 ,
-                             axis_title_size = 14,opls_cohort_text_format= 'bold' ,
-                             opls_legend_text_align= "right" ,opls_legend_title_size= 18 ,
-                             opls_plot_axis_format= 'bold' ,
-                             opls_plot_axis_text_size= 14){
+plot_opls_summary <- function(opl,
+                              title_label = "Model Summary Diagnostics",title_label_size = 18 ,
+                              axis_title_size = 14,opls_cohort_text_format= 'bold' ,
+                              opls_legend_text_align= "right" ,opls_legend_title_size= 18 ,
+                              opls_plot_axis_format= 'bold' ,
+                              opls_plot_axis_text_size= 14){
   
   require(ggplot2)
   require(ropls)
+  require(reshape2)
   
   if(class(opl)!="opls"){
     stop("Object not of 'opls' class.")
@@ -40,21 +37,25 @@ opls_summary_plot = function(opl,
     stop("Scores cannot be computed on NULL object.")
   }
   
-  summ = as.data.frame(opl@modelDF[-3,][,-7])
-  #summ$type = rownames(summ)
-  summ = as.data.frame(t(summ))
-  summ$stat = rownames(summ)
-  summ = as.data.frame(rbind(as.matrix(summ[,c(3,1)]),as.matrix(summ[,c(3,2)])))
-  p1 = "Model Score"
-  o1 = "Orthogonal Score"
-  summ$Component = c(p1,p1,p1,p1,p1,p1,o1,o1,o1,o1,o1,o1)
-  #summ
+  ### Data pre-processing before plotting.
+  summ = opl@modelDF
+  summ = summ[!(rownames(summ)=="sum"),!(names(summ)=="Signif.")]
+  rownames(summ) = c("Score Component",paste("orthoComponent",1:(nrow(summ)-1),sep='-'))
+  summ[nrow(summ)+1,] = names(summ)
+  rownames(summ) = c(rownames(summ)[1:(nrow(summ))-1],"stat") # Adding a stat column to be used as x axis while plotting
   
-  p <- ggplot(summ,aes(x=stat,y=p1,fill=Component))+
-    geom_bar(stat="identity", position=position_dodge())+
+  suppressWarnings({
+    e = melt(as.data.frame(t(summ)),
+             id.vars = "stat")
+  })
+  e$value = as.numeric(e$value) # melt converted the statitics values to strings
+  #We have removed the signif. col and summ row before melt on summ
+  
+  p <- ggplot(data = e,mapping = aes(x = stat, y = value, fill = variable)) + 
+    geom_col(position = position_dodge())+
     ggtitle(title_label)+
     
-    labs(x = "Statistics", y = "Value") + # x and y axis labels
+    labs(x = "Statistics", y = "Value", fill = "Component") + # x and y axis labels
     theme(legend.position = opls_legend_text_align, legend.direction = "vertical", # legend positioned at the bottom, horizantal direction,
           axis.line = element_line(size = 1, colour = "black"), # axis line of size 1 inch in black color
           plot.title = element_text(colour="black", size = title_label_size, face = "plain", hjust=0.5),

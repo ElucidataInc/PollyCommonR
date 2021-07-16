@@ -1,20 +1,17 @@
-#' opls_scores_data
+#' create_opls_score_data
+#' 
+#' Function to create the scores data dataframe of OPLS-DA.
 #' 
 #' @param opl The "opls" object (ropls library) with typeC = 'OPLS-DA' for which scores are required.
-#' 
 #' @return A dataframe of scores and orthogonal component.
-#' 
-#' @examples 
+#' @example 
 #' data(scaurine)
 #' attach(sacurine)
-#' w = opls(dataMatrix,sampleMetadata[,'gender'],predI=1,orthoI=2)
-#' opls_scores_data(w)
-#' 
+#' w = opls(dataMatrix,sampleMetadata[,'gender'],predI=1,orthoI=1)
+#' create_opls_score_data(w)
 #' @import ropls
 #' @export
-
-
-opls_scores_data = function(opl){
+create_opls_score_data = function(opl){
   
   if(class(opl)!="opls"){
     stop("Object not of 'opls' class.")

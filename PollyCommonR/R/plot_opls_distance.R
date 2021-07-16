@@ -1,4 +1,4 @@
-#' opls_distance_plot
+#' plot_opls_distance
 #' 
 #' Plot the distance outliers plot.
 #' 
@@ -20,17 +20,12 @@
 #' @param opls_cohort_sample_size set font size of cohorts
 #' @param opls_plot_axis_format set axis format
 #' @param opls_plot_axis_text_size set axis text size
-#' 
 #' @returns a plotly object
-#' 
 #' @examples 
-#' opls_distance_plot(dist_data,Metadata,"condition",significance=TRUE, significance_data)
-#' 
+#' plot_opls_distance(dist_data,Metadata,"condition",significance=TRUE, significance_data)
 #' @import ggplot2 plotly
 #' @export
-#' 
-
-opls_distance_plot = function(dist_data, metadata=NULL, condition = NULL,
+plot_opls_distance = function(dist_data, metadata=NULL, condition = NULL,
                               significance = FALSE, significance_data = NULL,
                               interactive = TRUE,
                               title_label = "", x_title = "Score Component Distance", y_title = "Orthogonal Component Distance",
@@ -64,7 +59,9 @@ opls_distance_plot = function(dist_data, metadata=NULL, condition = NULL,
     return(NULL)
   }
   
-  names(dist_data) = c("sdsVn","dsVn")
+  #if(length(dist_data)>2){dist_data = dist_data[,1:2]}
+  
+  names(dist_data) <- c("sdsVn","dsVn")
   
     p <- ggplot2::ggplot(dist_data, aes(x = sdsVn,
                                       y = dsVn,
@@ -77,15 +74,15 @@ opls_distance_plot = function(dist_data, metadata=NULL, condition = NULL,
     if(significance==TRUE){
       if(class(significance_data)=='numeric' && length(significance_data)==2){
     
-      p  = p + geom_vline(xintercept = significance_data[1], linetype = "dashed", alpha = 0.7) + 
-        geom_hline(yintercept=significance_data[2],linetype = "dashed", alpha = 0.7)
+      p  <- p + geom_vline(xintercept = significance_data[1], linetype = "dashed", alpha = 0.7) + 
+        geom_hline(yintercept=significance_data[2],linetype = "dashed", alpha = 0.7) #Adds the significance lines to the plot
       }
       else{ warning("Significance data must be a numeric vector of length 2.")}
     
     }
   
   
-  p = p + ggtitle(title_label)+
+  p <- p + ggtitle(title_label)+
     labs(x = x_title, y = y_title, fill = condition) + # x and y axis labels
     theme(legend.position = opls_cohort_text_align, legend.direction = "vertical", # legend positioned at the bottom, horizantal direction,
           axis.line = element_line(size = 1, colour = "black"), # axis line of size 1 inch in black color

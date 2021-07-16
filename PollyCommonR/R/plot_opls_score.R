@@ -1,7 +1,6 @@
-#' opls_scores_plot
+#' plot_opls_score
 #' 
 #' Plots the model scores vs orthogonal score for each sample.
-#' 
 #'  
 #' @param scores_data A dataframe containing the scores data.
 #' @param metadata Dataframe containing samples to cohort mapping information. The first column must be ssame as the rownames in in the scores_data.
@@ -20,15 +19,11 @@
 #' @param opls_cohort_sample_size set font size of cohorts
 #' @param opls_plot_axis_format set axis format
 #' @param opls_plot_axis_text_size set axis text size
-#' 
 #' @returns A plotly object
-#' 
-#' @examples opls_scores_plot(scores_data,metadat)
-#' 
+#' @examples plot_opls_score(scores_data,metadat)
 #' @import ggplot2 plotly
 #' @export 
-
-opls_scores_plot = function(scores_data, metadata=NULL, condition = NULL,
+plot_opls_score <- function(scores_data, metadata=NULL, condition = NULL,
                             show_ellipse = FALSE,interactive = TRUE,
                             title_label = "", x_title = "Score", y_title = "Orthogonal Score",
                             marker_size = 6,title_label_size = 18,
@@ -60,6 +55,7 @@ opls_scores_plot = function(scores_data, metadata=NULL, condition = NULL,
     warning("The number of cohorts should be greater than or equal to 1")
     return(NULL)
   }
+  if(length(scores_data)>2){scores_data = scores_data[,1:2]}
   
   # Data Processing for unequivocal call to columns.
   names(scores_data) = c("p1",paste("o",1:(ncol(scores_data)-1),sep=''))
