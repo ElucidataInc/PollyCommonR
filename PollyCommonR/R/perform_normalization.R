@@ -8,7 +8,8 @@
 #' "pareto_scale": mean-centered and divided by the square root of the standard deviation of each variable;
 #' "mean_center_scale": mean-centered only;  
 #' "range_scale": mean-centered and divided by the range of each variable;  
-#' "glog_trans": generalized logarithm transformation, tolerant to 0 and negative values;  
+#' "glog_trans": generalized logarithm transformation with base 10, tolerant to 0 and negative values;
+#' "glog2_trans": generalized logarithm transformation with base 2, tolerant to 0 and negative values;
 #' "asinh_trans": ArcSinh transformation;  
 #' @return The normalized sample_raw_mat
 #' @examples
@@ -23,7 +24,7 @@ perform_normalization = function (sample_raw_mat = NULL, norm_type = NULL){
   }
   
   norm_types <- c("auto_scale", "pareto_scale", "mean_center_scale", "range_scale",
-                  "glog_trans", "asinh_trans")  
+                  "glog_trans", "glog2_trans", "asinh_trans")  
   if (!(norm_type %in% norm_types)){
     warning(paste0("Please select valid norm_type from the following methods: ", paste0(sQuote(norm_types), collapse = ", ")))
   }
@@ -45,8 +46,11 @@ perform_normalization = function (sample_raw_mat = NULL, norm_type = NULL){
   }
   
   # Transformation
-  # generalize log with base 10, tolerant to 0 and negative values
+  # generalized log with base 10, tolerant to 0 and negative values
   glog_trans <- function(x, min_val){ log10((x + sqrt(x^2 + min_val^2))/2)}
+  
+  # generalized log with base 2, tolerant to 0 and negative values
+  glog2_trans <- function(x, min_val){ log2((x + sqrt(x^2 + min_val^2))/2)}
   
   # arc sinh transformation
   asinh_trans <- function(x){ log(x + sqrt(x^2 + 1))}
@@ -67,6 +71,11 @@ perform_normalization = function (sample_raw_mat = NULL, norm_type = NULL){
     numeric_values <- as.numeric(unlist(sample_raw_mat))
     min_val <- min(abs(numeric_values[is.finite(numeric_values) & numeric_values != 0]))/10
     sample_raw_mat <- t(apply(sample_raw_mat, 1, glog_trans, min_val))
+  }
+  else if(identical(norm_type, 'glog2_trans')){
+    numeric_values <- as.numeric(unlist(sample_raw_mat))
+    min_val <- min(abs(numeric_values[is.finite(numeric_values) & numeric_values != 0]))/10
+    sample_raw_mat <- t(apply(sample_raw_mat, 1, glog2_trans, min_val))
   }
   else if(identical(norm_type, 'asinh_trans')){
     sample_raw_mat <- t(apply(sample_raw_mat, 1, asinh_trans))
