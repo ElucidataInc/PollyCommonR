@@ -14,7 +14,8 @@ perform_normalization(sample_raw_mat = NULL, norm_type = NULL)
 "pareto_scale": mean-centered and divided by the square root of the standard deviation of each variable;
 "mean_center_scale": mean-centered only;  
 "range_scale": mean-centered and divided by the range of each variable;  
-"glog_trans": generalized logarithm transformation, tolerant to 0 and negative values;  
+"glog_trans": generalized logarithm transformation with base 10, tolerant to 0 and negative values;
+"glog2_trans": generalized logarithm transformation with base 2, tolerant to 0 and negative values;
 "asinh_trans": ArcSinh transformation;}
 }
 \value{
