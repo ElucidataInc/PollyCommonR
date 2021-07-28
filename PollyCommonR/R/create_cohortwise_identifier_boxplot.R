@@ -7,21 +7,20 @@
 #' @param id_order A vector of id's for which barplot to be made
 #' @param cohorts_order The order of cohorts
 #' @param cohort_col A cohort column present in metadata
-#' @param interactive Make plot interactive using plotly
 #' @param x_label Label x-axis
 #' @param y_label Label y-axis
 #' @param title_label Title of the plot
+#' @param interactive Make plot interactive using plotly
 #' @return ggplot object or plotly object
 #' @examples
-#' create_cohortwise_identifier_barplot(sample_raw_mat = NULL, metadata_df = NULL, id_order = NULL, 
-#'                           cohorts_order = NULL, cohort_col='Cohort', 
-#'                           x_label = "", y_label = "", title_label = "")
+
+#' create_cohortwise_identifier_boxplot(sample_raw_mat, metadata_df, id_order, cohorts_order, cohort_col)
 #' @import dplyr stringr ggplot2 plotly
 #' @export
 create_cohortwise_identifier_boxplot <- function (sample_raw_mat = NULL, metadata_df = NULL, 
                                                   id_order = NULL, cohorts_order = NULL, 
-                                                  cohort_col = "Cohort", interactive = FALSE, 
-                                                  x_label = "", y_label = "", title_label = "") {
+                                                  cohort_col = "Cohort", x_label = NULL, y_label = NULL,
+                                                  title_label = NULL, interactive = FALSE) {
   message("Create Cohortwise Identifier Boxplot Started...")
   require(dplyr)
   require(stringr)
@@ -52,7 +51,19 @@ create_cohortwise_identifier_boxplot <- function (sample_raw_mat = NULL, metadat
   diff_ids <- setdiff(id_order, common_ids)
   if (length(diff_ids) != 0) {
     message(c("The following are not valid ids : ",  paste0(diff_ids, collapse = ", ")))
-  }    
+  }
+  
+  if (identical(x_label, NULL)) {
+    x_label <- ""
+  }
+  if (identical(y_label, NULL)) {
+    y_label <- ""
+  } 
+  
+  if (identical(title_label, NULL)) {
+    if (identical(interactive, FALSE) & length(id_order) == 1) { title_label <- id_order}
+    else { title_label <- ""}
+  }   
   
   metadata_df[[cohort_col]] <- stringr::str_trim(metadata_df[[cohort_col]])
   cohorts_vec <- unique(metadata_df[[cohort_col]])
@@ -99,14 +110,21 @@ create_cohortwise_identifier_boxplot <- function (sample_raw_mat = NULL, metadat
                                                                 list("toImage")), mathjax = "cdn")
   }
   else{
-    p <- ggplot(mat_with_metadata, aes(x = Id, y = Value, fill = !!(sym(cohort_col)))) + 
+    if (length(id_order) == 1){
+      p <- ggplot(mat_with_metadata, aes(x = !!(sym(cohort_col)), y = Value, fill = !!(sym(cohort_col)))) +
+        ggplot2::scale_x_discrete(limits = filtered_cohorts_vec) +
+        ggplot2::theme(legend.position="none")
+    }
+    else {
+      p <- ggplot(mat_with_metadata, aes(x = Id, y = Value, fill = !!(sym(cohort_col)))) +
+        ggplot2::scale_x_discrete(limits = common_ids)  
+    }
+    
+    p <- p +
       geom_boxplot(width = 0.6) +
       stat_boxplot(geom = 'errorbar', width = 0.6) +
       geom_point(aes(fill = !!(sym(cohort_col))), size =1.5, shape = 21, position = position_jitterdodge()) +
-      ggtitle(title_label) + 
-      labs(x = x_label, y = y_label) + 
-      scale_x_discrete(limits = common_ids) +
-      ggsci::scale_color_aaas() + 
+      labs(x = x_label, y = y_label, title = title_label) + 
       theme(axis.line = element_line(size = 1, colour = "black"), 
             panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
             panel.border = element_blank(), panel.background = element_blank(), 
@@ -119,7 +137,7 @@ create_cohortwise_identifier_boxplot <- function (sample_raw_mat = NULL, metadat
             axis.text.y = element_text(colour = "black", size = 10, 
                                        margin = unit(c(0.2, 0.2, 0.1, 0.1), "cm"), face = "plain"), 
             axis.ticks.length = unit(0.25, "cm"))
-  }    
+  }
   
   message("Create Cohortwise Identifier Boxplot Started...")
   
