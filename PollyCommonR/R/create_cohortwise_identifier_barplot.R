@@ -167,12 +167,12 @@ create_cohortwise_identifier_barplot <- function (sample_raw_mat = NULL, metadat
                                       size = 14, face = "plain"), 
             axis.text.x = element_text(colour = "black", size = 10, angle = x_text_angle, 
                                        margin = unit(c(0.2, 0.2, 0.1, 0.1), "cm"), face = "plain"),
-            axis.text.y = element_text(colour = "black", size = 10,  angle = y_text_angle,
+            axis.text.y = element_text(colour = "black", size = 10, angle = y_text_angle,
                                        margin = unit(c(0.2, 0.2, 0.1, 0.1), "cm"), face = "plain"), 
             axis.ticks.length = unit(0.25, "cm"))
   }
   
-  message("Create Cohortwise Identifier Barplot Started...")
+  message("Create Cohortwise Identifier Barplot Completed...")
   
   return(p)
 }

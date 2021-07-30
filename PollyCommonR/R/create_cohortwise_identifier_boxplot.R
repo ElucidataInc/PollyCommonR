@@ -10,6 +10,9 @@
 #' @param x_label Label x-axis
 #' @param y_label Label y-axis
 #' @param title_label Title of the plot
+#' @param x_text_wrap_n A number to wrap x axis text to next line after every nth position
+#' @param x_text_angle The x-axis text angle
+#' @param y_text_angle The y-axis text angle
 #' @param interactive Make plot interactive using plotly
 #' @return ggplot object or plotly object
 #' @examples
@@ -20,7 +23,8 @@
 create_cohortwise_identifier_boxplot <- function (sample_raw_mat = NULL, metadata_df = NULL, 
                                                   id_order = NULL, cohorts_order = NULL, 
                                                   cohort_col = "Cohort", x_label = NULL, y_label = NULL,
-                                                  title_label = NULL, interactive = FALSE) {
+                                                  title_label = NULL, x_text_wrap_n = NULL, x_text_angle = NULL,
+                                                  y_text_angle = NULL, interactive = FALSE) {
   message("Create Cohortwise Identifier Boxplot Started...")
   require(dplyr)
   require(stringr)
@@ -60,10 +64,29 @@ create_cohortwise_identifier_boxplot <- function (sample_raw_mat = NULL, metadat
     y_label <- ""
   } 
   
-  if (identical(title_label, NULL)) {
-    if (identical(interactive, FALSE) & length(id_order) == 1) { title_label <- id_order}
-    else { title_label <- ""}
-  }   
+  if(!identical(x_text_wrap_n, NULL)){
+    x_text_wrap_n <- as.numeric(x_text_wrap_n)
+    if (is.na(x_text_wrap_n)){
+      warning("The x_text_wrap_n is not a numeric value") 
+      return (NULL)
+    }  
+  }
+  
+  if(!identical(x_text_angle, NULL)){
+    x_text_angle <- as.numeric(x_text_angle)
+    if (is.na(x_text_angle)){
+      warning("The x_text_angle is not a numeric value") 
+      return (NULL)
+    }  
+  }
+  
+  if(!identical(y_text_angle, NULL)){
+    y_text_angle <- as.numeric(y_text_angle)
+    if (is.na(y_text_angle)){
+      warning("The y_text_angle is not a numeric value") 
+      return (NULL)
+    }  
+  }    
   
   metadata_df[[cohort_col]] <- stringr::str_trim(metadata_df[[cohort_col]])
   cohorts_vec <- unique(metadata_df[[cohort_col]])
@@ -78,6 +101,17 @@ create_cohortwise_identifier_boxplot <- function (sample_raw_mat = NULL, metadat
   }
   
   sample_raw_mat <- sample_raw_mat[common_ids, , drop = FALSE]
+  
+  if (!identical(x_text_wrap_n, NULL)){
+    row.names(sample_raw_mat) <- suppressMessages(sapply(row.names(sample_raw_mat), function(x) paste(PollyCommonR::split_string_every_nth_char(x, x_text_wrap_n), collapse = "-\n")))
+    common_ids <- suppressMessages(sapply(common_ids, function(x) paste(PollyCommonR::split_string_every_nth_char(x, x_text_wrap_n), collapse = "-\n")))
+  }
+  
+  if (identical(title_label, NULL)) {
+    if (identical(interactive, FALSE) & length(common_ids) == 1) { title_label <- common_ids}
+    else { title_label <- ""}
+  }                                
+  
   transposed_mat <- as.data.frame(t(sample_raw_mat))
   
   transposed_mat$Sample <- rownames(transposed_mat)
@@ -110,7 +144,12 @@ create_cohortwise_identifier_boxplot <- function (sample_raw_mat = NULL, metadat
                                                                 list("toImage")), mathjax = "cdn")
   }
   else{
-    if (length(id_order) == 1){
+    if (identical(x_text_angle, NULL)){
+      if (length(common_ids) == 1){ x_text_angle <- 0}
+      else { x_text_angle <- 90} 
+    }
+    
+    if (length(common_ids) == 1){
       p <- ggplot(mat_with_metadata, aes(x = !!(sym(cohort_col)), y = Value, fill = !!(sym(cohort_col)))) +
         ggplot2::scale_x_discrete(limits = filtered_cohorts_vec) +
         ggplot2::theme(legend.position="none")
@@ -132,14 +171,14 @@ create_cohortwise_identifier_boxplot <- function (sample_raw_mat = NULL, metadat
                                       face = "plain", hjust=0.5), 
             axis.title = element_text(colour = "black",
                                       size = 14, face = "plain"), 
-            axis.text.x = element_text(colour = "black", size = 10, angle = 90, 
+            axis.text.x = element_text(colour = "black", size = 10, angle = x_text_angle, 
                                        margin = unit(c(0.2, 0.2, 0.1, 0.1), "cm"), face = "plain"),
-            axis.text.y = element_text(colour = "black", size = 10, 
+            axis.text.y = element_text(colour = "black", size = 10, angle = y_text_angle,
                                        margin = unit(c(0.2, 0.2, 0.1, 0.1), "cm"), face = "plain"), 
             axis.ticks.length = unit(0.25, "cm"))
   }
   
-  message("Create Cohortwise Identifier Boxplot Started...")
+  message("Create Cohortwise Identifier Boxplot Completed...")
   
   return(p)
 }

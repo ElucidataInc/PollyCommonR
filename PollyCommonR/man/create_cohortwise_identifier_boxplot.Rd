@@ -13,6 +13,9 @@ create_cohortwise_identifier_boxplot(
   x_label = NULL,
   y_label = NULL,
   title_label = NULL,
+  x_text_wrap_n = NULL,
+  x_text_angle = NULL,
+  y_text_angle = NULL,
   interactive = FALSE
 )
 }
@@ -32,6 +35,12 @@ create_cohortwise_identifier_boxplot(
 \item{y_label}{Label y-axis}
 
 \item{title_label}{Title of the plot}
+
+\item{x_text_wrap_n}{A number to wrap x axis text to next line after every nth position}
+
+\item{x_text_angle}{The x-axis text angle}
+
+\item{y_text_angle}{The y-axis text angle}
 
 \item{interactive}{Make plot interactive using plotly}
 }
