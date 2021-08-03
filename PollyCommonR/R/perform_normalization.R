@@ -7,8 +7,12 @@
 #' "auto_scale": mean-centered and divided by the standard deviation of each variable;
 #' "pareto_scale": mean-centered and divided by the square root of the standard deviation of each variable;
 #' "mean_center_scale": mean-centered only;  
-#' "range_scale": mean-centered and divided by the range of each variable;  
-#' "glog_trans": generalized logarithm transformation with base 10, tolerant to 0 and negative values;
+#' "range_scale": mean-centered and divided by the range of each variable;
+#' "log_trans": log transformation;
+#' "log10_trans": log10 transformation;
+#' "log2_trans": log2 transformation;
+#' "glog_trans": generalized logarithm transformation, tolerant to 0 and negative values;
+#' "glog10_trans": generalized logarithm transformation with base 10, tolerant to 0 and negative values;
 #' "glog2_trans": generalized logarithm transformation with base 2, tolerant to 0 and negative values;
 #' "asinh_trans": ArcSinh transformation;  
 #' @return The normalized sample_raw_mat
@@ -24,7 +28,9 @@ perform_normalization = function (sample_raw_mat = NULL, norm_type = NULL){
   }
   
   norm_types <- c("auto_scale", "pareto_scale", "mean_center_scale", "range_scale",
-                  "glog_trans", "glog2_trans", "asinh_trans")  
+                  "log_trans", "log10_trans", "log2_trans", "glog_trans", "glog10_trans",
+                  "glog2_trans", "asinh_trans")
+  
   if (!(norm_type %in% norm_types)){
     warning(paste0("Please select valid norm_type from the following methods: ", paste0(sQuote(norm_types), collapse = ", ")))
   }
@@ -46,8 +52,11 @@ perform_normalization = function (sample_raw_mat = NULL, norm_type = NULL){
   }
   
   # Transformation
+  # generalized log, tolerant to 0 and negative values
+  glog_trans <- function(x, min_val){ log((x + sqrt(x^2 + min_val^2))/2)}
+  
   # generalized log with base 10, tolerant to 0 and negative values
-  glog_trans <- function(x, min_val){ log10((x + sqrt(x^2 + min_val^2))/2)}
+  glog10_trans <- function(x, min_val){ log10((x + sqrt(x^2 + min_val^2))/2)}
   
   # generalized log with base 2, tolerant to 0 and negative values
   glog2_trans <- function(x, min_val){ log2((x + sqrt(x^2 + min_val^2))/2)}
@@ -66,11 +75,25 @@ perform_normalization = function (sample_raw_mat = NULL, norm_type = NULL){
   }
   else if(identical(norm_type, 'range_scale')){
     sample_raw_mat <- t(apply(sample_raw_mat, 1, range_scale))
-  }      
+  }
+  else if(identical(norm_type, 'log_trans')){
+    sample_raw_mat <- log(sample_raw_mat)
+  }
+  else if(identical(norm_type, 'log10_trans')){
+    sample_raw_mat <- log10(sample_raw_mat)
+  }
+  else if(identical(norm_type, 'log2_trans')){
+    sample_raw_mat <- log2(sample_raw_mat)
+  }
   else if(identical(norm_type, 'glog_trans')){
     numeric_values <- as.numeric(unlist(sample_raw_mat))
     min_val <- min(abs(numeric_values[is.finite(numeric_values) & numeric_values != 0]))/10
     sample_raw_mat <- t(apply(sample_raw_mat, 1, glog_trans, min_val))
+  }
+  else if(identical(norm_type, 'glog10_trans')){
+    numeric_values <- as.numeric(unlist(sample_raw_mat))
+    min_val <- min(abs(numeric_values[is.finite(numeric_values) & numeric_values != 0]))/10
+    sample_raw_mat <- t(apply(sample_raw_mat, 1, glog10_trans, min_val))
   }
   else if(identical(norm_type, 'glog2_trans')){
     numeric_values <- as.numeric(unlist(sample_raw_mat))
