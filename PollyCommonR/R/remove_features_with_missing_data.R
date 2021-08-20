@@ -33,7 +33,7 @@ remove_features_with_missing_data <- function(sample_raw_mat = NULL, samples_cut
     correct_data_bool <- (apply(is.na(sample_raw_mat), 1, sum)/ncol(sample_raw_mat)) * 100 < samples_cutoff   
     missing_count <- length(correct_data_bool[correct_data_bool == FALSE])
     if (missing_count > 0){
-      sample_raw_mat <- sample_raw_mat[correct_data_bool, ] 
+      sample_raw_mat <- sample_raw_mat[correct_data_bool, , drop = FALSE] 
       if (missing_count == 1){ features_str <- " feature is "}
       else { features_str <- " features are "}  
       
