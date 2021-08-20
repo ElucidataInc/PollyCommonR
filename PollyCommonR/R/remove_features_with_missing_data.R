@@ -29,14 +29,14 @@ remove_features_with_missing_data <- function(sample_raw_mat = NULL, samples_cut
     if (is.na(samples_cutoff)){
       warning("The samples_cutoff is not a numeric value") 
       return (NULL)
-    }  
+    }
+    
     correct_data_bool <- (apply(is.na(sample_raw_mat), 1, sum)/ncol(sample_raw_mat)) * 100 < samples_cutoff   
     missing_count <- length(correct_data_bool[correct_data_bool == FALSE])
     if (missing_count > 0){
-      sample_raw_mat <- sample_raw_mat[correct_data_bool, , drop = FALSE] 
+      sample_raw_mat <- sample_raw_mat[correct_data_bool, , drop = FALSE]
       if (missing_count == 1){ features_str <- " feature is "}
-      else { features_str <- " features are "}  
-      
+      else { features_str <- " features are "}
       message(paste0(missing_count, features_str, "removed from the data"))  
     }
     else {
