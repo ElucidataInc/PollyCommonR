@@ -12,7 +12,7 @@
 #' @return dataframe, If logFC >0, it implies abundance is greater in cohort_b, MaxExpr/MinExpr is calculated as the maximum/minimum of average of samples within cohorts.
 #' @examples
 #' diff_exp_limma(sample_raw_mat, metadata, 'Cohort', 'Cohort1', 'Cohort2')
-#' @import limma dplyr
+#' @import limma dplyr reshape2
 #' @export
 diff_exp_limma <- function (sample_raw_mat = NULL, metadata = NULL, cohort_col = NULL, 
                             cohort_a = NULL, cohort_b = NULL, pval_adjust_method = "BH", log_flag = TRUE) {
@@ -137,7 +137,7 @@ diff_exp_limma <- function (sample_raw_mat = NULL, metadata = NULL, cohort_col =
     long_sample_raw_mat <- sample_raw_mat_log2
     long_sample_raw_mat$id <- row.names(long_sample_raw_mat)
     long_sample_raw_mat <- reshape2::melt(long_sample_raw_mat, id.vars = "id")
-    long_sample_raw_mat <- base::merge(metadata, long_sample_raw_mat, by.x = 1, by.y = "variable")
+    long_sample_raw_mat <- base::merge(long_sample_raw_mat, metadata, by.x = "variable", by.y = 1)
     sample_mat_mean_df <- long_sample_raw_mat %>% dplyr::group_by_at(c("id", cohort_col)) %>% dplyr::summarise(Mean = mean(value, na.rm = TRUE))
     expr_stat_df <- sample_mat_mean_df %>% dplyr::group_by_at("id") %>% dplyr::summarise(MaxExpr = max(Mean, na.rm = TRUE), MinExpr = min(Mean, na.rm = TRUE))
   },
