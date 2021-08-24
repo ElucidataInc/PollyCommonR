@@ -9,16 +9,17 @@
 #' @param cohort_b Vector of cohorts used as cohort_b
 #' @param pval_adjust_method Provide pval adjust method ("holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none"). Also check p.adjust from stats.
 #' @param log_flag Check if data is log transformed (TRUE) or not (FALSE). If not (FALSE) then do internally log2 transformation.
-#' @return dataframe, If logFC >0, it implies abundance is greater in cohort_b, MaxExpr is calculated as the maximum of average of samples within cohorts.
+#' @return dataframe, If logFC >0, it implies abundance is greater in cohort_b, MaxExpr/MinExpr is calculated as the maximum/minimum of average of samples within cohorts.
 #' @examples
 #' diff_exp_limma(sample_raw_mat, metadata, 'Cohort', 'Cohort1', 'Cohort2')
-#' @import limma dplyr
+#' @import limma dplyr reshape2
 #' @export
 diff_exp_limma <- function (sample_raw_mat = NULL, metadata = NULL, cohort_col = NULL, 
                             cohort_a = NULL, cohort_b = NULL, pval_adjust_method = "BH", log_flag = TRUE) {
   message("Calculate Differential Expression Limma Started...")
   require(limma)
   require(dplyr)
+  require(reshape2)
   
   if (identical(sample_raw_mat, NULL)){
     warning("The sample_raw_mat is NULL")
@@ -116,29 +117,39 @@ diff_exp_limma <- function (sample_raw_mat = NULL, metadata = NULL, cohort_col =
   }
   
   limma_results_df <- NULL
-  tryCatch(
-    {
-      condition <- metadata[, "Comparison"]
-      design <- stats::model.matrix(~condition + 0)
-      colnames(design) <- gsub("condition", "", colnames(design))
-      contrast_matrix <- limma::makeContrasts(contrasts = c(paste("B", "A", sep = "-")), levels = design)
-      fit <- limma::lmFit(sample_raw_mat_log2, design)
-      fit <- limma::contrasts.fit(fit, contrast_matrix)
-      fit <- limma::eBayes(fit)
-      limma_results_df <- limma::topTable(fit, coef = paste("B", "A", sep = "-"), number = nrow(sample_raw_mat_log2), adjust.method = pval_adjust_method)
-      limma_results_df <- limma_results_df[order(match(rownames(limma_results_df), rownames(sample_raw_mat_log2))), , drop = FALSE]
-    },
-    error = function(cond) {message(paste("\nCannot run limma, caused an error: ", cond))}
+  tryCatch({
+    condition <- metadata[, "Comparison"]
+    design <- stats::model.matrix(~condition + 0)
+    colnames(design) <- gsub("condition", "", colnames(design))
+    contrast_matrix <- limma::makeContrasts(contrasts = c(paste("B", "A", sep = "-")), levels = design)
+    fit <- limma::lmFit(sample_raw_mat_log2, design)
+    fit <- limma::contrasts.fit(fit, contrast_matrix)
+    fit <- limma::eBayes(fit)
+    limma_results_df <- limma::topTable(fit, coef = paste("B", "A", sep = "-"), number = nrow(sample_raw_mat_log2), adjust.method = pval_adjust_method)
+    limma_results_df <- limma_results_df[order(match(rownames(limma_results_df), rownames(sample_raw_mat_log2))), , drop = FALSE]
+    limma_results_df <- data.frame(id = row.names(limma_results_df), limma_results_df, stringsAsFactors = FALSE, check.names = FALSE)  
+  },
+  error = function(cond) {message(paste("\nCannot run limma, caused an error: ", cond))}
   )
   
-  for (row_name in row.names(sample_raw_mat_log2)){
-    tryCatch({  
-      feature_df <- data.frame(metadata, stringsAsFactors = FALSE, check.names = FALSE)
-      feature_df$value <- as.numeric(sample_raw_mat_log2[row_name, feature_df[, 1]])
-      mean_df <- feature_df %>% dplyr::group_by(Comparison) %>% dplyr::summarise(mean = mean(value, na.rm = TRUE))
-      limma_results_df[row_name, "MaxExpr"] <- max(mean_df$mean, na.rm = TRUE)
+  expr_stat_df <- NULL  
+  tryCatch({
+    long_sample_raw_mat <- sample_raw_mat_log2
+    long_sample_raw_mat$id <- row.names(long_sample_raw_mat)
+    long_sample_raw_mat <- reshape2::melt(long_sample_raw_mat, id.vars = "id")
+    long_sample_raw_mat <- base::merge(long_sample_raw_mat, metadata, by.x = "variable", by.y = 1)
+    sample_mat_mean_df <- long_sample_raw_mat %>% dplyr::group_by_at(c("id", cohort_col)) %>% dplyr::summarise(Mean = mean(value, na.rm = TRUE))
+    expr_stat_df <- sample_mat_mean_df %>% dplyr::group_by_at("id") %>% dplyr::summarise(MaxExpr = max(Mean, na.rm = TRUE), MinExpr = min(Mean, na.rm = TRUE))
+  },
+  error = function(cond) {message(paste("\nCannot calculate maximum and minimum of average of samples within cohorts, caused an error: ", cond))}    
+  )  
+  
+  if (!identical(limma_results_df, NULL) && !identical(expr_stat_df, NULL)){
+    tryCatch({
+      limma_results_df <- base::merge(limma_results_df, expr_stat_df, by= "id", sort = FALSE)
+      row.names(limma_results_df) <- limma_results_df$id
     },
-    error = function(cond) {message(paste("Feature: ", row_name, "\nCannot calculate maximum of average of samples within cohorts, caused an error: ", cond))}    
+    error = function(cond) {message(paste("\nCannot merge differential expression and expression stat dataframes, caused an error: ", cond))}    
     )
   }
   
