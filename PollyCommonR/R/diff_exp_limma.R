@@ -9,13 +9,14 @@
 #' @param cohort_b Vector of cohorts used as cohort_b
 #' @param pval_adjust_method Provide pval adjust method ("holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none"). Also check p.adjust from stats.
 #' @param log_flag Check if data is log transformed (TRUE) or not (FALSE). If not (FALSE) then do internally log2 transformation.
-#' @return dataframe, If logFC >0, it implies abundance is greater in cohort_b, MaxExpr/MinExpr is calculated as the maximum/minimum of average of samples within cohorts.
+#' @param expr_stat Calculate MaxExpr and MinExpr (TRUE) where MaxExpr/MinExpr is calculated as the maximum/minimum of average of samples within cohorts.
+#' @return dataframe, If logFC >0, it implies abundance is greater in cohort_b.
 #' @examples
 #' diff_exp_limma(sample_raw_mat, metadata, 'Cohort', 'Cohort1', 'Cohort2')
 #' @import limma dplyr reshape2
 #' @export
 diff_exp_limma <- function (sample_raw_mat = NULL, metadata = NULL, cohort_col = NULL, 
-                            cohort_a = NULL, cohort_b = NULL, pval_adjust_method = "BH", log_flag = TRUE) {
+                            cohort_a = NULL, cohort_b = NULL, pval_adjust_method = "BH", log_flag = TRUE, expr_stat = FALSE) {
   message("Calculate Differential Expression Limma Started...")
   require(limma)
   require(dplyr)
@@ -89,6 +90,7 @@ diff_exp_limma <- function (sample_raw_mat = NULL, metadata = NULL, cohort_col =
   metadata[metadata[, cohort_col] %in% cohort_a, "Comparison"] <- "A"
   metadata[metadata[, cohort_col] %in% cohort_b, "Comparison"] <- "B"
   
+  sample_raw_mat <- as.data.frame(sample_raw_mat, stringsAsFactors = FALSE, check.names = FALSE)
   common_samples <- base::intersect(metadata[, 1], colnames(sample_raw_mat))
   if (length(common_samples) < 1) {
     warning("No common samples in matrix and metadata")
@@ -132,25 +134,27 @@ diff_exp_limma <- function (sample_raw_mat = NULL, metadata = NULL, cohort_col =
   error = function(cond) {message(paste("\nCannot run limma, caused an error: ", cond))}
   )
   
-  expr_stat_df <- NULL  
-  tryCatch({
-    long_sample_raw_mat <- sample_raw_mat_log2
-    long_sample_raw_mat$id <- row.names(long_sample_raw_mat)
-    long_sample_raw_mat <- reshape2::melt(long_sample_raw_mat, id.vars = "id")
-    long_sample_raw_mat <- base::merge(long_sample_raw_mat, metadata, by.x = "variable", by.y = 1)
-    sample_mat_mean_df <- long_sample_raw_mat %>% dplyr::group_by_at(c("id", cohort_col)) %>% dplyr::summarise(Mean = mean(value, na.rm = TRUE))
-    expr_stat_df <- sample_mat_mean_df %>% dplyr::group_by_at("id") %>% dplyr::summarise(MaxExpr = max(Mean, na.rm = TRUE), MinExpr = min(Mean, na.rm = TRUE))
-  },
-  error = function(cond) {message(paste("\nCannot calculate maximum and minimum of average of samples within cohorts, caused an error: ", cond))}    
-  )  
-  
-  if (!identical(limma_results_df, NULL) && !identical(expr_stat_df, NULL)){
+  if (identical(expr_stat, TRUE)){  
+    expr_stat_df <- NULL  
     tryCatch({
-      limma_results_df <- base::merge(limma_results_df, expr_stat_df, by= "id", sort = FALSE)
-      row.names(limma_results_df) <- limma_results_df$id
+      long_sample_raw_mat <- sample_raw_mat_log2
+      long_sample_raw_mat$id <- row.names(long_sample_raw_mat)
+      long_sample_raw_mat <- reshape2::melt(long_sample_raw_mat, id.vars = "id")
+      long_sample_raw_mat <- base::merge(long_sample_raw_mat, metadata, by.x = "variable", by.y = 1)
+      sample_mat_mean_df <- long_sample_raw_mat %>% dplyr::group_by_at(c("id", cohort_col)) %>% dplyr::summarise(Mean = mean(value, na.rm = TRUE))
+      expr_stat_df <- sample_mat_mean_df %>% dplyr::group_by_at("id") %>% dplyr::summarise(MaxExpr = max(Mean, na.rm = TRUE), MinExpr = min(Mean, na.rm = TRUE))
     },
-    error = function(cond) {message(paste("\nCannot merge differential expression and expression stat dataframes, caused an error: ", cond))}    
-    )
+    error = function(cond) {message(paste("\nCannot calculate maximum and minimum of average of samples within cohorts, caused an error: ", cond))}    
+    )  
+    
+    if (!identical(limma_results_df, NULL) && !identical(expr_stat_df, NULL)){
+      tryCatch({
+        limma_results_df <- base::merge(limma_results_df, expr_stat_df, by= "id", sort = FALSE)
+        row.names(limma_results_df) <- limma_results_df$id
+      },
+      error = function(cond) {message(paste("\nCannot merge differential expression and expression stat dataframes, caused an error: ", cond))}    
+      )
+    }
   }
   
   message("Calculate Differential Expression Limma Completed...")
