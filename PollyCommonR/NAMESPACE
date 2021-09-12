@@ -2,7 +2,10 @@
 
 export(calculate_cohortwise_cov)
 export(compute_anova)
+export(compute_differential_expression)
+export(compute_fold_change)
 export(compute_pca)
+export(compute_t_test)
 export(create_boxplot_on_matrix)
 export(create_cohortwise_cov_barplot)
 export(create_cohortwise_cov_boxplot)
