@@ -36,7 +36,7 @@
 plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = 1, p_val_cutoff = 0.05, 
                                     p_val_type = "P.Value", annotate_id = NULL, row_desc = NULL, 
                                     annotate_col = NULL, text_hover_col = NULL, category_col = NULL,
-                                    marker_size_by_expr = TRUE, marker_expr_col = "MaxExpr", 
+                                    marker_size_by_expr = FALSE, marker_expr_col = NULL, 
                                     marker_size_range = c(5, 25), marker_size = 8, marker_opacity = 0.5,
                                     x_label = NULL, y_label = NULL, title_label = NULL, plot_id = NULL, 
                                     plotly_highlight = FALSE, highlight_on = "plotly_click",
@@ -298,7 +298,7 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = 1, p_val_cut
   }
   else { diff_exp$marker_size <- marker_size}                                                                                     
   
-  if (marker_expr_col %in% colnames(diff_exp)){ 
+  if (identical(marker_size_by_expr, TRUE) && (marker_expr_col %in% colnames(diff_exp))){ 
     diff_exp$text_hover<-  paste0(paste0("id: ", diff_exp$id),
                                   "<br>", paste0("logFC: ", diff_exp$logFC),
                                   "<br>", paste0(gsub("pval", p_val_type, "-log10(pval)"), ": ", - log10(diff_exp[[p_val_type]])),
