@@ -30,13 +30,13 @@ compute_t_test <- function(data_mat = NULL, samples_a = NULL, samples_b = NULL,
     return(NULL) 
   }
   
-  common_samples_a <- base::intersect(samples_a, colnames(sample_raw_mat))
+  common_samples_a <- base::intersect(samples_a, colnames(data_mat))
   if (length(common_samples_a) < 1){
     warning("No common samples found between samples_a and data matrix")
     return(NULL)  
   }    
   
-  common_samples_b <- base::intersect(samples_b, colnames(sample_raw_mat))  
+  common_samples_b <- base::intersect(samples_b, colnames(data_mat))  
   if (length(common_samples_b) < 1){
     warning("No common samples found between samples_b and data matrix")
     return(NULL)  
