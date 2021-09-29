@@ -4,21 +4,34 @@
 \alias{compute_anova}
 \title{compute_anova}
 \usage{
-compute_anova(sample_raw_mat = NULL, metadata_df = NULL, cohort_col = "Cohort")
+compute_anova(
+  norm_data = NULL,
+  metadata = NULL,
+  cohort_col = "Cohort",
+  expr_stat = TRUE,
+  expr_with_raw = FALSE,
+  raw_data = NULL
+)
 }
 \arguments{
-\item{sample_raw_mat}{A dataframe containing samples with raw values.}
+\item{norm_data}{The dataframe/matrix with samples in columns and features in rows.}
 
-\item{metadata_df}{A dataframe with samples to cohort mapping.}
+\item{metadata}{The dataframe with samples to cohort mapping.}
 
 \item{cohort_col}{A vector of metadata columns used for n way anova.}
+
+\item{expr_stat}{Calculate MaxExpr and MinExpr (TRUE) where MaxExpr/MinExpr is calculated as the maximum/minimum of average of samples within cohorts.}
+
+\item{expr_with_raw}{Use raw data (data without normalization) to calculate expression statistics.}
+
+\item{raw_data}{The dataframe/matrix with samples in columns and features in rows having same dimensions as norm data.}
 }
 \value{
-A dataframe with calculated F.Value and P.Value, MaxExpr is calculated as the maximum of average of samples within cohorts.
+A dataframe with calculated F.Value and P.Value.
 }
 \description{
 performs n way anova test on the sample raw matrix
 }
 \examples{
-compute_anova(sample_raw_mat, metadata_df, cohort_col = "Cohort")
+compute_anova(norm_data, metadata, cohort_col)
 }
