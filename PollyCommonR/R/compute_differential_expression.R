@@ -19,7 +19,7 @@
 #' @param raw_log_flag Check if raw data is log transformed (TRUE) or not (FALSE).
 #' @param expr_stat Calculate MaxExpr and MinExpr (TRUE) where MaxExpr/MinExpr is calculated as the maximum/minimum of average of samples within cohorts. 
 #' If fc_with_raw = TRUE then it will use raw data from expression statistics calculation.
-#' @return dataframe, If logFC >0, it implies abundance is greater in cohort_b.
+#' @return The differential expression result with state1 vs state2 (state1/state2) or cohort-B vs cohort-A (cohort-B/cohort-A) comparison, If logFC >0, it implies abundance is greater in cohort-B (state1).
 #' @examples
 #' compute_differential_expression(norm_data, metadata, 'Cohort', 'Cohort1', 'Cohort2')
 #' @import limma dplyr reshape2
@@ -181,6 +181,8 @@ compute_differential_expression <- function(norm_data = NULL, metadata = NULL, c
       warning("Please select valid algo (ttest or limma)")  
     }
     
+    comparison_df <- data.frame(id = diff_exp_data$id, state1 = paste(cohort_b, collapse = " - "), state2 = paste(cohort_a, collapse = " - "), stringsAsFactors = FALSE, check.names = FALSE)  
+    diff_exp_data <-  base::merge(comparison_df, diff_exp_data, by = "id", sort = FALSE)  
     row.names(diff_exp_data) <- diff_exp_data$id
   },
   error = function(cond) {message(paste("\nCannot calculate differential expression, caused an error: ", cond))}
