@@ -54,7 +54,7 @@ It is only applicable with ttest algorithm.}
 If fc_with_raw = TRUE then it will use raw data from expression statistics calculation.}
 }
 \value{
-dataframe, If logFC >0, it implies abundance is greater in cohort_b.
+The differential expression result with state1 vs state2 (state1/state2) or cohort-B vs cohort-A (cohort-B/cohort-A) comparison, If logFC >0, it implies abundance is greater in cohort-B (state1).
 }
 \description{
 It calculates the differential expression for cohort-B vs cohort-A or cohort-B/cohort-A comparison
