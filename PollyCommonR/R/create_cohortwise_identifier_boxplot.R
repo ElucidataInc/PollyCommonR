@@ -140,8 +140,18 @@ create_cohortwise_identifier_boxplot <- function (sample_raw_mat = NULL, metadat
                                    categoryarray = filtered_cohorts_vec), 
                       yaxis = list(title = y_label, titlefont = list(size = 16)),
                       boxmode = 'group', showlegend = TRUE) %>%
-      plotly::config(displaylogo = FALSE, modeBarButtons = list(list("zoomIn2d"), list("zoomOut2d"), 
-                                                                list("toImage")), mathjax = "cdn")
+      plotly::config(displaylogo = FALSE, 
+                     modeBarButtons = list(list("zoom2d"),
+                                           list("select2d"),
+                                           list("lasso2d"),
+                                           list("autoScale2d"),
+                                           list("resetScale2d"),
+                                           list("pan2d"),
+                                           list("zoomIn2d"), 
+                                           list("zoomOut2d"),
+                                           list("hoverClosestCartesian"),
+                                           list('toImage')),
+                     mathjax = "cdn")
   }
   else{
     if (identical(x_text_angle, NULL)){
@@ -150,17 +160,18 @@ create_cohortwise_identifier_boxplot <- function (sample_raw_mat = NULL, metadat
     }
     
     if (length(common_ids) == 1){
-      p <- ggplot(mat_with_metadata, aes(x = !!(sym(cohort_col)), y = Value, fill = !!(sym(cohort_col)))) +
+      p <- ggplot(mat_with_metadata, aes(x = !!(sym(cohort_col)), y = Value)) +
         ggplot2::scale_x_discrete(limits = filtered_cohorts_vec) +
-        ggplot2::theme(legend.position="none")
+        ggplot2::theme(legend.position="none") +
+        geom_boxplot(aes(fill = !!(sym(cohort_col))), width = 0.6)
     }
     else {
       p <- ggplot(mat_with_metadata, aes(x = Id, y = Value, fill = !!(sym(cohort_col)))) +
-        ggplot2::scale_x_discrete(limits = common_ids)  
+        ggplot2::scale_x_discrete(limits = common_ids) +
+        geom_boxplot(width = 0.6)
     }
     
     p <- p +
-      geom_boxplot(width = 0.6) +
       stat_boxplot(geom = 'errorbar', width = 0.6) +
       geom_point(aes(fill = !!(sym(cohort_col))), size =1.5, shape = 21, position = position_jitterdodge()) +
       labs(x = x_label, y = y_label, title = title_label) + 
