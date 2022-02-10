@@ -8,6 +8,8 @@
 #' @param pc_x PC to keep on x-axis
 #' @param pc_y PC to keep on y-axis
 #' @param show_ellipse show ellipse on plot (default is FALSE)
+#' @param annotate_id A vector of ids (rownames of pca summary data) to be annotated
+#' @param annotate_text_size The size of annotated text
 #' @param interactive make plot interactive (default is TRUE)
 #' @param color_palette The named vector with colors as values and cohorts as keys
 #' @param group_shape The named vector with shapes as values (numeric values between [0, 25]) and cohorts as keys
@@ -28,16 +30,17 @@
 #' @import stringr ggplot2 plotly
 #' @export
 plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, 
-                     show_ellipse = FALSE, interactive = TRUE, color_palette = NULL,
-                     group_shape = NULL, title_label = "", marker_size = 6, title_label_size = 18, 
-                     axis_title_size = 14, pca_cohort_text_format= 'bold', 
-                     pca_cohort_text_align= "right", pca_cohort_title_size= 18, 
-                     pca_cohort_sample_size= 15, pca_plot_axis_format= 'bold', 
-                     pca_plot_axis_text_size= 14) {
+                     show_ellipse = FALSE, annotate_id = NULL, annotate_text_size = 3,
+                     interactive = TRUE, color_palette = NULL, group_shape = NULL, title_label = "",
+                     marker_size = 6, title_label_size = 18, axis_title_size = 14, 
+                     pca_cohort_text_format= 'bold', pca_cohort_text_align= "right", 
+                     pca_cohort_title_size= 18, pca_cohort_sample_size= 15, 
+                     pca_plot_axis_format= 'bold', pca_plot_axis_text_size= 14) {
   message("Plot PCA Started...")
   require(stringr)
   require(ggplot2)
   require(plotly)
+  require(ggrepel)
   
   if (identical(PCAObj_Summary, NULL)){
     message("PCAObj_Summary is NULL")
@@ -56,14 +59,27 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
   }
   
   pca_var_df <- as.data.frame(PCAObj_Summary$x)
-  pca_var_df$variable <- rownames(pca_var_df)
+  pca_var_df$id <- row.names(pca_var_df)
   metadata[, condition] <- gsub(",", "_", as.character(metadata[, condition]), fixed = TRUE)
-  comb_pca_metadata <- merge(pca_var_df, metadata, by.x = 'variable', by.y = 1, sort = FALSE)
+  comb_pca_metadata <- merge(pca_var_df, metadata, by.x = 'id', by.y = 1, sort = FALSE)
+  
+  if (!identical(annotate_id, NULL)){
+    common_annotate_id <- base::intersect(annotate_id, comb_pca_metadata$id)
+    if (length(common_annotate_id) < 1){
+      warning("The annotate ids are not matched with rownames of pca summary data")    
+    }
+    else {
+      diff_annotate_id <- base::setdiff(annotate_id, comb_pca_metadata$id)
+      if (length(diff_annotate_id) >= 1){
+        warning(paste("The following annotate ids are not matched with rownames of pca summary data :", paste(sQuote(diff_annotate_id), collapse = ", "), "\n", collapse = " ")) 
+      }  
+    }       
+  }    
   
   if (!identical(group_shape, NULL)) {
     p <- ggplot2::ggplot(comb_pca_metadata, aes(x = eval(parse(text=paste("PC", pc_x, sep = ""))),
                                                 y = eval(parse(text=paste("PC", pc_y, sep = ""))),
-                                                text = paste(variable, !! sym(condition), sep = "<br>"),
+                                                text = paste(id, !! sym(condition), sep = "<br>"),
                                                 group = !! sym(condition),
                                                 shape = !! sym(condition),
                                                 fill = !! sym(condition),
@@ -72,7 +88,7 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
   } else {
     p <- ggplot2::ggplot(comb_pca_metadata, aes(x = eval(parse(text=paste("PC", pc_x, sep = ""))),
                                                 y = eval(parse(text=paste("PC", pc_y, sep = ""))),
-                                                text = paste(variable, !! sym(condition), sep = "<br>"),
+                                                text = paste(id, !! sym(condition), sep = "<br>"),
                                                 group = !! sym(condition),
                                                 fill = !! sym(condition),
                                                 colour = !! sym(condition))) +
@@ -99,7 +115,7 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
           legend.title = element_text(colour="black", size= pca_cohort_title_size, face= pca_cohort_text_format),
           axis.ticks.length = unit(0.25, "cm"))
   if (show_ellipse == TRUE){
-    p <- p + stat_ellipse(geom = "polygon", alpha = 1/6, aes(fill = !! sym(condition)), size = 0)
+    p <- p + ggplot2::stat_ellipse(geom = "polygon", alpha = 1/6, aes(fill = !! sym(condition)), size = 0)
   }
   
   if (!identical(color_palette, NULL)){
@@ -182,6 +198,24 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
       p$x$data[[cohort_index]]$name <- cohort 
     }
   }
+  
+  if (!identical(annotate_id, NULL)) {
+    if (identical(interactive, FALSE)) {
+      p <- p + ggrepel::geom_text_repel(data = subset(comb_pca_metadata, id %in% annotate_id), aes_string(label = "id"), color = "black", size = annotate_text_size,
+                                        box.padding = unit(0.6, 'lines'),
+                                        point.padding = unit(0.6, 'lines'),
+                                        segment.size = 0.5,
+                                        arrow = arrow(length = unit(0.01, 'npc')),
+                                        force = 0.5,
+                                        max.iter = 3e3)
+    } else {
+      filtered_data <-   comb_pca_metadata[comb_pca_metadata$id %in% annotate_id, , drop = FALSE]
+      annotate_data <- list(x = filtered_data[[paste("PC", pc_x, sep = "")]], y = filtered_data[[paste("PC", pc_y, sep = "")]],
+                            text = filtered_data$id, xref = "x", yref = "y", showarrow = TRUE, arrowhead = 3.5, ax = 20, ay = -40,
+                            font = list(color = "black", size = 4 * annotate_text_size))                               
+      p <- p %>% layout(annotations = annotate_data)   
+    }
+  }                               
   
   message("Plot PCA Completed...")
   
