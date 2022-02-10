@@ -1,6 +1,6 @@
 #' plot_pca
 #'
-#' makes a plotly PCA plot
+#' makes a PCA plot in both interactive (plotly) and non interactive (ggplot) modes
 #'
 #' @param PCAObj_Summary A list of summary of prcomp function.
 #' @param metadata dataframe containing samples to cohort mapping information
@@ -10,6 +10,7 @@
 #' @param show_ellipse show ellipse on plot (default is FALSE)
 #' @param interactive make plot interactive (default is TRUE)
 #' @param color_palette The named vector with colors as values and cohorts as keys
+#' @param group_shape The named vector with shapes as values (numeric values between [0, 25]) and cohorts as keys
 #' @param title_label Title of the plot
 #' @param marker_size The size of marker point
 #' @param title_label_size Size of title label
@@ -20,7 +21,7 @@
 #' @param pca_cohort_sample_size set font size of cohorts
 #' @param pca_plot_axis_format set axis format
 #' @param pca_plot_axis_text_size set axis text size
-#' @return plotly object
+#' @return plotly or ggplot object
 #' @examples
 #' plot_pca(PCAObj_Summary, metadata, 'Cohort', pc_x = 1, pc_y = 2, interactive = TRUE, pca_cohort_text_format= 'bold', pca_cohort_text_align= "right",
 #'          pca_cohort_title_size= 18, pca_cohort_sample_size= 15, pca_plot_axis_format= 'bold', pca_plot_axis_text_size= 14)
@@ -28,7 +29,7 @@
 #' @export
 plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, 
                      show_ellipse = FALSE, interactive = TRUE, color_palette = NULL,
-                     title_label = "", marker_size = 6, title_label_size = 18, 
+                     group_shape = NULL, title_label = "", marker_size = 6, title_label_size = 18, 
                      axis_title_size = 14, pca_cohort_text_format= 'bold', 
                      pca_cohort_text_align= "right", pca_cohort_title_size= 18, 
                      pca_cohort_sample_size= 15, pca_plot_axis_format= 'bold', 
@@ -59,16 +60,31 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
   metadata[, condition] <- gsub(",", "_", as.character(metadata[, condition]), fixed = TRUE)
   comb_pca_metadata <- merge(pca_var_df, metadata, by.x = 'variable', by.y = 1, sort = FALSE)
   
-  p <- ggplot2::ggplot(comb_pca_metadata, aes(x = eval(parse(text=paste("PC", pc_x, sep = ""))),
-                                              y = eval(parse(text=paste("PC", pc_y, sep = ""))),
-                                              text = paste(variable, !! sym(condition), sep = "<br>"),
-                                              group = comb_pca_metadata[, condition],
-                                              fill = comb_pca_metadata[, condition]
-  )) + # calls the ggplot function with dose on the x-axis and len on the y-axis
-    geom_point(shape = 21, size = marker_size, alpha = 0.7) + # scatter plot function with shape of points defined as 21 scale.
+  if (!identical(group_shape, NULL)) {
+    p <- ggplot2::ggplot(comb_pca_metadata, aes(x = eval(parse(text=paste("PC", pc_x, sep = ""))),
+                                                y = eval(parse(text=paste("PC", pc_y, sep = ""))),
+                                                text = paste(variable, !! sym(condition), sep = "<br>"),
+                                                group = !! sym(condition),
+                                                shape = !! sym(condition),
+                                                fill = !! sym(condition),
+                                                colour = !! sym(condition))) +
+      geom_point(size = marker_size, alpha = 0.7)
+  } else {
+    p <- ggplot2::ggplot(comb_pca_metadata, aes(x = eval(parse(text=paste("PC", pc_x, sep = ""))),
+                                                y = eval(parse(text=paste("PC", pc_y, sep = ""))),
+                                                text = paste(variable, !! sym(condition), sep = "<br>"),
+                                                group = !! sym(condition),
+                                                fill = !! sym(condition),
+                                                colour = !! sym(condition))) +
+      geom_point(shape = 21, size = marker_size, alpha = 0.7)
+  }
+  
+  p <- p +
     ggtitle(title_label) +
     labs(x = paste("PC",pc_x, '(', round(PCAObj_Summary$importance[2,pc_x]*100, 2), '%)'),
          y = paste("PC",pc_y, '(', round(PCAObj_Summary$importance[2,pc_y]*100, 2), '%)'),
+         colour = condition,
+         shape = condition,
          fill = condition) + # x and y axis labels
     theme(legend.position = pca_cohort_text_align, legend.direction = "vertical", # legend positioned at the bottom, horizantal direction,
           axis.line = element_line(size = 1, colour = "black"), # axis line of size 1 inch in black color
@@ -83,12 +99,12 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
           legend.title = element_text(colour="black", size= pca_cohort_title_size, face= pca_cohort_text_format),
           axis.ticks.length = unit(0.25, "cm"))
   if (show_ellipse == TRUE){
-    p <- p + stat_ellipse(geom = "polygon", alpha = 1/6, aes(fill = comb_pca_metadata[,condition]))
+    p <- p + stat_ellipse(geom = "polygon", alpha = 1/6, aes(fill = !! sym(condition)), size = 0)
   }
   
   if (!identical(color_palette, NULL)){
     if (length(unique(metadata[, condition])) != length(color_palette)){
-      warning(c("The number of colors in color palette should be equal to number of cohort conditions which is ", length(unique(metadata[, condition]))))
+      warning(c("The number of colors in color palette should be equal to the number of cohort conditions which is ", length(unique(metadata[, condition]))))
       return(NULL)
     }
     
@@ -107,8 +123,33 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
       return(NULL)  
     }
     
-    try(p <- p + ggplot2::scale_fill_manual(values = color_palette), silent = TRUE)
+    try(p <- p + ggplot2::scale_colour_manual(values = color_palette), silent = TRUE)
+    try(p <- p + ggplot2::scale_fill_manual(values = color_palette), silent = TRUE)                                        
   }
+  
+  if (!identical(group_shape, NULL)){
+    if (length(unique(metadata[, condition])) != length(group_shape)){
+      warning(c("The number of shapes in group shape vector should be equal to the number of cohort conditions which is ", length(unique(metadata[, condition]))))
+      return(NULL)
+    }
+    
+    if (!identical(names(group_shape), NULL)){
+      names(group_shape) <- gsub(",", "_", names(group_shape), fixed = TRUE)
+      diff_cohort <- base::setdiff(unique(metadata[, condition]), names(group_shape))
+      if (length(diff_cohort) > 0){
+        warning(paste0("The following cohorts are absent from group_shape names: ", paste0(diff_cohort, collapse = ", ")))
+        return(NULL) 
+      }     
+    }
+    
+    shape_bool <- function(g_shape){ tryCatch(suppressWarnings(as.numeric(g_shape)) %in% 0:25, error = function(e) FALSE)}                     
+    if (!all(shape_bool(group_shape))){
+      warning("The group_shape is not a valid shape vector")
+      return(NULL)  
+    }
+    
+    try(p <- p + ggplot2::scale_shape_manual(values = group_shape), silent = TRUE)
+  }                                            
   
   if (interactive == TRUE){
     p <- p + theme(legend.title = element_blank())
