@@ -13,6 +13,7 @@ plot_pca(
   show_ellipse = FALSE,
   interactive = TRUE,
   color_palette = NULL,
+  group_shape = NULL,
   title_label = "",
   marker_size = 6,
   title_label_size = 18,
@@ -42,6 +43,8 @@ plot_pca(
 
 \item{color_palette}{The named vector with colors as values and cohorts as keys}
 
+\item{group_shape}{The named vector with shapes as values (numeric values between [0, 25]) and cohorts as keys}
+
 \item{title_label}{Title of the plot}
 
 \item{marker_size}{The size of marker point}
@@ -63,10 +66,10 @@ plot_pca(
 \item{pca_plot_axis_text_size}{set axis text size}
 }
 \value{
-plotly object
+plotly or ggplot object
 }
 \description{
-makes a plotly PCA plot
+makes a PCA plot in both interactive (plotly) and non interactive (ggplot) modes
 }
 \examples{
 plot_pca(PCAObj_Summary, metadata, 'Cohort', pc_x = 1, pc_y = 2, interactive = TRUE, pca_cohort_text_format= 'bold', pca_cohort_text_align= "right",
