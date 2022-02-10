@@ -11,6 +11,8 @@ plot_pca(
   pc_x = 1,
   pc_y = 2,
   show_ellipse = FALSE,
+  annotate_id = NULL,
+  annotate_text_size = 3,
   interactive = TRUE,
   color_palette = NULL,
   group_shape = NULL,
@@ -38,6 +40,10 @@ plot_pca(
 \item{pc_y}{PC to keep on y-axis}
 
 \item{show_ellipse}{show ellipse on plot (default is FALSE)}
+
+\item{annotate_id}{A vector of ids (rownames of pca summary data) to be annotated}
+
+\item{annotate_text_size}{The size of annotated text}
 
 \item{interactive}{make plot interactive (default is TRUE)}
 
