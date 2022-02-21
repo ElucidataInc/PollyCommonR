@@ -1,7 +1,7 @@
 Package: PollyCommonR
 Type: Package
 Title: Polly Common Functions in R
-Version: 0.5.3
+Version: 0.5.4
 Author: Sunil Dhakad
 Maintainer: The package maintainer <sunil.dhakad@elucidata.io>
 Description: This package contains common functions that are used in omics analysis.
@@ -30,4 +30,4 @@ Suggests:
 License: MIT
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.0.1
+RoxygenNote: 7.1.2

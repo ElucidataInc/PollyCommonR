@@ -18,7 +18,9 @@ compute_differential_expression(
   fc_with_raw = FALSE,
   raw_data = NULL,
   raw_log_flag = FALSE,
-  expr_stat = TRUE
+  expr_stat = TRUE,
+  expr_data = FALSE,
+  expr_with_raw = FALSE
 )
 }
 \arguments{
@@ -52,9 +54,13 @@ It is only applicable with ttest algorithm.}
 
 \item{expr_stat}{Calculate MaxExpr and MinExpr (TRUE) where MaxExpr/MinExpr is calculated as the maximum/minimum of average of samples within cohorts. 
 If fc_with_raw = TRUE then it will use raw data from expression statistics calculation.}
+
+\item{expr_data}{A logical variable indicating whether to add expression data to the differential expression results (TRUE)}
+
+\item{expr_with_raw}{If expr_with_raw = TRUE then it will use raw data instead of norm data to add in the differential expression results}
 }
 \value{
-The differential expression result with state1 vs state2 (state1/state2) or cohort-B vs cohort-A (cohort-B/cohort-A) comparison, If logFC >0, it implies abundance is greater in cohort-B (state1).
+The differential expression results with state1 vs state2 (state1/state2) or cohort-B vs cohort-A (cohort-B/cohort-A) comparison, If logFC >0, it implies abundance is greater in cohort-B (state1).
 }
 \description{
 It calculates the differential expression for cohort-B vs cohort-A or cohort-B/cohort-A comparison

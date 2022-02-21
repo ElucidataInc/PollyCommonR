@@ -19,7 +19,9 @@
 #' @param raw_log_flag Check if raw data is log transformed (TRUE) or not (FALSE).
 #' @param expr_stat Calculate MaxExpr and MinExpr (TRUE) where MaxExpr/MinExpr is calculated as the maximum/minimum of average of samples within cohorts. 
 #' If fc_with_raw = TRUE then it will use raw data from expression statistics calculation.
-#' @return The differential expression result with state1 vs state2 (state1/state2) or cohort-B vs cohort-A (cohort-B/cohort-A) comparison, If logFC >0, it implies abundance is greater in cohort-B (state1).
+#' @param expr_data A logical variable indicating whether to add expression data to the differential expression results (TRUE)
+#' @param expr_with_raw If expr_with_raw = TRUE then it will use raw data instead of norm data to add in the differential expression results
+#' @return The differential expression results with state1 vs state2 (state1/state2) or cohort-B vs cohort-A (cohort-B/cohort-A) comparison, If logFC >0, it implies abundance is greater in cohort-B (state1).
 #' @examples
 #' compute_differential_expression(norm_data, metadata, 'Cohort', 'Cohort1', 'Cohort2')
 #' @import limma dplyr reshape2
@@ -28,7 +30,8 @@ compute_differential_expression <- function(norm_data = NULL, metadata = NULL, c
                                             cohort_a = NULL, cohort_b = NULL, algo = "limma",
                                             paired = FALSE, equal_var = TRUE, nonpar = FALSE, 
                                             pval_adjust_method = "BH", fc_with_raw = FALSE, raw_data = NULL,
-                                            raw_log_flag = FALSE, expr_stat = TRUE){
+                                            raw_log_flag = FALSE, expr_stat = TRUE, expr_data = FALSE, 
+                                            expr_with_raw = FALSE){
   
   message("Compute Differential Expression Started...")
   require(dplyr)
@@ -44,7 +47,7 @@ compute_differential_expression <- function(norm_data = NULL, metadata = NULL, c
     return(NULL) 
   }    
   
-  if (identical(fc_with_raw, TRUE)){
+  if (identical(fc_with_raw, TRUE) || identical(expr_with_raw, TRUE)){
     if (identical(raw_data, NULL)){
       warning("The raw_data is NULL")
       return (NULL)
@@ -213,6 +216,23 @@ compute_differential_expression <- function(norm_data = NULL, metadata = NULL, c
       error = function(cond) {message(paste("\nCannot merge differential expression and expression stat dataframes, caused an error: ", cond))}    
       )
     }
+  }
+
+  if (identical(expr_data, TRUE)){
+    if (identical(expr_with_raw, TRUE)){
+      expr_data <- raw_data    
+    } else { expr_data <- norm_data}
+    
+    tryCatch({
+      expr_data <- expr_data[, c(cohort_b_samples, cohort_a_samples), drop = FALSE]
+      expr_data$id <- row.names(expr_data)
+      if (!identical(diff_exp_data, NULL) && !identical(expr_data, NULL)){
+        diff_exp_data <- base::merge(diff_exp_data, expr_data, by= "id", sort = FALSE)
+        row.names(diff_exp_data) <- diff_exp_data$id
+      }
+    },
+    error = function(cond) {message(paste("\nCannot merge differential expression and expression data dataframes, caused an error: ", cond))}    
+    )   
   }
   
   message("Compute Differential Expression Completed...")
