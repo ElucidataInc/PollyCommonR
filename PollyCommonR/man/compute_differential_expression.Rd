@@ -16,9 +16,11 @@ compute_differential_expression(
   nonpar = FALSE,
   pval_adjust_method = "BH",
   fc_with_raw = FALSE,
-  raw_data = NULL,
   raw_log_flag = FALSE,
-  expr_stat = TRUE
+  add_expr_stat = TRUE,
+  add_expr_data = FALSE,
+  expr_with_raw = FALSE,
+  raw_data = NULL
 )
 }
 \arguments{
@@ -46,15 +48,18 @@ It is only applicable with ttest algorithm.}
 
 \item{fc_with_raw}{Use raw data (data without normalization) to calculate fold change.}
 
-\item{raw_data}{The dataframe/matrix with samples in columns and features in rows having same dimensions as norm data.}
-
 \item{raw_log_flag}{Check if raw data is log transformed (TRUE) or not (FALSE).}
 
-\item{expr_stat}{Calculate MaxExpr and MinExpr (TRUE) where MaxExpr/MinExpr is calculated as the maximum/minimum of average of samples within cohorts. 
-If fc_with_raw = TRUE then it will use raw data from expression statistics calculation.}
+\item{add_expr_stat}{Calculate MaxExpr and MinExpr (TRUE) where MaxExpr/MinExpr is calculated as the maximum/minimum of average of samples within cohorts.}
+
+\item{add_expr_data}{A logical variable indicating whether to add expression data to the differential expression results (TRUE)}
+
+\item{expr_with_raw}{If expr_with_raw = TRUE then it will use raw data instead of norm data to add in the differential expression results and also calculate expression statistics}
+
+\item{raw_data}{The dataframe/matrix with samples in columns and features in rows having same dimensions as norm data.}
 }
 \value{
-The differential expression result with state1 vs state2 (state1/state2) or cohort-B vs cohort-A (cohort-B/cohort-A) comparison, If logFC >0, it implies abundance is greater in cohort-B (state1).
+The differential expression results with state1 vs state2 (state1/state2) or cohort-B vs cohort-A (cohort-B/cohort-A) comparison, If logFC >0, it implies abundance is greater in cohort-B (state1).
 }
 \description{
 It calculates the differential expression for cohort-B vs cohort-A or cohort-B/cohort-A comparison
