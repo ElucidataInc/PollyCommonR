@@ -15,12 +15,11 @@
 #' @param nonpar A logical variable indicating whether to perform a non-parametric test i.e. wilcox.test (TRUE) or t.test. It is only applicable with ttest algorithm.
 #' @param pval_adjust_method Provide pval adjust method ("holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none"). Also check p.adjust from stats.
 #' @param fc_with_raw Use raw data (data without normalization) to calculate fold change.
-#' @param raw_data The dataframe/matrix with samples in columns and features in rows having same dimensions as norm data.
 #' @param raw_log_flag Check if raw data is log transformed (TRUE) or not (FALSE).
-#' @param expr_stat Calculate MaxExpr and MinExpr (TRUE) where MaxExpr/MinExpr is calculated as the maximum/minimum of average of samples within cohorts. 
-#' If fc_with_raw = TRUE then it will use raw data from expression statistics calculation.
-#' @param expr_data A logical variable indicating whether to add expression data to the differential expression results (TRUE)
-#' @param expr_with_raw If expr_with_raw = TRUE then it will use raw data instead of norm data to add in the differential expression results
+#' @param add_expr_stat Calculate MaxExpr and MinExpr (TRUE) where MaxExpr/MinExpr is calculated as the maximum/minimum of average of samples within cohorts. 
+#' @param add_expr_data A logical variable indicating whether to add expression data to the differential expression results (TRUE)
+#' @param expr_with_raw If expr_with_raw = TRUE then it will use raw data instead of norm data to add in the differential expression results and also calculate expression stat
+#' @param raw_data The dataframe/matrix with samples in columns and features in rows having same dimensions as norm data.
 #' @return The differential expression results with state1 vs state2 (state1/state2) or cohort-B vs cohort-A (cohort-B/cohort-A) comparison, If logFC >0, it implies abundance is greater in cohort-B (state1).
 #' @examples
 #' compute_differential_expression(norm_data, metadata, 'Cohort', 'Cohort1', 'Cohort2')
@@ -29,9 +28,9 @@
 compute_differential_expression <- function(norm_data = NULL, metadata = NULL, cohort_col = NULL, 
                                             cohort_a = NULL, cohort_b = NULL, algo = "limma",
                                             paired = FALSE, equal_var = TRUE, nonpar = FALSE, 
-                                            pval_adjust_method = "BH", fc_with_raw = FALSE, raw_data = NULL,
-                                            raw_log_flag = FALSE, expr_stat = TRUE, expr_data = FALSE, 
-                                            expr_with_raw = FALSE){
+                                            pval_adjust_method = "BH", fc_with_raw = FALSE, raw_log_flag = FALSE, 
+                                            add_expr_stat = TRUE, add_expr_data = FALSE, expr_with_raw = FALSE, 
+                                            raw_data = NULL){
   
   message("Compute Differential Expression Started...")
   require(dplyr)
@@ -47,7 +46,7 @@ compute_differential_expression <- function(norm_data = NULL, metadata = NULL, c
     return(NULL) 
   }    
   
-  if (identical(fc_with_raw, TRUE) || identical(expr_with_raw, TRUE)){
+  if (identical(fc_with_raw, TRUE) || (identical(add_expr_stat, TRUE) && identical(expr_with_raw, TRUE)) || (identical(add_expr_data, TRUE) && identical(expr_with_raw, TRUE))){
     if (identical(raw_data, NULL)){
       warning("The raw_data is NULL")
       return (NULL)
@@ -59,7 +58,7 @@ compute_differential_expression <- function(norm_data = NULL, metadata = NULL, c
     }
     
     if (!all(dim(norm_data) == dim(raw_data))){
-      warning("The norm_data and raw_data have different dimentions (rows and columns)")
+      warning("The norm_data and raw_data have different dimensions (rows and columns)")
       return(NULL)    
     }
     
@@ -175,7 +174,7 @@ compute_differential_expression <- function(norm_data = NULL, metadata = NULL, c
         limma_res = subset(limma_res, select = -c(logFC, AveExpr))  
         diff_exp_data <-  base::merge(fold_change_df, limma_res, by = "id", sort = FALSE)
       } else {
-        if (identical(expr_stat, TRUE)){
+        if (identical(add_expr_stat, TRUE)){
           limma_res = subset(limma_res, select = -AveExpr)
         }
         diff_exp_data <- limma_res
@@ -191,8 +190,8 @@ compute_differential_expression <- function(norm_data = NULL, metadata = NULL, c
   error = function(cond) {message(paste("\nCannot calculate differential expression, caused an error: ", cond))}
   )
   
-  if (identical(expr_stat, TRUE)){
-    if (identical(fc_with_raw, TRUE)){
+  if (identical(add_expr_stat, TRUE)){
+    if (identical(expr_with_raw, TRUE)){
       long_sample_raw_mat <- raw_data    
     } else { long_sample_raw_mat <- norm_data}
     expr_stat_df <- NULL  
@@ -217,8 +216,8 @@ compute_differential_expression <- function(norm_data = NULL, metadata = NULL, c
       )
     }
   }
-
-  if (identical(expr_data, TRUE)){
+  
+  if (identical(add_expr_data, TRUE)){
     if (identical(expr_with_raw, TRUE)){
       expr_data <- raw_data    
     } else { expr_data <- norm_data}
