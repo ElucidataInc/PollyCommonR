@@ -18,7 +18,7 @@
 #' @param raw_log_flag Check if raw data is log transformed (TRUE) or not (FALSE).
 #' @param add_expr_stat Calculate MaxExpr and MinExpr (TRUE) where MaxExpr/MinExpr is calculated as the maximum/minimum of average of samples within cohorts. 
 #' @param add_expr_data A logical variable indicating whether to add expression data to the differential expression results (TRUE)
-#' @param expr_with_raw If expr_with_raw = TRUE then it will use raw data instead of norm data to add in the differential expression results and also calculate expression stat
+#' @param expr_with_raw If expr_with_raw = TRUE then it will use raw data instead of norm data to add in the differential expression results and also calculate expression statistics
 #' @param raw_data The dataframe/matrix with samples in columns and features in rows having same dimensions as norm data.
 #' @return The differential expression results with state1 vs state2 (state1/state2) or cohort-B vs cohort-A (cohort-B/cohort-A) comparison, If logFC >0, it implies abundance is greater in cohort-B (state1).
 #' @examples

@@ -5,8 +5,9 @@
 #' @param norm_data The dataframe/matrix with samples in columns and features in rows.
 #' @param metadata The dataframe with samples to cohort mapping.
 #' @param cohort_col A vector of metadata columns used for n way anova.
-#' @param expr_stat Calculate MaxExpr and MinExpr (TRUE) where MaxExpr/MinExpr is calculated as the maximum/minimum of average of samples within cohorts.
-#' @param expr_with_raw Use raw data (data without normalization) to calculate expression statistics.
+#' @param add_expr_stat Calculate MaxExpr and MinExpr (TRUE) where MaxExpr/MinExpr is calculated as the maximum/minimum of average of samples within cohorts.
+#' @param add_expr_data A logical variable indicating whether to add expression data to the anova results (TRUE)
+#' @param expr_with_raw Use raw data (data without normalization) instead of norm data to add in the anova results and also calculate expression statistics
 #' @param raw_data The dataframe/matrix with samples in columns and features in rows having same dimensions as norm data.
 #' @return A dataframe with calculated F.Value and P.Value.
 #' @examples 
@@ -14,7 +15,8 @@
 #' @import dplyr stats stringr
 #' @export
 compute_anova <- function(norm_data = NULL, metadata = NULL, cohort_col = "Cohort",
-                          expr_stat = TRUE, expr_with_raw = FALSE, raw_data = NULL){
+                          add_expr_stat = TRUE, add_expr_data = FALSE, expr_with_raw = FALSE, 
+                          raw_data = NULL){
   message("Compute Anova Started...")
   require(dplyr)
   require(stats)
@@ -35,7 +37,7 @@ compute_anova <- function(norm_data = NULL, metadata = NULL, cohort_col = "Cohor
     return(NULL) 
   }
   
-  if (identical(expr_stat, TRUE) && identical(expr_with_raw, TRUE)){
+  if ((identical(add_expr_stat, TRUE) && identical(expr_with_raw, TRUE)) || (identical(add_expr_data, TRUE) && identical(expr_with_raw, TRUE))){
     if (identical(raw_data, NULL)){
       warning("The raw_data is NULL")
       return (NULL)
@@ -47,7 +49,7 @@ compute_anova <- function(norm_data = NULL, metadata = NULL, cohort_col = "Cohor
     }
     
     if (!all(dim(norm_data) == dim(raw_data))){
-      warning("The norm_data and raw_data have different dimentions (rows and columns)")
+      warning("The norm_data and raw_data have different dimensions (rows and columns)")
       return(NULL)    
     }
     
@@ -165,7 +167,7 @@ compute_anova <- function(norm_data = NULL, metadata = NULL, cohort_col = "Cohor
     return (long_data_mat)  
   }
   
-  if (identical(expr_stat, TRUE)){
+  if (identical(add_expr_stat, TRUE)){
     metadata <- suppressMessages(PollyCommonR::create_multi_cohorts_metadata_for_anova(metadata, cohort_col = anova_cohort_cols))
   }
   
@@ -189,7 +191,7 @@ compute_anova <- function(norm_data = NULL, metadata = NULL, cohort_col = "Cohor
   error = function(cond) {message(paste("\nCannot merge anova data and identifier data, caused an error: ", cond))}
   )                                       
   
-  if (identical(expr_stat, TRUE)){
+  if (identical(add_expr_stat, TRUE)){
     expr_stat_df <- NULL
     tryCatch({  
       if (identical(expr_with_raw, TRUE)){
@@ -218,6 +220,22 @@ compute_anova <- function(norm_data = NULL, metadata = NULL, cohort_col = "Cohor
       error = function(cond) {message(paste("\nCannot merge anova data and expression stat dataframes, caused an error: ", cond))}    
       )
     }      
+  }
+  
+  if (identical(add_expr_data, TRUE)){
+    if (identical(expr_with_raw, TRUE)){
+      expr_data <- raw_data    
+    } else { expr_data <- norm_data}
+    
+    tryCatch({
+      expr_data <- expr_data[, sample_cols, drop = FALSE]
+      expr_data$id <- row.names(expr_data)
+      if (!identical(anova_data, NULL) && !identical(expr_data, NULL)){
+        anova_data <- base::merge(anova_data, expr_data, by= "id", sort = FALSE)
+      }
+    },
+    error = function(cond) {message(paste("\nCannot merge anova data and expression data dataframes, caused an error: ", cond))}    
+    )   
   }
   
   message("Compute Anova Completed...")

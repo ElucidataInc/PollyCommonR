@@ -54,7 +54,7 @@ It is only applicable with ttest algorithm.}
 
 \item{add_expr_data}{A logical variable indicating whether to add expression data to the differential expression results (TRUE)}
 
-\item{expr_with_raw}{If expr_with_raw = TRUE then it will use raw data instead of norm data to add in the differential expression results and also calculate expression stat}
+\item{expr_with_raw}{If expr_with_raw = TRUE then it will use raw data instead of norm data to add in the differential expression results and also calculate expression statistics}
 
 \item{raw_data}{The dataframe/matrix with samples in columns and features in rows having same dimensions as norm data.}
 }
