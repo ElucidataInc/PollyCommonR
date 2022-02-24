@@ -8,7 +8,8 @@ compute_anova(
   norm_data = NULL,
   metadata = NULL,
   cohort_col = "Cohort",
-  expr_stat = TRUE,
+  add_expr_stat = TRUE,
+  add_expr_data = FALSE,
   expr_with_raw = FALSE,
   raw_data = NULL
 )
@@ -20,9 +21,11 @@ compute_anova(
 
 \item{cohort_col}{A vector of metadata columns used for n way anova.}
 
-\item{expr_stat}{Calculate MaxExpr and MinExpr (TRUE) where MaxExpr/MinExpr is calculated as the maximum/minimum of average of samples within cohorts.}
+\item{add_expr_stat}{Calculate MaxExpr and MinExpr (TRUE) where MaxExpr/MinExpr is calculated as the maximum/minimum of average of samples within cohorts.}
 
-\item{expr_with_raw}{Use raw data (data without normalization) to calculate expression statistics.}
+\item{add_expr_data}{A logical variable indicating whether to add expression data to the anova results (TRUE)}
+
+\item{expr_with_raw}{Use raw data (data without normalization) instead of norm data to add in the anova results and also calculate expression statistics}
 
 \item{raw_data}{The dataframe/matrix with samples in columns and features in rows having same dimensions as norm data.}
 }
