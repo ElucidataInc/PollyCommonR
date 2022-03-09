@@ -73,7 +73,7 @@ plot_pca3d <- function(PCAObj_Summary = NULL, metadata = NULL, condition = NULL,
   p <- plot_ly(x = comb_pca_metadata[[paste("PC", pc_x, sep = "")]],
                y = comb_pca_metadata[[paste("PC", pc_y, sep = "")]],
                z = comb_pca_metadata[[paste("PC", pc_z, sep = "")]],
-               color = comb_pca_metadata[[condition]], colors = color_palette, text = comb_pca_metadata[["variable"]]) %>%                                           
+               color = comb_pca_metadata[[condition]], colors = color_palette, text = comb_pca_metadata[["variable"]]) %>%
     add_markers() %>%
     layout(title = title_label,
            legend=list(title=list(text = legend_title)),
