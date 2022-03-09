@@ -10,21 +10,26 @@
 #' @param pc_z PC to keep on z-axis
 #' @param color_palette The named vector with colors as values and cohorts as keys 
 #' @param title_label Title of the plot
+#' @param show_legend_title Show legend title (TRUE/FALSE)
 #' @return plotly object
 #' @examples
 #' plot_pca3d(PCAObj_Summary, metadata, 'Cohort', pc_x = 1, pc_y = 2, pc_z= 3)
 #' @import plotly
 #' @export
-plot_pca3d <- function(PCAObj_Summary, metadata, condition, color_palette = NULL,
-                       pc_x = 1, pc_y = 2, pc_z= 3, title_label = "") {
+plot_pca3d <- function(PCAObj_Summary = NULL, metadata = NULL, condition = NULL, color_palette = NULL,
+                       pc_x = 1, pc_y = 2, pc_z= 3, title_label = "", show_legend_title = TRUE) {
   message("Plot PCA3D Started...")
   require(plotly)
   
   if (identical(PCAObj_Summary, NULL)){
-    message("PCAObj_Summary is NULL")
-    
+    warning("The PCAObj_Summary is NULL")
     return (NULL)
   }
+  
+  if (identical(metadata, NULL)){
+    warning("The metadata is NULL")
+    return (NULL)
+  }    
   
   if (!(condition %in% colnames(metadata))) {
     warning(c(condition, " is not a valid cohort column, please choose from metadata colnames"))
@@ -59,12 +64,19 @@ plot_pca3d <- function(PCAObj_Summary, metadata, condition, color_palette = NULL
     } 
   }    
   
-  p <- plot_ly(comb_pca_metadata, x = ~eval(parse(text=paste("PC", pc_x, sep = ""))),
-               y = ~eval(parse(text=paste("PC", pc_y, sep = ""))),
-               z = ~eval(parse(text=paste("PC", pc_z, sep = ""))),
-               color = ~eval(parse(text=condition)), colors = color_palette, text = ~variable) %>%
+  if (identical(show_legend_title, TRUE)) {
+    legend_title = condition
+  } else {
+    legend_title = NULL
+  }                                         
+  
+  p <- plot_ly(x = comb_pca_metadata[[paste("PC", pc_x, sep = "")]],
+               y = comb_pca_metadata[[paste("PC", pc_y, sep = "")]],
+               z = comb_pca_metadata[[paste("PC", pc_z, sep = "")]],
+               color = comb_pca_metadata[[condition]], colors = color_palette, text = comb_pca_metadata[["variable"]]) %>%                                           
     add_markers() %>%
     layout(title = title_label,
+           legend=list(title=list(text = legend_title)),
            scene = list(xaxis = list(title = paste("PC",pc_x, '(', round(PCAObj_Summary$importance[2,pc_x]*100, 2), '%)')),
                         yaxis = list(title = paste("PC",pc_y, '(', round(PCAObj_Summary$importance[2,pc_y]*100, 2), '%)')),
                         zaxis = list(title = paste("PC",pc_z, '(', round(PCAObj_Summary$importance[2,pc_z]*100, 2), '%)'))
