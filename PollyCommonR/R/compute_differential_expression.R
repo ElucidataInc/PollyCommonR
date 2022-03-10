@@ -143,7 +143,7 @@ compute_differential_expression <- function(norm_data = NULL, metadata = NULL, c
   cohort_b_samples <- metadata[metadata[, "Comparison"] == "B", ][, 1]
   
   norm_data <- norm_data[, metadata[, 1], drop = FALSE]
-  if (identical(fc_with_raw, TRUE)){
+  if (!identical(raw_data, NULL)){
     raw_data <- as.data.frame(raw_data, stringsAsFactors = FALSE, check.names = FALSE)  
     raw_data <- raw_data[, metadata[, 1], drop = FALSE]
   }

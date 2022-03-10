@@ -5,14 +5,15 @@
 \title{plot_pca3d}
 \usage{
 plot_pca3d(
-  PCAObj_Summary,
-  metadata,
-  condition,
+  PCAObj_Summary = NULL,
+  metadata = NULL,
+  condition = NULL,
   color_palette = NULL,
   pc_x = 1,
   pc_y = 2,
   pc_z = 3,
-  title_label = ""
+  title_label = "",
+  show_legend_title = TRUE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ plot_pca3d(
 \item{pc_z}{PC to keep on z-axis}
 
 \item{title_label}{Title of the plot}
+
+\item{show_legend_title}{Show legend title (TRUE/FALSE)}
 }
 \value{
 plotly object
