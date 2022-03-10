@@ -17,6 +17,7 @@ plot_pca(
   color_palette = NULL,
   group_shape = NULL,
   title_label = "",
+  show_legend_title = TRUE,
   marker_size = 6,
   title_label_size = 18,
   axis_title_size = 14,
@@ -52,6 +53,8 @@ plot_pca(
 \item{group_shape}{The named vector with shapes as values (numeric values between [0, 25]) and cohorts as keys}
 
 \item{title_label}{Title of the plot}
+
+\item{show_legend_title}{Show legend title (TRUE/FALSE)}
 
 \item{marker_size}{The size of marker point}
 

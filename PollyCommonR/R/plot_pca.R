@@ -14,6 +14,7 @@
 #' @param color_palette The named vector with colors as values and cohorts as keys
 #' @param group_shape The named vector with shapes as values (numeric values between [0, 25]) and cohorts as keys
 #' @param title_label Title of the plot
+#' @param show_legend_title Show legend title (TRUE/FALSE)
 #' @param marker_size The size of marker point
 #' @param title_label_size Size of title label
 #' @param axis_title_size Size of axis title
@@ -32,7 +33,7 @@
 plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2, 
                      show_ellipse = FALSE, annotate_id = NULL, annotate_text_size = 3,
                      interactive = TRUE, color_palette = NULL, group_shape = NULL, title_label = "",
-                     marker_size = 6, title_label_size = 18, axis_title_size = 14, 
+                     show_legend_title = TRUE, marker_size = 6, title_label_size = 18, axis_title_size = 14, 
                      pca_cohort_text_format= 'bold', pca_cohort_text_align= "right", 
                      pca_cohort_title_size= 18, pca_cohort_sample_size= 15, 
                      pca_plot_axis_format= 'bold', pca_plot_axis_text_size= 14) {
@@ -74,6 +75,12 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
         warning(paste("The following annotate ids are not matched with rownames of pca summary data :", paste(sQuote(diff_annotate_id), collapse = ", "), "\n", collapse = " ")) 
       }  
     }       
+  }
+  
+  if (identical(show_legend_title, TRUE)) {
+    legend_title = condition
+  } else {
+    legend_title = NULL
   }    
   
   if (!identical(group_shape, NULL)) {
@@ -99,9 +106,9 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
     ggtitle(title_label) +
     labs(x = paste("PC",pc_x, '(', round(PCAObj_Summary$importance[2,pc_x]*100, 2), '%)'),
          y = paste("PC",pc_y, '(', round(PCAObj_Summary$importance[2,pc_y]*100, 2), '%)'),
-         colour = condition,
-         shape = condition,
-         fill = condition) + # x and y axis labels
+         colour = legend_title,
+         shape = legend_title,
+         fill = legend_title) + # x and y axis labels
     theme(legend.position = pca_cohort_text_align, legend.direction = "vertical", # legend positioned at the bottom, horizantal direction,
           axis.line = element_line(size = 1, colour = "black"), # axis line of size 1 inch in black color
           panel.grid.major = element_blank(), # major grids included
@@ -168,35 +175,19 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
   }                                            
   
   if (interactive == TRUE){
-    p <- p + theme(legend.title = element_blank())
     p <- plotly::ggplotly(p, tooltip = "text") %>% layout(hovermode = TRUE) %>%
-      add_annotations(text=condition, xref="paper", yref="paper",
-                      x=1.03, xanchor="left",
-                      y=0.97, yanchor="bottom",
-                      font = list(size = (23.91034/18)*pca_cohort_title_size),
-                      legendtitle=TRUE, showarrow=FALSE ) %>% plotly::config(displaylogo = FALSE,
-                                                                             modeBarButtons = list(list("zoomIn2d"), 
-                                                                                                   list("zoomOut2d"), 
-                                                                                                   list('toImage')), 
-                                                                             mathjax = 'cdn')
-    
-    cohorts_vec <- unique(metadata[,condition])
-    chr_size_ratio <- max(sapply(cohorts_vec, function(x) nchar(x) / nchar(condition)))
-    for (cohort_index in 1:length(p$x$data)){
-      name <- p$x$data[[cohort_index]]$name
-      cohort <- name  
-      if (!identical(name, "1")){
-        re <- "\\(([^()]+)\\)"
-        str_extracted <- stringr::str_extract_all(name, re)[[1]]
-        if (length(str_extracted) > 0){
-          cohort <- strsplit(gsub(re, "\\1", str_extracted), ",")[[1]][1] 
-        }  
-      } 
-      if (chr_size_ratio < 1){
-        cohort <- paste0(cohort, strrep(" ", (nchar(condition) + round(1/chr_size_ratio, 0)/1.5)))
-      } 
-      p$x$data[[cohort_index]]$name <- cohort 
-    }
+      plotly::config(displaylogo = FALSE,
+                     modeBarButtons = list(list("zoom2d"),
+                                           list("select2d"),
+                                           list("lasso2d"),
+                                           list("autoScale2d"),
+                                           list("resetScale2d"),
+                                           list("pan2d"),
+                                           list("zoomIn2d"), 
+                                           list("zoomOut2d"),
+                                           list("hoverClosestCartesian"),
+                                           list('toImage')),
+                     mathjax = 'cdn')
   }
   
   if (!identical(annotate_id, NULL)) {
