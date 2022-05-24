@@ -11,7 +11,8 @@ diff_exp_limma(
   cohort_a = NULL,
   cohort_b = NULL,
   pval_adjust_method = "BH",
-  log_flag = TRUE
+  log_flag = TRUE,
+  expr_stat = FALSE
 )
 }
 \arguments{
@@ -28,9 +29,11 @@ diff_exp_limma(
 \item{pval_adjust_method}{Provide pval adjust method ("holm", "hochberg", "hommel", "bonferroni", "BH", "BY", "fdr", "none"). Also check p.adjust from stats.}
 
 \item{log_flag}{Check if data is log transformed (TRUE) or not (FALSE). If not (FALSE) then do internally log2 transformation.}
+
+\item{expr_stat}{Calculate MaxExpr and MinExpr (TRUE) where MaxExpr/MinExpr is calculated as the maximum/minimum of average of samples within cohorts.}
 }
 \value{
-dataframe, If logFC >0, it implies abundance is greater in cohort_b, MaxExpr is calculated as the maximum of average of samples within cohorts.
+dataframe, If logFC >0, it implies abundance is greater in cohort_b.
 }
 \description{
 calls limma differential expression algorithms

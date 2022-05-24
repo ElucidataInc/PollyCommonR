@@ -34,8 +34,8 @@
 #' @export
 plot_anova <- function(anova_data = NULL, p_val_cutoff = 0.05, interaction_type = NULL,
                        annotate_id = NULL, row_desc = NULL, annotate_col = NULL, 
-                       text_hover_col = NULL, category_col = NULL, marker_size_by_expr = TRUE, 
-                       marker_expr_col = "MaxExpr", marker_size_range = c(5, 25), marker_size = 8,  
+                       text_hover_col = NULL, category_col = NULL, marker_size_by_expr = FALSE, 
+                       marker_expr_col = NULL, marker_size_range = c(5, 25), marker_size = 8,  
                        marker_opacity = 0.5, x_label = NULL, y_label = NULL, title_label = NULL, 
                        plot_id = NULL, plotly_highlight = FALSE, highlight_on = "plotly_click",
                        highlight_off = "plotly_doubleclick", highlight_persistent = FALSE,
@@ -263,10 +263,10 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = 0.05, interaction_type 
     }
   }
   
-  ave_expr <- as.numeric(anova_data[, marker_expr_col])
-  ave_expr <- ave_expr[is.finite(ave_expr)]
-  ave_expr_range <- c(min(ave_expr), max(ave_expr))
   if (identical(marker_size_by_expr, TRUE)){
+    ave_expr <- as.numeric(anova_data[, marker_expr_col])
+    ave_expr <- ave_expr[is.finite(ave_expr)]
+    ave_expr_range <- c(min(ave_expr), max(ave_expr))      
     slope_m <- (marker_size_range[2] - marker_size_range[1]) / (ave_expr_range[2] - ave_expr_range[1])
     eq_constant <- marker_size_range[2] - (slope_m * ave_expr_range[2])                                           
     anova_data$marker_size <- sapply(anova_data[, marker_expr_col], function(x) {
@@ -277,7 +277,7 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = 0.05, interaction_type 
   }
   else { anova_data$marker_size <- marker_size}                                                                                     
   
-  if (marker_expr_col %in% colnames(anova_data)){ 
+  if (identical(marker_size_by_expr, TRUE) && (marker_expr_col %in% colnames(anova_data))){ 
     anova_data$text_hover<-  paste0(paste0("id: ", anova_data$id),
                                     "<br>", paste0("-log10(P.Value)): ", - log10(anova_data[["P.Value"]])),
                                     "<br>", paste0("P.Value: ", anova_data[["P.Value"]]),
@@ -393,8 +393,9 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = 0.05, interaction_type 
   } else {
     if (identical(annotate_col, NULL)){ annotate_col <- "id" }
     if (identical(x_label, NULL)){ x_label <- xaxis_lab_gg }
-    if (identical(y_label, NULL)){ y_label <- yaxis_lab_gg }      
-    anova_data[!is.finite(anova_data[, marker_expr_col]), marker_expr_col] <- ave_expr_range[1]
+    if (identical(y_label, NULL)){ y_label <- yaxis_lab_gg }
+    
+    if (identical(marker_size_by_expr, TRUE)){ anova_data[!is.finite(anova_data[, marker_expr_col]), marker_expr_col] <- ave_expr_range[1]}
     p <- ggplot(anova_data, aes_string(x = x_col, y = y_col, color = "threshold", fill = "threshold", shape = category_col), text = id)
     if (identical(marker_size_by_expr, TRUE)){
       p <- p + geom_point(aes_string(size = marker_expr_col), alpha = marker_opacity) + 

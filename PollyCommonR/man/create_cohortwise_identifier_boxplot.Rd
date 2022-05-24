@@ -10,10 +10,13 @@ create_cohortwise_identifier_boxplot(
   id_order = NULL,
   cohorts_order = NULL,
   cohort_col = "Cohort",
-  interactive = FALSE,
-  x_label = "",
-  y_label = "",
-  title_label = ""
+  x_label = NULL,
+  y_label = NULL,
+  title_label = NULL,
+  x_text_wrap_n = NULL,
+  x_text_angle = NULL,
+  y_text_angle = NULL,
+  interactive = FALSE
 )
 }
 \arguments{
@@ -27,13 +30,19 @@ create_cohortwise_identifier_boxplot(
 
 \item{cohort_col}{A cohort column present in metadata}
 
-\item{interactive}{Make plot interactive using plotly}
-
 \item{x_label}{Label x-axis}
 
 \item{y_label}{Label y-axis}
 
 \item{title_label}{Title of the plot}
+
+\item{x_text_wrap_n}{A number to wrap x axis text to next line after every nth position}
+
+\item{x_text_angle}{The x-axis text angle}
+
+\item{y_text_angle}{The y-axis text angle}
+
+\item{interactive}{Make plot interactive using plotly}
 }
 \value{
 ggplot object or plotly object
@@ -42,7 +51,5 @@ ggplot object or plotly object
 Makes cohortwise boxplot for selected identifiers
 }
 \examples{
-create_cohortwise_identifier_barplot(sample_raw_mat = NULL, metadata_df = NULL, id_order = NULL, 
-                          cohorts_order = NULL, cohort_col='Cohort', 
-                          x_label = "", y_label = "", title_label = "")
+create_cohortwise_identifier_boxplot(sample_raw_mat, metadata_df, id_order, cohorts_order, cohort_col)
 }

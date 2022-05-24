@@ -11,9 +11,13 @@ plot_pca(
   pc_x = 1,
   pc_y = 2,
   show_ellipse = FALSE,
+  annotate_id = NULL,
+  annotate_text_size = 3,
   interactive = TRUE,
   color_palette = NULL,
+  group_shape = NULL,
   title_label = "",
+  show_legend_title = TRUE,
   marker_size = 6,
   title_label_size = 18,
   axis_title_size = 14,
@@ -38,11 +42,19 @@ plot_pca(
 
 \item{show_ellipse}{show ellipse on plot (default is FALSE)}
 
+\item{annotate_id}{A vector of ids (rownames of pca summary data) to be annotated}
+
+\item{annotate_text_size}{The size of annotated text}
+
 \item{interactive}{make plot interactive (default is TRUE)}
 
 \item{color_palette}{The named vector with colors as values and cohorts as keys}
 
+\item{group_shape}{The named vector with shapes as values (numeric values between [0, 25]) and cohorts as keys}
+
 \item{title_label}{Title of the plot}
+
+\item{show_legend_title}{Show legend title (TRUE/FALSE)}
 
 \item{marker_size}{The size of marker point}
 
@@ -63,10 +75,10 @@ plot_pca(
 \item{pca_plot_axis_text_size}{set axis text size}
 }
 \value{
-plotly object
+plotly or ggplot object
 }
 \description{
-makes a plotly PCA plot
+makes a PCA plot in both interactive (plotly) and non interactive (ggplot) modes
 }
 \examples{
 plot_pca(PCAObj_Summary, metadata, 'Cohort', pc_x = 1, pc_y = 2, interactive = TRUE, pca_cohort_text_format= 'bold', pca_cohort_text_align= "right",
