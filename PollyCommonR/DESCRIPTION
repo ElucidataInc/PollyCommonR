@@ -20,6 +20,7 @@ Imports:
     ggrepel(>= 0.8.1),
     SuperExactTest(>= 1.0.7),
     UpSetR(>= 1.4.0),
+    ropls(>=1.18.0)	
     pcaMethods(>= 1.78.0),
     impute(>= 1.60.0),
     reshape2(>= 1.4.3)
