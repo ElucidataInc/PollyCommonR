@@ -88,7 +88,7 @@ plot_opls_score <- function(scores_data, metadata=NULL, condition = NULL,
   if(interactive ==TRUE){
     p <- p + theme(legend.title = element_blank())
     p <- plotly::ggplotly(p, tooltip = "text") %>% layout(hovermode = TRUE) %>%
-      add_annotations(text=condition, xref="paper", yref="paper",
+      add_annotations(text="", xref="paper", yref="paper",
                       x=1.03, xanchor="left",
                       y=0.97, yanchor="bottom",
                       font = list(size = (23.91034/18)*opls_cohort_title_size),
