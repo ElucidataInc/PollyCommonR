@@ -62,12 +62,10 @@ impute_missing_data <- function(sample_raw_mat = NULL, method = NULL){
     }))  
   }
   else if(identical(method, "feature_lowest")){
-    lowset_num_in_df <- function(x) if(all(x==0)) 0 else as.numeric(min(x[x>0]))
-    lower_nums = as.numeric(apply(sample_raw_mat, 1, lowset_num_in_df))
-    sample_raw_mat <- as.data.frame(sample_raw_mat)
-    lower_nums_without_zero = as.numeric(lower_nums[lower_nums>0])
-    lowest_num <- as.numeric(min(lower_nums_without_zero, na.rm = T)/100000)
-    sample_raw_mat[sample_raw_mat == 0 | is.na(sample_raw_mat)] <-  lowest_num
+    sample_raw_mat_unlisted <- unlist(sample_raw_mat)
+    sample_raw_mat_unlisted <- sample_raw_mat_unlisted[sample_raw_mat_unlisted[is.finite(sample_raw_mat_unlisted)]>0]
+    min_val <- min(sample_raw_mat_unlisted, na.rm = TRUE)/10^5
+    sample_raw_mat[sample_raw_mat == 0 | is.na(sample_raw_mat)] <- min_val
     return(sample_raw_mat)
   }
   else if(identical(method, "feature_min")){
