@@ -51,7 +51,7 @@ create_opls = function(sample_data,metadata,condition,
   message("Making the opls object...")
   crossval = min(nrow(sample_data),7)
   
-  opls_obj = opls(sample_data,metadata[,condition], scaleC = scalC, predI = 1, orthoI = 1, fig.pdfC = FALSE)
+  opls_obj = opls(sample_data,metadata[,condition], scaleC = scalC, predI = 1, orthoI = 1, fig.pdfC = FALSE, crossvalI = crossval)
   
   message("opls object returned.")
   return(opls_obj)
