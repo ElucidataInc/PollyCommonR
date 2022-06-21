@@ -2,10 +2,10 @@
 
 export(calculate_cohortwise_cov)
 export(compute_anova)
-export(compute_opls_distance)
-export(compute_opls_s_data)
 export(compute_differential_expression)
 export(compute_fold_change)
+export(compute_opls_distance)
+export(compute_opls_s_data)
 export(compute_pca)
 export(compute_t_test)
 export(create_boxplot_on_matrix)

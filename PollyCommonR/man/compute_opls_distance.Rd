@@ -14,8 +14,8 @@ compute_opls_distance(opl, significance = TRUE, level = 0.05)
 \item{level}{A float indicating the significance level to be used in the two-sided chi-square test. Ignored is signiicance=FALSE.}
 }
 \value{
-If significance=TRUE, A list of 1) dataframe containg scores distance data,
-2) a vector containing distances corresponding to significance level, and,
+If significance=TRUE, A list of 1) dataframe containg scores distance data, 
+2) a vector containing distances corresponding to significance level, and, 
 3) A vector of indices of significant points in the dataframe.
 Otherwise only (1) is returned.
 }
