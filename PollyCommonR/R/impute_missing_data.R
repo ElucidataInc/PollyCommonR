@@ -37,7 +37,7 @@ impute_missing_data <- function(sample_raw_mat = NULL, method = NULL){
     return(NULL) 
   }
   
-  all_methods <- c("exclude", "replace_by_zero", "feature_lod", "feature_min", "feature_mean", 
+  all_methods <- c("exclude", "replace_by_zero", "feature_lod", "feature_lowest" ,"feature_min", "feature_mean", 
                    "feature_median", "feature_knn", "sample_knn", "bpca", "ppca", "svdImpute")  
   if (!(method %in% all_methods)){
     warning(paste0("Please select valid method from : ", paste(sQuote(all_methods), collapse = ", ")))
@@ -60,6 +60,13 @@ impute_missing_data <- function(sample_raw_mat = NULL, method = NULL){
       x[x == 0 | is.na(x)] <- lod
       return(x)
     }))  
+  }
+  else if(identical(method, "feature_lowest")){
+    sample_raw_mat_unlisted <- unlist(sample_raw_mat)
+    sample_raw_mat_unlisted <- sample_raw_mat_unlisted[sample_raw_mat_unlisted[is.finite(sample_raw_mat_unlisted)]>0]
+    min_val <- min(sample_raw_mat_unlisted, na.rm = TRUE)/10^5
+    sample_raw_mat[sample_raw_mat == 0 | is.na(sample_raw_mat)] <- min_val
+    return(sample_raw_mat)
   }
   else if(identical(method, "feature_min")){
     sample_raw_mat <- t(apply(sample_raw_mat, 1, function(x){
