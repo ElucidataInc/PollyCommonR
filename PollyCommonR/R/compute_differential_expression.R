@@ -20,7 +20,7 @@
 #' @param add_expr_data A logical variable indicating whether to add expression data to the differential expression results (TRUE)
 #' @param expr_with_raw If expr_with_raw = TRUE then it will use raw data instead of norm data to add in the differential expression results and also calculate expression statistics
 #' @param raw_data The dataframe/matrix with samples in columns and features in rows having same dimensions as norm data.
-#' @return The differential expression results with state1 vs state2 (state1/state2) or cohort-B vs cohort-A (cohort-B/cohort-A) comparison, If logFC >0, it implies abundance is greater in cohort-B (state1).
+#' @return The differential expression results with state2 vs state1 (state2/state1) or cohort-B vs cohort-A (cohort-B/cohort-A) comparison, If logFC >0, it implies abundance is greater in cohort-B (state2).
 #' @examples
 #' compute_differential_expression(norm_data, metadata, 'Cohort', 'Cohort1', 'Cohort2')
 #' @import limma dplyr reshape2
@@ -183,7 +183,7 @@ compute_differential_expression <- function(norm_data = NULL, metadata = NULL, c
       warning("Please select valid algo (ttest or limma)")  
     }
     
-    comparison_df <- data.frame(id = diff_exp_data$id, state1 = paste(cohort_b, collapse = " - "), state2 = paste(cohort_a, collapse = " - "), stringsAsFactors = FALSE, check.names = FALSE)  
+    comparison_df <- data.frame(id = diff_exp_data$id, state1 = paste(cohort_a, collapse = " - "), state2 = paste(cohort_b, collapse = " - "), stringsAsFactors = FALSE, check.names = FALSE)  
     diff_exp_data <-  base::merge(comparison_df, diff_exp_data, by = "id", sort = FALSE)  
     row.names(diff_exp_data) <- diff_exp_data$id
   },
@@ -233,6 +233,14 @@ compute_differential_expression <- function(norm_data = NULL, metadata = NULL, c
     error = function(cond) {message(paste("\nCannot merge differential expression and expression data dataframes, caused an error: ", cond))}    
     )   
   }
+
+  message("Calculating z-score based on logFC..")
+
+  tryCatch({
+    diff_exp_data$z_score <- (diff_exp_data$logFC - mean(diff_exp_data$logFC)) / sd(diff_exp_data$logFC) 
+  }, error = function(e) {
+    showNotification(paste("Error occured while calculationg z-score ", e, sep=": "))
+  })
   
   message("Compute Differential Expression Completed...")
   

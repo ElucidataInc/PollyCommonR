@@ -95,8 +95,8 @@ make_intomix_input <- function(norm_data = NULL, metadata = NULL,
   for (each_comb in 1:nrow(cohorts_comb_df)){
     state1 <- as.character(cohorts_comb_df[each_comb, ]$state1)
     state2 <- as.character(cohorts_comb_df[each_comb, ]$state2)                      
-    cohort_a <- stringr::str_trim(stringr::str_split(state2, pattern = ";")[[1]])
-    cohort_b <- stringr::str_trim(stringr::str_split(state1, pattern = ";")[[1]]) 
+    cohort_a <- stringr::str_trim(stringr::str_split(state1, pattern = ";")[[1]])
+    cohort_b <- stringr::str_trim(stringr::str_split(state2, pattern = ";")[[1]]) 
     if (any(cohort_a %in% cohort_b)){
       next
     }

@@ -59,7 +59,7 @@ It is only applicable with ttest algorithm.}
 \item{raw_data}{The dataframe/matrix with samples in columns and features in rows having same dimensions as norm data.}
 }
 \value{
-The differential expression results with state1 vs state2 (state1/state2) or cohort-B vs cohort-A (cohort-B/cohort-A) comparison, If logFC >0, it implies abundance is greater in cohort-B (state1).
+The differential expression results with state2 vs state1 (state2/state1) or cohort-B vs cohort-A (cohort-B/cohort-A) comparison, If logFC >0, it implies abundance is greater in cohort-B (state2).
 }
 \description{
 It calculates the differential expression for cohort-B vs cohort-A or cohort-B/cohort-A comparison
