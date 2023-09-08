@@ -408,6 +408,7 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = 1, p_val_cut
                                            list("hoverClosestCartesian"),
                                            list('toImage')),
                      mathjax = 'cdn')
+    p <- update_plotly_config(p)                 
     
     if (identical(plotly_highlight, TRUE)){
       p <- plotly::highlight(p, on = highlight_on, off = highlight_off, persistent = highlight_persistent,

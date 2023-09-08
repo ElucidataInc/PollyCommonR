@@ -152,6 +152,7 @@ create_cohortwise_identifier_boxplot <- function (sample_raw_mat = NULL, metadat
                                            list("hoverClosestCartesian"),
                                            list('toImage')),
                      mathjax = "cdn")
+    p <- update_plotly_config(p)
   }
   else{
     if (identical(x_text_angle, NULL)){

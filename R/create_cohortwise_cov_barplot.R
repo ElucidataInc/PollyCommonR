@@ -92,6 +92,7 @@ create_cohortwise_cov_barplot <- function(calculated_cov_df, id_order = NULL,
                                                list("zoomOut2d"), 
                                                list('toImage')),
                          mathjax = 'cdn')
+    p <- update_plotly_config(p)                     
   } else {
     p<-ggplot(calculated_cov_df_filtered, aes(x=cohort, y=cv, fill=!!(sym(id_col)))) +
       geom_bar(stat="identity", position = "dodge", show.legend = show_legend)+

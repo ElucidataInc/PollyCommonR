@@ -86,6 +86,7 @@ plot_pca3d <- function(PCAObj_Summary = NULL, metadata = NULL, condition = NULL,
                                          list("zoomOut2d"),
                                          list('toImage')), 
                    mathjax = 'cdn')
+  p <- update_plotly_config(p)                 
   
   message("Plot PCA3D Completed...")
   

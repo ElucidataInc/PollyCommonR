@@ -146,6 +146,7 @@ create_cohortwise_identifier_barplot <- function (sample_raw_mat = NULL, metadat
                       showlegend = TRUE) %>%
       plotly::config(displaylogo = FALSE, modeBarButtons = list(list("zoomIn2d"), list("zoomOut2d"), 
                                                                 list("toImage")), mathjax = "cdn")
+    p <- update_plotly_config(p)
   }
   else{
     if (identical(x_text_angle, NULL)){

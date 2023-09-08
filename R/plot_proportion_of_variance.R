@@ -39,6 +39,7 @@ plot_proportion_of_variance <- function(PCAObj_Summary){
                                          list("zoomOut2d"), 
                                          list('toImage')), 
                    mathjax = 'cdn')
+  p <- update_plotly_config(p)
   
   message("Make Proportion of Variance Plot Started...")
   

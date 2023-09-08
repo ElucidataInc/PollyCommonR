@@ -65,6 +65,11 @@ plot_opls_summary <- function(opl,
           panel.border = element_blank(), panel.background = element_blank(), # no borders and background color
           legend.title = element_text(colour="black", size= opls_legend_title_size, face= opls_cohort_text_format),
           axis.ticks.length = unit(0.25, "cm"))
+  p <- plotly::ggplotly(p) %>%
+    plotly::config(displaylogo = FALSE, 
+                     modeBarButtons = list(list("zoomIn2d"), list("zoomOut2d"), 
+                                           list("toImage")), mathjax = "cdn")
+  p <- update_plotly_config(p)
   
   return(p)
   
