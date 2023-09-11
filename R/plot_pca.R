@@ -188,6 +188,7 @@ plot_pca <- function(PCAObj_Summary, metadata, condition, pc_x = 1, pc_y = 2,
                                            list("hoverClosestCartesian"),
                                            list('toImage')),
                      mathjax = 'cdn')
+    p <- update_plotly_config(p)
   }
   
   if (!identical(annotate_id, NULL)) {

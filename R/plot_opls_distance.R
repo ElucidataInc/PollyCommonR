@@ -110,6 +110,7 @@ plot_opls_distance = function(dist_data, metadata=NULL, condition = NULL,
                                                                                                  list("zoomOut2d"), 
                                                                                                  list('toImage')), 
                                                                            mathjax = 'cdn')
+  p <- update_plotly_config(p)
   }
   
   return (p)
