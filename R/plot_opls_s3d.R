@@ -64,6 +64,7 @@ plot_opls_s3d =  function(s_data=NULL, x_label = "Loadings", y_label = "Correlat
                                                        list("hoverClosestCartesian"),
                                                        list('toImage')),
                                  mathjax = 'cdn')
+  plot <- update_plotly_config(plot)
   
   return(plot)
 }

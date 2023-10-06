@@ -383,6 +383,7 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = 0.05, interaction_type 
                                            list("hoverClosestCartesian"),
                                            list('toImage')), 
                      mathjax = 'cdn')
+    p <- update_plotly_config(p)
     
     if (identical(plotly_highlight, TRUE)){
       p <- plotly::highlight(p, on = highlight_on, off = highlight_off, persistent = highlight_persistent,
