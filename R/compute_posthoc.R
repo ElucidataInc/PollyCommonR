@@ -191,7 +191,7 @@ compute_posthoc <- function(norm_data = NULL, metadata = NULL, cohort_col = "Coh
   
   tryCatch({
     anova_cohort_cols <- as.vector(anova_cohort_cols)
-    anova_cohort_cols <- c(anova_cohort_cols, generate_column_combinations(anova_cohort_cols))
+    anova_cohort_cols <- unique(c(anova_cohort_cols, generate_column_combinations(anova_cohort_cols)))
   }, error = function(e) {
     message("An error occurred: ", conditionMessage(e))
     # Additional error handling code
