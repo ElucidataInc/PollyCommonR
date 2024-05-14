@@ -8,7 +8,8 @@ compute_posthoc(
   norm_data = NULL,
   metadata = NULL,
   cohort_col = "Cohort",
-  post_hoc_test = "bonferroni"
+  post_hoc_test = "bonferroni",
+  significant_ids = NULL
 )
 }
 \arguments{
