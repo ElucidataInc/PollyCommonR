@@ -14,7 +14,7 @@
 #' compute_posthoc(norm_data, metadata, cohort_col, post_hoc_test = "bonferroni")
 #' @import dplyr stats stringr tidyr
 #' @export
-compute_posthoc <- function(norm_data = NULL, metadata = NULL, cohort_col = "Cohort", post_hoc_test = "bonferroni"){
+compute_posthoc <- function(norm_data = NULL, metadata = NULL, cohort_col = "Cohort", post_hoc_test = "bonferroni", significant_ids = NULL){
   message("Compute Post hoc Started...")
   require(dplyr)
   require(stats)
@@ -99,7 +99,7 @@ compute_posthoc <- function(norm_data = NULL, metadata = NULL, cohort_col = "Coh
   })
   message("Data conversion to long format completed.")
   
-  subset_df <- long_intensity_data
+  subset_df <- long_intensity_data[long_intensity_data$id %in% significant_ids, ]
   # subset_df <- subset_df[c("id", anova_cohort_cols, "value", "variable")]
   
   perform_pairwise_t_tests <- function(input_df, anova_cohort_cols, p_adjust_method = "bonferroni") {
@@ -176,7 +176,7 @@ compute_posthoc <- function(norm_data = NULL, metadata = NULL, cohort_col = "Coh
       return(cols)
     } else if (length(cols) == 2) {
       combination <- paste(cols[1], cols[2], sep = ":")
-      if (combination %in% colnames(long_intensity_data)) {
+      if (combination %in% colnames(subset_df)) {
         message("Pairwise column combination '", combination, "' exists in the data.")
         return(combination)
       } else {
@@ -203,13 +203,13 @@ compute_posthoc <- function(norm_data = NULL, metadata = NULL, cohort_col = "Coh
   pairwise_results <- tryCatch({
     if(post_hoc_test == 'bonferroni'){
       message("Performing Bonferroni adjustment...")
-      perform_pairwise_t_tests(long_intensity_data, anova_cohort_cols, p_adjust_method = "bonferroni")
+      perform_pairwise_t_tests(subset_df, anova_cohort_cols, p_adjust_method = "bonferroni")
     } else if(post_hoc_test == 'fdr'){
       message("Performing FDR adjustment...")
-      perform_pairwise_t_tests(long_intensity_data, anova_cohort_cols, p_adjust_method = "fdr")
+      perform_pairwise_t_tests(subset_df, anova_cohort_cols, p_adjust_method = "fdr")
     } else if(post_hoc_test == 'holm'){
       message("Performing Holm adjustment...")
-      perform_pairwise_t_tests(long_intensity_data, anova_cohort_cols, p_adjust_method = "holm")
+      perform_pairwise_t_tests(subset_df, anova_cohort_cols, p_adjust_method = "holm")
     }
   }, error = function(e) {
     message("Error occurred during pairwise t-tests:", e)
@@ -301,5 +301,5 @@ compute_posthoc <- function(norm_data = NULL, metadata = NULL, cohort_col = "Coh
   
   message("Compute Post hoc Completed...")
 
-  return(list(posthoc_data = wide_df, posthoc_data_long_df = pairwise_results, posthoc_data_heatmap = wide_df_custom))
+  return(list(posthoc_data = wide_df, posthoc_data_long_df = pairwise_results, posthoc_data_heatmap = wide_df_custom, intensity_data = subset_df))
 }
