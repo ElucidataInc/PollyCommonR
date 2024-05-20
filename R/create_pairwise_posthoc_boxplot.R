@@ -10,14 +10,24 @@
 #' @import dplyr
 #' @import plotly
 #' @export
-create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df, intensity_data, selected_metabolite, selected_comparison) {
-  if (!is.null(selected_metabolite) && !is.null(selected_comparison)) {
+create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensity_data = NULL, selected_metabolite = NULL, selected_comparison = NULL) {
+  if (selected_metabolite != "" && selected_comparison != "" && !is.null(posthoc_data_long_df) && !is.null(intensity_data)) {
     message("Plot Posthoc Started...")
     require(dplyr)
     require(plotly)
     
     # Filter the posthoc_result dataframe based on the selected metabolite and interaction
     filtered_posthoc <- dplyr::filter(posthoc_data_long_df, Comparison == selected_comparison & ID == selected_metabolite)
+
+    if (nrow(filtered_posthoc) == 0) {
+      message("No posthoc data found for the selected metabolite and interaction.")
+      return(NULL)
+    }
+
+    if (nrow(intensity_data) == 0) {
+      message("No intensity data found for the selected metabolite and interaction.")
+      return(NULL)
+    }
     
     filtered_posthoc <- filtered_posthoc %>%
       dplyr::mutate(group_1 = sub(":.*", "", Comparison),
