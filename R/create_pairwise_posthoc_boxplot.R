@@ -11,7 +11,7 @@
 #' @import plotly
 #' @import ggpubr
 #' @export
-create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensity_data = NULL, selected_metabolite = NULL, selected_interaction = NULL) {
+create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensity_data = NULL, selected_metabolite = NULL, selected_interaction = NULL, filter_pvalues = FALSE) {
   if (selected_metabolite != "" && selected_interaction != "" && !is.null(posthoc_data_long_df) && !is.null(intensity_data)) {
     message("Plot Posthoc Started...")
     require(dplyr)
@@ -42,13 +42,32 @@ create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensi
     column_to_keep <- c("id", "value", selected_interaction)
     filtered_intensity_data <- filtered_intensity_data[, column_to_keep]
 
-    # Adjust interaction column to factor
-    filtered_intensity_data[[selected_interaction]] <- factor(filtered_intensity_data[[selected_interaction]])
+    # Reshape the data to long format
+    long_intensity_data <- tidyr::pivot_longer(filtered_intensity_data, 
+                                              cols = all_of(selected_interaction), 
+                                              names_to = "Interaction", 
+                                              values_to = "Groups")
+
+    # Create a custom sorting order based on selected_interactions
+    interaction_order <- factor(selected_interaction, levels = unique(selected_interaction))
+
+    # Reorder the levels of the Interaction column
+    long_intensity_data$Interaction <- factor(long_intensity_data$Interaction, levels = interaction_order)
+
+    # Select relevant columns and arrange the data
+    filtered_intensity_data <- long_intensity_data %>% 
+      dplyr::select(id, value, Interaction, Groups) %>%
+      arrange(Interaction)
+
+    # Filter p-values if the checkbox is checked
+    if (filter_pvalues) {
+      filtered_posthoc <- filtered_posthoc %>% dplyr::filter(adj.p < 0.05)
+    }
 
     # Format the p-values to 5 decimal places and color them
     filtered_posthoc <- filtered_posthoc %>%
       mutate(
-        label = paste0("adj.p = ", formatC(adj.p, format = "f", digits = 5)),
+        label = paste0("adj.p = ", adj.p),
         color = ifelse(adj.p < 0.05, "red", "black")  # Set color based on adj.p value
       )
 
@@ -56,10 +75,10 @@ create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensi
     max_value <- max(filtered_intensity_data$value, na.rm = TRUE) * 1.05
 
     # Create the box plot and add p-values
-    p <- ggboxplot(filtered_intensity_data, x = selected_interaction, y = "value", fill = selected_interaction) +
+    p <- ggboxplot(filtered_intensity_data, x = "Groups", y = "value", fill = "Groups") +
       stat_pvalue_manual(
         filtered_posthoc,
-        y.position = max_value, step.increase = 0.2,
+        y.position = max_value, step.increase = 0.1,
         label = "label",
         color = "color"
       ) +
