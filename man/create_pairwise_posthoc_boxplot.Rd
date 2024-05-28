@@ -8,7 +8,8 @@ create_pairwise_posthoc_boxplot(
   posthoc_data_long_df = NULL,
   intensity_data = NULL,
   selected_metabolite = NULL,
-  selected_interaction = NULL
+  selected_interaction = NULL,
+  filter_pvalues = FALSE
 )
 }
 \arguments{
