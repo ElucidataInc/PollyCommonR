@@ -19,7 +19,7 @@ create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensi
     require(ggpubr)
 
     # Filter the posthoc_result dataframe based on the selected metabolite and interaction
-    filtered_posthoc <- dplyr::filter(posthoc_data_long_df, Interaction == selected_interaction & ID == selected_metabolite)
+    filtered_posthoc <- dplyr::filter(posthoc_data_long_df, ID == selected_metabolite & Interaction %in% selected_interaction)
 
     if (nrow(filtered_posthoc) == 0) {
       message("No posthoc data found for the selected metabolite and interaction.")
@@ -59,7 +59,7 @@ create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensi
       dplyr::select(id, value, Interaction, Groups) %>%
       arrange(Interaction)
 
-    # Filter p-values if the checkbox is checked
+    # Filter out p-values >= 0.05 if filter_pvalues is TRUE
     if (filter_pvalues) {
       filtered_posthoc <- filtered_posthoc %>% dplyr::filter(adj.p < 0.05)
     }
@@ -78,7 +78,7 @@ create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensi
     p <- ggboxplot(filtered_intensity_data, x = "Groups", y = "value", fill = "Groups") +
       stat_pvalue_manual(
         filtered_posthoc,
-        y.position = max_value, step.increase = 0.1,
+        y.position = max_value, step.increase = 0.2,
         label = "label",
         color = "color"
       ) +
