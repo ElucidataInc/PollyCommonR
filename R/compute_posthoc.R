@@ -66,7 +66,35 @@ compute_posthoc <- function(norm_data = NULL, metadata = NULL, cohort_col = "Coh
     warning("The number of cohorts for common samples should be greater than or equal to 2")
     return(NULL)
   }
-  
+
+  # Function to append column names if values are identical
+  append_column_names_if_identical <- function(df, columns) {
+    interaction_col <- paste(columns[1], columns[2], sep = ":")
+    
+    for (i in 1:nrow(df)) {
+      col1_val <- df[i, columns[1]]
+      col2_val <- df[i, columns[2]]
+      interaction_val <- df[i, interaction_col]
+      
+      if (col1_val == col2_val) {
+        df[i, columns[1]] <- paste0(col1_val, "_", columns[1])
+        df[i, columns[2]] <- paste0(col2_val, "_", columns[2])
+        df[i, interaction_col] <- paste(df[i, columns[1]], df[i, columns[2]], sep = " - ")
+      }
+    }
+    return(df)
+  }
+
+  # Create the combination column name and add it to columns_to_check
+  columns_to_check <- cohort_col
+  if (length(columns_to_check) == 2) {
+    combination <- paste(columns_to_check[1], columns_to_check[2], sep = ":")
+    columns_to_check <- c(columns_to_check, combination)
+
+    # Apply the function to the metadata
+    metadata <- append_column_names_if_identical(metadata, columns_to_check)
+  }
+
   anova_cohort_cols <- cohort_col
   names(anova_cohort_cols) <- make.names(anova_cohort_cols)
   names(metadata)[match(unname(anova_cohort_cols), names(metadata))] <- names(anova_cohort_cols)

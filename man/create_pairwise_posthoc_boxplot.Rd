@@ -8,7 +8,8 @@ create_pairwise_posthoc_boxplot(
   posthoc_data_long_df = NULL,
   intensity_data = NULL,
   selected_metabolite = NULL,
-  selected_comparison = NULL
+  selected_interaction = NULL,
+  filter_pvalues = FALSE
 )
 }
 \arguments{
@@ -18,11 +19,11 @@ create_pairwise_posthoc_boxplot(
 
 \item{selected_metabolite}{The selected metabolite for analysis.}
 
-\item{selected_comparison}{The selected comparison for analysis.}
+\item{selected_interaction}{The selected interaction for analysis.}
 }
 \value{
 A plotly object representing the pairwise post-hoc boxplot.
 }
 \description{
-Creates a pairwise post-hoc boxplot for selected metabolite and comparison.
+Creates a pairwise post-hoc boxplot for selected metabolite and interaction.
 }
