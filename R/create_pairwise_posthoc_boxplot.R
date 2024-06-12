@@ -57,7 +57,7 @@ create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensi
     # Select relevant columns and arrange the data
     filtered_intensity_data <- long_intensity_data %>% 
       dplyr::select(id, value, Interaction, Groups) %>%
-      arrange(Interaction)
+      arrange(Interaction, Groups) # Arrange by Interaction & Groups
 
     # Filter out p-values >= 0.05 if filter_pvalues is TRUE
     if (filter_pvalues) {
