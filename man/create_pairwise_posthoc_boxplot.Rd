@@ -9,7 +9,8 @@ create_pairwise_posthoc_boxplot(
   intensity_data = NULL,
   selected_metabolite = NULL,
   selected_interaction = NULL,
-  filter_pvalues = FALSE
+  filter_pvalues = FALSE,
+  plot_axis_rotation = FALSE
 )
 }
 \arguments{
@@ -20,9 +21,13 @@ create_pairwise_posthoc_boxplot(
 \item{selected_metabolite}{The selected metabolite for analysis.}
 
 \item{selected_interaction}{The selected interaction for analysis.}
+
+\item{filter_pvalues}{Logical indicating whether to filter comparisons with adj. p-value >= 0.05.}
+
+\item{plot_axis_rotation}{Logical indicating whether to rotate axis labels and wrap text.}
 }
 \value{
-A plotly object representing the pairwise post-hoc boxplot.
+A ggplot2 object representing the pairwise post-hoc boxplot.
 }
 \description{
 Creates a pairwise post-hoc boxplot for selected metabolite and interaction.

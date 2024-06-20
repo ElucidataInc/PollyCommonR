@@ -6,17 +6,21 @@
 #' @param intensity_data A dataframe containing intensity data.
 #' @param selected_metabolite The selected metabolite for analysis.
 #' @param selected_interaction The selected interaction for analysis.
-#' @return A plotly object representing the pairwise post-hoc boxplot.
+#' @param filter_pvalues Logical indicating whether to filter comparisons with adj. p-value >= 0.05.
+#' @param plot_axis_rotation Logical indicating whether to rotate axis labels and wrap text.
+#' @return A ggplot2 object representing the pairwise post-hoc boxplot.
 #' @import dplyr
 #' @import plotly
 #' @import ggpubr
+#' @import stringr
 #' @export
-create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensity_data = NULL, selected_metabolite = NULL, selected_interaction = NULL, filter_pvalues = FALSE) {
+create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensity_data = NULL, selected_metabolite = NULL, selected_interaction = NULL, filter_pvalues = FALSE, plot_axis_rotation = FALSE) {
   if (selected_metabolite != "" && selected_interaction != "" && !is.null(posthoc_data_long_df) && !is.null(intensity_data)) {
     message("Plot Posthoc Started...")
     require(dplyr)
     require(plotly)
     require(ggpubr)
+    require(stringr)
 
     # Filter the posthoc_result dataframe based on the selected metabolite and interaction
     filtered_posthoc <- dplyr::filter(posthoc_data_long_df, ID == selected_metabolite & Interaction %in% selected_interaction)
@@ -74,6 +78,19 @@ create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensi
     # Set y-position to the maximum value present in the value column
     max_value <- max(filtered_intensity_data$value, na.rm = TRUE) * 1.05
 
+    # Adjust axis labels and rotation based on plot_axis_rotation
+    if (plot_axis_rotation) {
+      angle_value <- 45
+      hjust <- 1
+      vjust <- 1
+      labels_fun <- function(x) stringr::str_wrap(x, width = 5)
+    } else {
+      angle_value <- 0
+      hjust <- 0.5
+      vjust <- 0.5
+      labels_fun <- waiver()
+    }
+
     # Create the box plot and add p-values
     p <- ggboxplot(filtered_intensity_data, x = "Groups", y = "value", fill = "Groups") +
       stat_pvalue_manual(
@@ -86,12 +103,13 @@ create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensi
       labs(
         x = paste(selected_metabolite, "\n", selected_interaction),
         y = "Normalized Intensity") +
+      scale_x_discrete(labels = labels_fun) + # Apply wrapping function if rotation is enabled
       theme_minimal() +
       theme(
         axis.title.x = element_text(size = 16),
         axis.title.y = element_text(size = 16),
-        axis.text.x = element_text(size = 14), # Change x-axis tick label font size
-        axis.text.y = element_text(size = 14), # Change y-axis tick label font size
+        axis.text.x = element_text(size = 10, angle = angle_value, hjust = hjust, vjust = vjust),  # Rotate x-axis labels, Change x-axis tick label font size
+        axis.text.y = element_text(size = 10), # Change y-axis tick label font size
         legend.position = "none", # Remove the legend
         plot.title = element_blank() # Remove the main title
       )
