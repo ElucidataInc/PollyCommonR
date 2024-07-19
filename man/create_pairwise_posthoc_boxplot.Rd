@@ -9,6 +9,7 @@ create_pairwise_posthoc_boxplot(
   intensity_data = NULL,
   selected_metabolite = NULL,
   selected_interaction = NULL,
+  selected_comparisons = NULL,
   filter_pvalues = FALSE,
   plot_axis_rotation = FALSE
 )
@@ -21,6 +22,8 @@ create_pairwise_posthoc_boxplot(
 \item{selected_metabolite}{The selected metabolite for analysis.}
 
 \item{selected_interaction}{The selected interaction for analysis.}
+
+\item{selected_comparisons}{The selected comparisons for analysis.}
 
 \item{filter_pvalues}{Logical indicating whether to filter comparisons with adj. p-value >= 0.05.}
 
