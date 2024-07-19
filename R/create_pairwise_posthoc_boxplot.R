@@ -6,6 +6,7 @@
 #' @param intensity_data A dataframe containing intensity data.
 #' @param selected_metabolite The selected metabolite for analysis.
 #' @param selected_interaction The selected interaction for analysis.
+#' @param selected_comparisons The selected comparisons for analysis.
 #' @param filter_pvalues Logical indicating whether to filter comparisons with adj. p-value >= 0.05.
 #' @param plot_axis_rotation Logical indicating whether to rotate axis labels and wrap text.
 #' @return A ggplot2 object representing the pairwise post-hoc boxplot.
@@ -14,8 +15,8 @@
 #' @import ggpubr
 #' @import stringr
 #' @export
-create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensity_data = NULL, selected_metabolite = NULL, selected_interaction = NULL, filter_pvalues = FALSE, plot_axis_rotation = FALSE) {
-  if (selected_metabolite != "" && selected_interaction != "" && !is.null(posthoc_data_long_df) && !is.null(intensity_data)) {
+create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensity_data = NULL, selected_metabolite = NULL, selected_interaction = NULL, selected_comparisons = NULL, filter_pvalues = FALSE, plot_axis_rotation = FALSE) {
+  if (selected_metabolite != "" && selected_interaction != "" && selected_comparisons != "" && !is.null(posthoc_data_long_df) && !is.null(intensity_data)) {
     message("Plot Posthoc Started...")
     require(dplyr)
     require(plotly)
@@ -23,7 +24,20 @@ create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensi
     require(stringr)
 
     # Filter the posthoc_result dataframe based on the selected metabolite and interaction
-    filtered_posthoc <- dplyr::filter(posthoc_data_long_df, ID == selected_metabolite & Interaction %in% selected_interaction)
+    filtered_posthoc <- tryCatch({
+      dplyr::filter(
+        posthoc_data_long_df,
+        ID == selected_metabolite & Interaction %in% selected_interaction & Comparison %in% selected_comparisons
+      )
+    }, error = function(e) {
+      message("Error filtering posthoc data: ", e)
+      showNotification("Failed to filter posthoc data. Please check the selected interaction and comparisons.", duration = 10, type = 'error', closeButton = TRUE)
+      return(NULL)
+    })
+    
+    if (is.null(filtered_posthoc)) {
+      return(NULL)
+    }
 
     if (nrow(filtered_posthoc) == 0) {
       message("No posthoc data found for the selected metabolite and interaction.")
@@ -38,6 +52,7 @@ create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensi
                     group2 = sub(".*:", "", Comparison))
 
     selected_interaction <- unique(filtered_posthoc$Interaction)
+    all_groups <- unique(c(filtered_posthoc$group1, filtered_posthoc$group2))
 
     # Filter the intensity_data dataframe based on the selected metabolite
     filtered_intensity_data <- dplyr::filter(intensity_data, id == selected_metabolite)
@@ -51,6 +66,21 @@ create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensi
                                               cols = all_of(selected_interaction), 
                                               names_to = "Interaction", 
                                               values_to = "Groups")
+
+    long_intensity_data <- tryCatch({
+      long_intensity_data %>%
+        dplyr::filter(id == selected_metabolite) %>%
+        dplyr::filter(Interaction %in% selected_interaction) %>%
+        dplyr::filter(Groups %in% all_groups)
+    }, error = function(e) {
+      message("Error occurred while filtering intensity data: ", e$message)
+      return(NULL)
+    })
+
+    # Check if filtering was successful
+    if (is.null(long_intensity_data) || nrow(long_intensity_data) == 0) {
+      stop("No intensity data available for the selected criteria. Please check your selections.")
+    }
 
     # Create a custom sorting order based on selected_interactions
     interaction_order <- factor(selected_interaction, levels = unique(selected_interaction))
@@ -75,8 +105,11 @@ create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensi
         color = ifelse(adj.p < 0.05, "red", "black")  # Set color based on adj.p value
       )
 
-    # Set y-position to the maximum value present in the value column
-    max_value <- max(filtered_intensity_data$value, na.rm = TRUE) * 1.05
+    # Calculate maximum value present in the value column
+    max_value <- max(filtered_intensity_data$value, na.rm = TRUE)
+
+    # Determine the upper limit for the y-axis to ensure all p-value brackets are visible
+    max_bracket_y <- max_value * 1.05
 
     # Adjust axis labels and rotation based on plot_axis_rotation
     if (plot_axis_rotation) {
@@ -91,19 +124,25 @@ create_pairwise_posthoc_boxplot <- function(posthoc_data_long_df = NULL, intensi
       labels_fun <- waiver()
     }
 
+    # Define y-axis limits to control the height of the boxplots and p-value brackets
+    # y_limit_lower <- min(filtered_intensity_data$value, na.rm = TRUE) * 0.95
+    # y_limit_upper <- max_bracket_y * 1.2 # Adjusted to ensure p-value brackets are visible
+
     # Create the box plot and add p-values
     p <- ggboxplot(filtered_intensity_data, x = "Groups", y = "value", fill = "Groups") +
       stat_pvalue_manual(
         filtered_posthoc,
-        y.position = max_value, step.increase = 0.2,
+        y.position = max_bracket_y, step.increase = 0.15, # Reduced step increase for better spacing
         label = "label",
         color = "color"
       ) +
       scale_color_identity() +
       labs(
         x = paste(selected_metabolite, "\n", selected_interaction),
-        y = "Normalized Intensity") +
+        y = "Normalized Intensity"
+      ) +
       scale_x_discrete(labels = labels_fun) + # Apply wrapping function if rotation is enabled
+      # ylim(y_limit_lower, y_limit_upper) + # Set y-axis limits
       theme_minimal() +
       theme(
         axis.title.x = element_text(size = 16),
