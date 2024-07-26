@@ -249,6 +249,32 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = 0.05, interaction_type 
   significance_table <- base::table(anova_data$threshold)
   print (significance_table)
   
+  format_count_string <- function(threshold, category, significance_table) {
+    count <- significance_table[as.character(category), as.character(threshold)]
+    paste0(threshold, ":", category, " (", count, ")")
+  }
+
+  # Check if category_col is provided and exists in the data
+  if (!is.null(category_col) && category_col %in% colnames(anova_data)) {
+    # Create a contingency table
+    significance_table <- table(anova_data[[category_col]], anova_data$threshold)
+    print(significance_table)
+
+    anova_data$threshold_with_count <- sapply(1:nrow(anova_data), function(i) {
+      category <- anova_data[[category_col]][i]
+      threshold <- anova_data$threshold[i]
+      format_count_string(threshold, category, significance_table)
+    })
+  } else {
+    # If no category_col is provided, use the original method
+    significance_table <- table(anova_data$threshold)
+    print(significance_table)
+    
+    anova_data$threshold_with_count <- sapply(anova_data$threshold, function(x) {
+      paste(x, significance_table[x], sep = ": ")
+    })
+  }
+  
   anova_data <- anova_data[!is.infinite(anova_data[, "P.Value"]), ]
   anova_data <- anova_data[!sapply(anova_data[, "P.Value"], anyNA), ]
   
@@ -300,11 +326,26 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = 0.05, interaction_type 
     } 
     if (!identical(category_col, NULL)){
       anova_data[[category_col]][unlist(lapply(anova_data[[category_col]], function(x) x %in% c(NA, "NA", "")))] <- "NA"
-      anova_data$category_sym <- anova_data[[category_col]]                                             
+      anova_data$category_sym <- as.integer(factor(anova_data[[category_col]]))  # Convert to integer for symbol mapping
     }
   }
   
-  significance_color <- c("grey", "red")  
+  # Extract unique entries from threshold_with_count
+  unique_thresholds <- unique(anova_data$threshold_with_count)
+
+  # Function to determine color based on the suffix
+  get_color_for_entry <- function(entry) {
+    if (grepl("not significant", entry)) {
+      return("grey")
+    } else if (grepl("significant", entry)) {
+      return("red")
+    } else {
+      return("grey")  # Default color
+    }
+  }
+
+  # Create a color mapping
+  significance_color <- setNames(sapply(unique_thresholds, get_color_for_entry), unique_thresholds)
   xaxis_lab_gg <- latex2exp::TeX("$Features$")
   xaxis_lab_pl <- plotly::TeX("\\text{Features}")
   yaxis_lab_gg <- latex2exp::TeX("$-\\log_{10}(p \\, value)$")
@@ -346,7 +387,7 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = 0.05, interaction_type 
                            customdata = ~id, type = "scattergl", mode = "markers", size = ~marker_size, 
                            fill = ~'', sizes = marker_size_range,
                            marker = list(sizemode = 'diameter', opacity = marker_opacity),
-                           color = ~threshold, colors = significance_color,
+                           color = ~threshold_with_count, colors = significance_color,
                            symbol = ~category_sym, text = ~text_hover)
     }
     else {
@@ -354,7 +395,7 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = 0.05, interaction_type 
                            x = stats::as.formula(paste0("~", x_col)), y = stats::as.formula(paste0("~", y_col)),
                            customdata = ~id, type = "scattergl", mode = "markers",
                            marker = list(size = marker_size, sizemode = 'diameter', opacity = marker_opacity),
-                           color = ~threshold, colors = significance_color,
+                           color = ~threshold_with_count, colors = significance_color,
                            symbol = ~category_sym, text = ~text_hover)        
     }
     
@@ -364,7 +405,11 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = 0.05, interaction_type 
         yaxis = list(title = y_label),
         xaxis = list(title = x_label),
         annotations = a,
-        showlegend = TRUE
+        showlegend = TRUE,
+        legend = list(
+          title = list(text = "Significance"),
+          traceorder = "normal"
+        )
       ) %>%
       add_annotations(text="Significance", xref="paper", yref="paper",
                       x=1.04, xanchor="left",
