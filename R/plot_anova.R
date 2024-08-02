@@ -271,7 +271,8 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = 0.05, interaction_type 
     print(significance_table)
     
     anova_data$threshold_with_count <- sapply(anova_data$threshold, function(x) {
-      paste(x, significance_table[x], sep = ": ")
+      count <- significance_table[as.character(x)]
+      paste0(x, " (", count, ")")
     })
   }
   
@@ -405,11 +406,7 @@ plot_anova <- function(anova_data = NULL, p_val_cutoff = 0.05, interaction_type 
         yaxis = list(title = y_label),
         xaxis = list(title = x_label),
         annotations = a,
-        showlegend = TRUE,
-        legend = list(
-          title = list(text = "Significance"),
-          traceorder = "normal"
-        )
+        showlegend = TRUE
       ) %>%
       add_annotations(text="Significance", xref="paper", yref="paper",
                       x=1.04, xanchor="left",
