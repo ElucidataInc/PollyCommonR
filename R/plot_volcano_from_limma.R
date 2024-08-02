@@ -269,6 +269,33 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = 1, p_val_cut
   row.names(diff_exp) <- diff_exp$id
   significance_table <- base::table(diff_exp$threshold)
   print (significance_table)
+
+  format_count_string <- function(threshold, category, significance_table) {
+    count <- significance_table[as.character(category), as.character(threshold)]
+    paste0(threshold, ":", category, " (", count, ")")
+  }
+
+  # Check if category_col is provided and exists in the data
+  if (!is.null(category_col) && category_col %in% colnames(diff_exp)) {
+    # Create a contingency table
+    significance_table <- table(diff_exp[[category_col]], diff_exp$threshold)
+    print(significance_table)
+
+    diff_exp$threshold_with_count <- sapply(1:nrow(diff_exp), function(i) {
+      category <- diff_exp[[category_col]][i]
+      threshold <- diff_exp$threshold[i]
+      format_count_string(threshold, category, significance_table)
+    })
+  } else {
+    # If no category_col is provided, use the original method
+    significance_table <- table(diff_exp$threshold)
+    print(significance_table)
+
+    diff_exp$threshold_with_count <- sapply(diff_exp$threshold, function(x) {
+      count <- significance_table[as.character(x)]
+      paste0(x, " (", count, ")")
+    })
+  }
   
   diff_exp <- diff_exp[!is.infinite(rowSums(diff_exp[, required_cols])), ]
   diff_exp <- diff_exp[!apply(diff_exp[, required_cols], 1, anyNA), ]
@@ -319,11 +346,26 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = 1, p_val_cut
     } 
     if (!identical(category_col, NULL)){
       diff_exp[[category_col]][unlist(lapply(diff_exp[[category_col]], function(x) x %in% c(NA, "NA", "")))] <- "NA"
-      diff_exp$category_sym <- diff_exp[[category_col]]                                             
+      diff_exp$category_sym <- as.integer(factor(diff_exp[[category_col]])) # Convert to integer for symbol mapping                                             
     }
   }
   
-  significance_color <- c("grey", "red")  
+  # Extract unique entries from threshold_with_count
+  unique_thresholds <- unique(diff_exp$threshold_with_count)
+
+  # Function to determine color based on the suffix
+  get_color_for_entry <- function(entry) {
+    if (grepl("not significant", entry)) {
+      return("grey")
+    } else if (grepl("significant", entry)) {
+      return("red")
+    } else {
+      return("grey")  # Default color
+    }
+  }
+
+  # Create a color mapping
+  significance_color <- setNames(sapply(unique_thresholds, get_color_for_entry), unique_thresholds)
   xaxis_lab_gg <- latex2exp::TeX("$\\log_{2}(fold \\, change)$")
   xaxis_lab_pl <- plotly::TeX("\\log_{2}(\\text{fold change})")                                         
   if(identical(p_val_type, "P.Value")){
@@ -371,7 +413,7 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = 1, p_val_cut
                            customdata = ~id, type = "scattergl", mode = "markers", size = ~marker_size, 
                            fill = ~'', sizes = marker_size_range,
                            marker = list(sizemode = 'diameter', opacity = marker_opacity),
-                           color = ~threshold, colors = significance_color,
+                           color = ~threshold_with_count, colors = significance_color,
                            symbol = ~category_sym, text = ~text_hover)
     }
     else {
@@ -379,7 +421,7 @@ plot_volcano_from_limma <- function(diff_exp = NULL, log2fc_range = 1, p_val_cut
                            x = stats::as.formula(paste0("~", x_col)), y = stats::as.formula(paste0("~", y_col)),
                            customdata = ~id, type = "scattergl", mode = "markers",
                            marker = list(size = marker_size, sizemode = 'diameter', opacity = marker_opacity),
-                           color = ~threshold, colors = significance_color,
+                           color = ~threshold_with_count, colors = significance_color,
                            symbol = ~category_sym, text = ~text_hover)        
     }  
     
