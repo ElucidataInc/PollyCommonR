@@ -127,35 +127,43 @@ compute_anova <- function(norm_data = NULL, metadata = NULL, cohort_col = "Cohor
   names(anova_interactions) <- get_anova_interactions(names(anova_cohort_cols))
   
   anova_data <- data.frame(stringsAsFactors = FALSE, check.names = FALSE)  
-  run_anova <- function(anova_input_df = NULL, anova_cohort_cols = NULL, anova_interactions = NULL){ 
+  prebuilt_frm <- stats::formula(
+    paste("value", paste(names(anova_cohort_cols), collapse = " * "), sep = " ~ ")
+  )
+
+  run_anova <- function(anova_input_df = NULL, anova_cohort_cols = NULL, anova_interactions = NULL){
     row_anova <- NULL
     anova_r <- NULL
-    tryCatch({  
-      anova_input_df <- anova_input_df[apply(anova_input_df, 1, function(x) is.finite(as.numeric(x[['value']]))), , drop = FALSE]                                       
-      frm <- paste("value", paste(names(anova_cohort_cols), collapse = " * "), sep = " ~ ")
-      anv_lm <- stats::lm(stats::formula(frm), anova_input_df)
-      aov_obj <- stats::aov(anv_lm)
-      anova_r <- summary(aov_obj)[[1]]
-      anova_r <- data.frame(interaction = stringr::str_trim(row.names(anova_r)), anova_r[, c("F value", "Pr(>F)")], stringsAsFactors = FALSE, check.names = FALSE)
-      anova_r <- anova_r[!stringr::str_trim(row.names(anova_r)) %in% c("Residuals"), , drop = FALSE]
-      colnames(anova_r) <- c("interaction", "F.Value", "P.Value")
+    tryCatch({
+      finite_mask    <- is.finite(as.numeric(anova_input_df[["value"]]))
+      anova_input_df <- anova_input_df[finite_mask, , drop = FALSE]
+
+      aov_obj <- stats::aov(prebuilt_frm, data = anova_input_df)
+
+      anova_r <- unclass(summary(aov_obj))[[1]]
+
+      rnames  <- trimws(row.names(anova_r))
+      keep    <- rnames != "Residuals"
+      anova_r <- data.frame(
+        interaction = rnames[keep],
+        F.Value     = anova_r[keep, "F value"],
+        P.Value     = anova_r[keep, "Pr(>F)"],
+        stringsAsFactors = FALSE, check.names = FALSE)
       row.names(anova_r) <- NULL
       
-      diff_interaction <- base::setdiff(names(anova_interactions), anova_r$interaction)                                                
+      diff_interaction <- base::setdiff(names(anova_interactions), anova_r$interaction)
       if (length(diff_interaction) > 0){
         interm_anova_df <- data.frame(interaction = diff_interaction, F.Value = NA, P.Value = NA, stringsAsFactors = FALSE, check.names = FALSE)
         anova_r <- rbind(anova_r, interm_anova_df)
       }
-      row_anova <- anova_r                                     
+      row_anova <- anova_r 
     }, 
     error = function(cond) {message(paste("\nCannot run anova, caused an error: ", cond))}
     )
-    
     if (identical(row_anova, NULL) | !(all(c("interaction", "F.Value", "P.Value") %in% colnames(row_anova)))){
       row_anova <- data.frame(interaction = names(anova_interactions), F.Value = NA, P.Value = NA, stringsAsFactors = FALSE, check.names = FALSE)
     }
-    
-    return (row_anova)                                   
+    return (row_anova)
   }
   
   convert_wide_to_long <- function(data_mat = NULL, metadata = NULL){                                          
