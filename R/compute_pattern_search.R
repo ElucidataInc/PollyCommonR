@@ -97,35 +97,9 @@ run_pattern_search_from_gct <- function(norm_mat,
   new.template <- new.template[match(common_samples, names(cls))]
 
   # Correlate
-  is.partial <- grepl("^p-|^partial_", dist.name)
-
-  if (is.partial) {
-    if (!requireNamespace("ppcor", quietly = TRUE))
-      stop("Package 'ppcor' is required for partial correlation. ",
-           "Run: install.packages('ppcor')")
-    method     <- sub("^(p-|partial_)", "", dist.name)
-    method     <- match.arg(method, c("pearson", "spearman"))
-    feat.names <- colnames(norm_mat)
-    cor.res    <- matrix(NA_real_, nrow = ncol(norm_mat), ncol = 3,
-                         dimnames = list(feat.names,
-                                         c("correlation", "t-stat", "p-value")))
-    for (j in seq_along(feat.names)) {
-      x_j      <- norm_mat[, j]
-      z_j      <- norm_mat[, -j, drop = FALSE]
-      complete <- complete.cases(x_j, new.template, z_j)
-      if (sum(complete) < 5) next
-      ans <- tryCatch(
-        ppcor::pcor.test(x_j[complete], new.template[complete],
-                         z_j[complete, ], method = method),
-        error = function(e) NULL
-      )
-      if (!is.null(ans))
-        cor.res[j, ] <- c(ans$estimate, ans$statistic, ans$p.value)
-    }
-  } else {
-    tmp     <- apply(norm_mat, 2, template.match, new.template, dist.name)
-    cor.res <- t(tmp)
-  }
+  tmp     <- apply(norm_mat, 2, template.match, new.template, dist.name)
+  cor.res <- t(tmp)
+  
 
   # FDR, sort, round
   rownames(cor.res) <- colnames(norm_mat)
@@ -179,44 +153,9 @@ run_feature_correlation_from_gct <- function(norm_mat,
     stop(paste0("Metabolite '", query_feature, "' has zero variance — cannot correlate."))
 
   # ── Correlate all features against the query feature ─────────────────────
-  is.partial <- grepl("^p-|^partial_", dist.name)
-
-  if (is.partial) {
-    if (!requireNamespace("ppcor", quietly = TRUE))
-      stop("Package 'ppcor' is required for partial correlation. ",
-           "Run: install.packages('ppcor')")
-    method   <- sub("^(p-|partial_)", "", dist.name)
-    method   <- match.arg(method, c("pearson", "spearman"))
-
-    # Exclude query feature from the search space for partial correlation
-    features <- setdiff(colnames(norm_mat), query_feature)
-    cor.res  <- matrix(NA_real_, nrow = length(features), ncol = 3,
-                       dimnames = list(features,
-                                       c("correlation", "t-stat", "p-value")))
-
-    for (i in seq_along(features)) {
-      test_vec  <- norm_mat[, features[i]]
-      cond_vars <- norm_mat[, setdiff(features, features[i]), drop = FALSE]
-      complete  <- complete.cases(test_vec, target.vec, cond_vars)
-      if (sum(complete) < 5) next
-      ans <- tryCatch(
-        ppcor::pcor.test(
-          x = test_vec[complete],
-          y = target.vec[complete],
-          z = cond_vars[complete, , drop = FALSE],
-          method = method
-        ),
-        error = function(e) NULL
-      )
-      if (!is.null(ans))
-        cor.res[i, ] <- c(ans$estimate, ans$statistic, ans$p.value)
-    }
-
-  } else {
-    # Ordinary correlation — vectorised, fast.
-    tmp     <- apply(norm_mat, 2, template.match, target.vec, dist.name)
-    cor.res <- t(tmp)
-  }
+  tmp     <- apply(norm_mat, 2, template.match, target.vec, dist.name)
+  cor.res <- t(tmp)
+  
 
   # ── FDR, sort, round — identical to run_pattern_search_from_gct ──────────
   cor.res <- cor.res[!is.na(cor.res[, 3]), , drop = FALSE]
