@@ -33,4 +33,3 @@ character(1) — markdown string
 Builds the markdown string for the parameters report entry.
 Called in the run button handler immediately after results are stored.
 }
-\keyword{internal}

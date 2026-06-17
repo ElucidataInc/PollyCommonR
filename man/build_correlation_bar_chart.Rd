@@ -21,4 +21,3 @@ Create a horizontal bar chart for correlation results
 Takes the top 25 results by p-value and re-sorts by correlation magnitude.
 Positive correlations shown in red, negative in cyan.
 }
-\keyword{internal}

@@ -35,4 +35,3 @@ norm_mat rows and metadata_df rows must already be aligned (same samples,
 same order) — PollyCommonR::sample_intensity_matrix() in the server
 guarantees this before this function is called.
 }
-\keyword{internal}

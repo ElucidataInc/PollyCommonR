@@ -25,7 +25,8 @@ template.match <- function(x, template, dist.name) {
 #' @param pattern      character(1) — e.g. "1-2-3", NULL auto-generates
 #' @param dist.name    character(1) — "pearson", "spearman", or "kendall"
 #' @return list(cor_mat, pattern, method, groups) or stops with message
-#' @keywords internal
+#' @importFrom stats cor.test p.adjust complete.cases
+#' @export
 run_pattern_search_from_gct <- function(norm_mat,
                                          metadata_df,
                                          cohort_col,
@@ -153,7 +154,8 @@ run_pattern_search_from_gct <- function(norm_mat,
 #'                      Prefix "p-" or "partial_" for partial correlation
 #' @return list(cor_mat, pattern, method, groups) — same structure as
 #'         run_pattern_search_from_gct so the run button handler is identical
-#' @keywords internal
+#' @importFrom stats cor.test p.adjust complete.cases sd
+#' @export
 run_feature_correlation_from_gct <- function(norm_mat,
                                               query_feature,
                                               dist.name = "pearson") {
@@ -249,7 +251,7 @@ run_feature_correlation_from_gct <- function(norm_mat,
 #' @param pattern          character(1) — e.g. "1-2-3"
 #' @param dist.name        character(1) — correlation method
 #' @return list(cor_mat, pattern, method, groups) or NULL on error
-#' @keywords internal
+#' @export
 compute_pattern_search <- function(norm_gct_object,
                                     cohort_col,
                                     pattern   = NULL,
@@ -310,7 +312,7 @@ compute_pattern_search <- function(norm_gct_object,
 #' @param dist_method character — correlation method used
 #' @param n_features  integer — number of features in the result
 #' @return character(1) — markdown string
-#' @keywords internal
+#' @export
 create_pattern_search_markdown <- function(mode        = NULL,
                                             cohort_col  = NULL,
                                             cohorts     = NULL,
@@ -354,7 +356,7 @@ create_pattern_search_markdown <- function(mode        = NULL,
 #' @details
 #' Takes the top 25 results by p-value and re-sorts by correlation magnitude.
 #' Positive correlations shown in red, negative in cyan.
-#' @keywords internal
+#' @export
 build_correlation_bar_chart <- function(cor_mat, title = "Pattern Search Results") {
 
   if (is.null(cor_mat) || nrow(cor_mat) == 0)

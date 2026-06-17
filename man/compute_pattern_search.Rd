@@ -32,4 +32,3 @@ sample_intensity_matrix before calling run_pattern_search_from_gct.
 This function is provided for cases where you want to call the algorithm
 directly without the full filter flow (e.g. scripted batch runs).
 }
-\keyword{internal}

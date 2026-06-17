@@ -29,4 +29,3 @@ list(cor_mat, pattern, method, groups) — same structure as
 \description{
 run_feature_correlation_from_gct
 }
-\keyword{internal}
